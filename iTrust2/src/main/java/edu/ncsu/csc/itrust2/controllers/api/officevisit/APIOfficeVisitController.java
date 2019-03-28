@@ -36,7 +36,7 @@ public class APIOfficeVisitController extends APIController {
      * @return list of office visits
      */
     @GetMapping ( BASE_PATH + "/officevisits" )
-    @PreAuthorize ( "hasRole('ROLE_HCP') or hasRole('ROLE_OD') or hasRole('ROLE_OPH')" )
+    @PreAuthorize ( "hasRole('ROLE_HCP') or hasRole('ROLE_OD') or hasRole('ROLE_OPH') or hasRole('ROLE_OBGYN')" )
     public List<OfficeVisit> getOfficeVisits () {
         // append all other office visits here.
         return OfficeVisit.getOfficeVisits();
@@ -58,6 +58,10 @@ public class APIOfficeVisitController extends APIController {
         else if ( self.getRole() == Role.ROLE_OD ) {
             visits.addAll( OfficeVisit.getForType( AppointmentType.GENERAL_OPHTHALMOLOGY ) );
         }
+        // TODO
+        // Create if statement that returns special appointments assoc. with
+        // OBGYN (UC25)
+
         return visits;
     }
 
@@ -79,12 +83,13 @@ public class APIOfficeVisitController extends APIController {
      * caution before calling it
      */
     @DeleteMapping ( BASE_PATH + "/officevisits" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
     public void deleteOfficeVisits () {
         LoggerUtil.log( TransactionType.DELETE_ALL_OFFICE_VISITS, LoggerUtil.currentUser() );
         GeneralCheckup.deleteAll();
         DomainObject.deleteAll( OphthalmologySurgery.class );
         DomainObject.deleteAll( GeneralOphthalmology.class );
+        // TODO possibly for deleting all OBGYN office visits
     }
 
 }
