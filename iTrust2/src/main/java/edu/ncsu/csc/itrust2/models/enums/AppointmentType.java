@@ -23,6 +23,11 @@ public enum AppointmentType {
      */
     OPHTHALMOLOGY_SURGERY ( 3 ),
 
+    /**
+     * Obstetrics visit
+     */
+    OBGYN_OFFICE_VISIT ( 4 )
+
     ;
 
     /**
