@@ -97,6 +97,8 @@
                   $scope.selectedVisit.houseSmokingStatus = $scope.visits[i].basicHealthMetrics.houseSmokingStatus;
                   $scope.selectedVisit.patientSmokingStatus = $scope.visits[i].basicHealthMetrics.patientSmokingStatus;
                   
+                  
+                  
                   validateBasicHealthMetrics();
 
                   // Eye health metrics
@@ -108,16 +110,23 @@
                   $scope.selectedVisit.cylinderOD = $scope.visits[i].cylinderOD;
                   $scope.selectedVisit.axisOS = $scope.visits[i].axisOS;
                   $scope.selectedVisit.axisOD = $scope.visits[i].axisOD;
+                  
+                  
+                  
                   $scope.selectedVisit.eyeDiagnoses = undefined;
                   if($scope.visits[i].diagnosis !== undefined && $scope.visits[i].diagnosis !== "")
                   	$scope.selectedVisit.eyeDiagnoses = $scope.visits[i].diagnosis.split(",");
                   $scope.selectedVisit.surgeryType = $scope.visits[i].surgeryType;
+                  
+         
 
                   // Diagnoses
                   if ($scope.selectedVisit.type == 'GENERAL_CHECKUP') {
                     $http.get("/iTrust2/api/v1/diagnosesforvisit/" + $scope.selectedVisitID).then(
                       function (response) {
                         $scope.diagnosesResponse = response.data;
+                       
+                        
                         for (var i = 0; i < $scope.diagnosesResponse.length; i++) {
                           $scope.diagnoses.push({
                             note: $scope.diagnosesResponse[i].note,
@@ -187,7 +196,11 @@
                 		  $http.get("/iTrust2/api/v1/ObstetricsVisit/" + $scope.selectedVisitID).then(
                                   function (response) {
                                     $scope.visitResponse = response.data;
+                                    
+                                    console.log(response.data);
+                                    
                                     for (var i = 0; i < $scope.visitResponse.length; i++) {
+                                    
                                       $scope.diagnoses.push({
                                         numOfWeeksPreg: $scope.visitResponse[i].numOfWeeksPreg,
                                         fetalHeartRate: $scope.visitResponse[i].fetalHeartRate,
