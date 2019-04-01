@@ -58,9 +58,9 @@ public class APIOfficeVisitController extends APIController {
         else if ( self.getRole() == Role.ROLE_OD ) {
             visits.addAll( OfficeVisit.getForType( AppointmentType.GENERAL_OPHTHALMOLOGY ) );
         }
-        // TODO
-        // Create if statement that returns special appointments assoc. with
-        // OBGYN (UC25)
+        else if ( self.getRole() == Role.ROLE_OBGYN ) {
+            visits.addAll( OfficeVisit.getForType( AppointmentType.OBGYN_OFFICE_VISIT ) );
+        }
 
         return visits;
     }
