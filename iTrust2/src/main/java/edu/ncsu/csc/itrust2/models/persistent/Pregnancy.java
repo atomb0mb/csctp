@@ -87,52 +87,26 @@ public class Pregnancy extends DomainObject<Pregnancy> implements Serializable {
     }
 
     /**
+     * Returns the Pregnancy objects for a patient based on username of the
+     * patient
+     *
+     * @param patient
+     *            the username of the patient whose ObstetricsRecord is being
+     *            searched for
+     * @return the ObstetricsRecord for the patient
+     */
+    @SuppressWarnings ( "unchecked" )
+    public static List<Pregnancy> getByPatient ( final String patient ) {
+        final Vector<Criterion> criteria = new Vector<Criterion>();
+        criteria.add( eq( "patient", patient ) );
+
+        return (List<Pregnancy>) getWhere( Pregnancy.class, criteria );
+    }
+
+    /**
      * Empty Constructor
      */
     public Pregnancy () {
-    }
-
-    /**
-     * Initializes a new pregnancy using manually input values for all possible
-     * data points
-     *
-     * @param year
-     *            - the year the pregnancy was conceived
-     * @param nwp
-     *            - the number of weeks the patient was pregnant
-     * @param nhl
-     *            - the number of hours the patient was in labor
-     * @param dm
-     *            - one of three delivery methods from the matching enumeration
-     * @param twins
-     *            - T if the patient had twins, false if not
-     * @param patient
-     *            - the username of the patient that had the pregnancy
-     */
-    public Pregnancy ( final int year, final int nwp, final int nhl, final DeliveryMethod dm, final boolean twins,
-            final String patient ) {
-        setConceptionYear( year );
-        setNumWeeksPregnant( nwp );
-        setNumHoursLabor( nhl );
-        setDeliverMethod( dm );
-        setTwins( twins );
-        setPatient( patient );
-    }
-
-    /**
-     * Constructs a new Pregnancy using the data points from the one passed in
-     *
-     * @param p
-     *            - the pregnancy to read in
-     */
-    public Pregnancy ( final Pregnancy p ) {
-        setConceptionYear( p.getConceptionYear() );
-        setNumWeeksPregnant( p.getNumberOfWeeksPregnant() );
-        setNumHoursLabor( p.getNumberOfHoursInLabor() );
-        setDeliverMethod( p.getDeliveryMethod() );
-        setTwins( p.getIsTwins() );
-        setPatient( p.getPatient() );
-        setId( p.getId() );
     }
 
     /**
@@ -148,23 +122,6 @@ public class Pregnancy extends DomainObject<Pregnancy> implements Serializable {
         setNumHoursLabor( pForm.getNumHoursInLabor() );
         setDeliverMethod( pForm.getDeliveryMethod() );
         setTwins( pForm.getIsTwins() );
-    }
-
-    /**
-     * Returns the Pregnancy objects for a patient based on username of the
-     * patient
-     *
-     * @param patient
-     *            the username of the patient whose ObstetricsRecord is being
-     *            searched for
-     * @return the ObstetricsRecord for the patient
-     */
-    @SuppressWarnings ( "unchecked" )
-    public static List<Pregnancy> getByPatient ( final String patient ) {
-        final Vector<Criterion> criteria = new Vector<Criterion>();
-        criteria.add( eq( "patient", patient ) );
-
-        return (List<Pregnancy>) getWhere( Pregnancy.class, criteria );
     }
 
     /**
