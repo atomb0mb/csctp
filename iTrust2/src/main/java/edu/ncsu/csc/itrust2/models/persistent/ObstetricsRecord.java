@@ -2,6 +2,7 @@ package edu.ncsu.csc.itrust2.models.persistent;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Vector;
 
 import javax.persistence.Basic;
@@ -95,11 +96,12 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
      *            searched for
      * @return the ObstetricsRecord for the patient
      */
-    public static ObstetricsRecord getByPatient ( final String patient ) {
+    @SuppressWarnings ( "unchecked" )
+    public static List<ObstetricsRecord> getByPatient ( final String patient ) {
         final Vector<Criterion> criteria = new Vector<Criterion>();
         criteria.add( eq( "patient", patient ) );
 
-        return (ObstetricsRecord) getWhere( ObstetricsRecord.class, criteria );
+        return (List<ObstetricsRecord>) getWhere( ObstetricsRecord.class, criteria );
     }
 
     /**

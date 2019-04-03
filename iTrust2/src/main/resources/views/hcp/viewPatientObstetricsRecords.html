@@ -13,7 +13,6 @@
                 var app = angular.module('myApp', []);
                 app.controller('viewPatientObstetricsRecords', function ($scope, $http) {
                     $scope.Object = Object; // Allows for use of Object.keys()
-					//$scope.selectedPatient = {};
                     
                     // Display users' names
                     $scope.displayName = function (p) {
@@ -23,7 +22,6 @@
                     // documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
                     $scope.searchFilter = "";
                     $scope.filterPatients = function (patient) {
-                    	console.log(patient.gender);
                     	return ($scope.displayName(patient)).toLowerCase().match($scope.searchFilter.toLowerCase());
                     }
                     
@@ -39,17 +37,17 @@
                     
                     //Get data associated with selected patient
                     $scope.selectPatient = function (patient) {
-                        console.log("Here: ");
-                    	console.log($scope.selectedPatient);
                     	// Get past pregnancy info for patient
                         $http.get("/iTrust2/api/v1/pregnancies/" + $scope.selectedPatient)
                         	.then(
                             function (response) { // on success
+                            	console.log("Success pregnancy");
                             	$scope.priorPregnancies = response.data || {};
                                 console.log(response.data);
                                 $scope.message = "";
                             }, //if it failed
                             function (rejection) {
+                            	console.log("Fail pregnancy");
                             	$scope.priorPregnancies = [];
                                 $scope.message = "Could not display prior pregnancies.";
                             });
@@ -58,11 +56,13 @@
                         $http.get("/iTrust2/api/v1/obstetricsrecord/" + $scope.selectedPatient)
                         	.then(
                             function (response) { // on success
-                                $scope.currentPregnancy = response.data || {};
+                            	console.log("Success obst records");
+                            	$scope.currentPregnancy = response.data || {};
                                 $scope.message = "";
                             }, //if it failed
                             function (rejection) {
-                                $scope.currentPregnancy = [];
+                            	console.log("Fail obst records");
+                            	$scope.currentPregnancy = [];
                                 $scope.message = "Could not display current pregnancy.";
                             });
                      };
@@ -72,7 +72,7 @@
 
 		<div ng-app="myApp" ng-controller="viewPatientObstetricsRecords" class="row">
 			<div class="col-md-3">
-				<h2>Patients: C</h2>
+				<h2>Patients: hello</h2>
 				<!-- info on filtering taken from here: https://www.w3schools.com/angular/angular_filters.asp
                     and https://docs.angularjs.org/api/ng/filter/filter -->
 				<h4>
@@ -126,7 +126,7 @@
 						</p>
 
 
-						<p
+						 <p
 							ng-show="priorPregnancies && Object.keys(priorPregnancies).length > 0">
 							<b>Prior Pregnancies</b>
 						</p>

@@ -2,6 +2,7 @@ package edu.ncsu.csc.itrust2.models.persistent;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Vector;
 
 import javax.persistence.Entity;
@@ -108,7 +109,8 @@ public class Pregnancy extends DomainObject<Pregnancy> implements Serializable {
      * @param patient
      *            - the username of the patient that had the pregnancy
      */
-    public Pregnancy ( int year, int nwp, int nhl, DeliveryMethod dm, boolean twins, String patient ) {
+    public Pregnancy ( final int year, final int nwp, final int nhl, final DeliveryMethod dm, final boolean twins,
+            final String patient ) {
         setConceptionYear( year );
         setNumWeeksPregnant( nwp );
         setNumHoursLabor( nhl );
@@ -157,11 +159,12 @@ public class Pregnancy extends DomainObject<Pregnancy> implements Serializable {
      *            searched for
      * @return the ObstetricsRecord for the patient
      */
-    public static Pregnancy getByPatient ( final String patient ) {
+    @SuppressWarnings ( "unchecked" )
+    public static List<Pregnancy> getByPatient ( final String patient ) {
         final Vector<Criterion> criteria = new Vector<Criterion>();
         criteria.add( eq( "patient", patient ) );
 
-        return (Pregnancy) getWhere( Pregnancy.class, criteria );
+        return (List<Pregnancy>) getWhere( Pregnancy.class, criteria );
     }
 
     /**

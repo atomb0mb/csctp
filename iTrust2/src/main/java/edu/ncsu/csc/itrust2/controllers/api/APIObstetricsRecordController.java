@@ -67,7 +67,7 @@ public class APIObstetricsRecordController extends APIController {
      */
     @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
     @PostMapping ( BASE_PATH + "/pregnancy/{patient}" )
-    public ResponseEntity createPregnancy ( @PathVariable final String patient, PregnancyForm pForm ) {
+    public ResponseEntity createPregnancy ( @PathVariable final String patient, final PregnancyForm pForm ) {
         try {
             final Pregnancy pregnancy = new Pregnancy( pForm );
             pregnancy.setPatient( patient );
@@ -89,7 +89,7 @@ public class APIObstetricsRecordController extends APIController {
      * @return ResponseEntity with the ObstetricsRecord for the patient, or an
      *         error message if cannot be found
      */
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', ROLE_OBGYN)" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
     @GetMapping ( BASE_PATH + "/obstetricsrecord/{patient}" )
     public ResponseEntity getObstetricsRecordHCP ( @PathVariable final String patient ) {
         if ( null == Patient.getByName( patient ) ) {

@@ -36,8 +36,6 @@
                                     // Get diary entries for selected patient
                                     $http.get("/iTrust2/api/v1/diary/" + $scope.selectedPatient).then(
                                         function (response) {
-                                        	console.log("Food diary");
-                                        	console.log($scope.selectedPatient);
                                             $scope.diaryEntries = response.data || {};
                                             $scope.diaryEntries = $scope.groupDates($scope.diaryEntries, 'date');
                                             $scope.message = "";
