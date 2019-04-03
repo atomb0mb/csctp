@@ -18,125 +18,229 @@ import edu.ncsu.csc.itrust2.models.persistent.OfficeVisit;
 
 /**
  * Step defs that define the tests for editing an office visit
- * 
+ *
  * @author jltalare
  *
  */
 public class HCPEditsOfficeVisitStepDefs extends CucumberTest {
 
-	private final String baseUrl = "http://localhost:8080/iTrust2";
-	private final String ophHcpString = "bobbyOPH";
-	private final String patientString = "bobby";
+    private final String baseUrl       = "http://localhost:8080/iTrust2";
+    private final String ophHcpString  = "bobbyOPH";
+    private final String patientString = "bobby";
 
-	/**
-	 * Asserts that the text is on the page
-	 *
-	 * @param text
-	 *            text to check
-	 */
-	public void assertTextPresent(final String text) {
-		try {
-			assertTrue(driver.getPageSource().contains(text));
-		} catch (final Exception e) {
-			fail();
-		}
-	}
+    /**
+     * Asserts that the text is on the page
+     *
+     * @param text
+     *            text to check
+     */
+    public void assertTextPresent ( final String text ) {
+        try {
+            assertTrue( driver.getPageSource().contains( text ) );
+        }
+        catch ( final Exception e ) {
+            fail();
+        }
+    }
 
-	/**
-	 * Logins in as an HCP and navigates to the Edit Office Visit page
-	 */
-	@Then("^The HCP logs in and navigates to the Edit Office Visit page$")
-	public void editPageLogin() {
-		attemptLogout();
+    /**
+     * Logins in as an HCP and navigates to the Edit Office Visit page
+     */
+    @Then ( "^The HCP logs in and navigates to the Edit Office Visit page$" )
+    public void editPageLogin () {
+        attemptLogout();
 
-		driver.get(baseUrl);
+        driver.get( baseUrl );
 
-		final WebElement username = driver.findElement(By.name("username"));
-		username.clear();
-		username.sendKeys(ophHcpString);
-		final WebElement password = driver.findElement(By.name("password"));
-		password.clear();
-		password.sendKeys("123456");
-		final WebElement submit = driver.findElement(By.className("btn"));
-		submit.click();
+        final WebElement username = driver.findElement( By.name( "username" ) );
+        username.clear();
+        username.sendKeys( ophHcpString );
+        final WebElement password = driver.findElement( By.name( "password" ) );
+        password.clear();
+        password.sendKeys( "123456" );
+        final WebElement submit = driver.findElement( By.className( "btn" ) );
+        submit.click();
 
-		assertEquals("iTrust2: HCP Home", driver.getTitle());
+        assertEquals( "iTrust2: HCP Home", driver.getTitle() );
 
-		((JavascriptExecutor) driver).executeScript("document.getElementById('editOfficeVisit').click();");
+        ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('editOfficeVisit').click();" );
 
-		assertEquals("iTrust2: Edit Office Visit", driver.getTitle());
-	}
+        assertEquals( "iTrust2: Edit Office Visit", driver.getTitle() );
+    }
 
-	/**
-	 * Selects an office visit on the editing office visit page
-	 */
-	@When("^The HCP selects the existing office visit$")
-	public void hcpSelectOfficeVisit() {
-		List<OfficeVisit> visits = OfficeVisit.getOfficeVisits();
-	    long targetId = 0;
+    /**
+     * Selects an office visit on the editing office visit page
+     */
+    @When ( "^The HCP selects the existing office visit$" )
+    public void hcpSelectOfficeVisit () {
+        final List<OfficeVisit> visits = OfficeVisit.getOfficeVisits();
+        long targetId = 0;
 
-	    for (int i = 0; i < visits.size(); i++) {
-	      if (visits.get(i).getType().equals(AppointmentType.GENERAL_OPHTHALMOLOGY) && visits.get(i).getPatient().getUsername().equals(patientString) ) {
-	        targetId = visits.get(i).getId();
-	      }
-	    }
+        for ( int i = 0; i < visits.size(); i++ ) {
+            if ( visits.get( i ).getType().equals( AppointmentType.GENERAL_OPHTHALMOLOGY )
+                    && visits.get( i ).getPatient().getUsername().equals( patientString ) ) {
+                targetId = visits.get( i ).getId();
+            }
+        }
 
-	    final WebElement elem = driver.findElement(By.cssSelector("input[value=\"" + targetId + "\"]"));
-	    elem.click();
-	}
+        final WebElement elem = driver.findElement( By.cssSelector( "input[value=\"" + targetId + "\"]" ) );
+        elem.click();
+    }
 
-	/**
-	 * Modifies the date and the height of the office visit
-	 * @param date the new date of the visit
-	 * @param height the new height of the patient
-	 */
-	@And("^The HCP modifies the date to be (.+), height (.+), and the left eye visual acuity (.+)$")
-	public void modifyingTheDate(final String date, final String height, final String visualAcuityOS ) {
-		waitForAngular();
-		
-		final WebElement dateElement = driver.findElement(By.name("date"));
-		dateElement.sendKeys(date.replace("/", ""));
+    /**
+     * Modifies the date and the height of the office visit
+     * 
+     * @param date
+     *            the new date of the visit
+     * @param height
+     *            the new height of the patient
+     */
+    @And ( "^The HCP modifies the date to be (.+), height (.+), and the left eye visual acuity (.+)$" )
+    public void modifyingTheDate ( final String date, final String height, final String visualAcuityOS ) {
+        waitForAngular();
 
-		driver.findElement(By.name("height")).clear();
-		driver.findElement(By.name("height")).sendKeys(height);
+        final WebElement dateElement = driver.findElement( By.name( "date" ) );
+        dateElement.sendKeys( date.replace( "/", "" ) );
 
-		driver.findElement( By.name( "VAL" ) ).clear();
-		driver.findElement( By.name( "VAL" ) ).sendKeys( visualAcuityOS );
-	}
+        driver.findElement( By.name( "height" ) ).clear();
+        driver.findElement( By.name( "height" ) ).sendKeys( height );
 
-	/**
-	 * Simulates clicking the submit button on the edit office visit page
-	 */
-	@And("^The HCP saves the office visit$")
-	public void hcpSavesOfficeVisit() {
-		driver.findElement(By.name("submit")).click();
-	}
+        driver.findElement( By.name( "VAL" ) ).clear();
+        driver.findElement( By.name( "VAL" ) ).sendKeys( visualAcuityOS );
+    }
 
-	/**
-	 * Checks if the changes were allowed to be made
-	 */
-	@Then("^The ophthalmology office visit is updated successfully$")
-	public void hcpSuccessfulOfficeVisit() {
-		// confirm that the message is displayed
-		try {
-			driver.findElement(By.name("success")).getText().contains("Office visit edited successfully");
-		} catch (final Exception e) {
-			fail();
-		}
-	}
+    /**
+     * Simulates clicking the submit button on the edit office visit page
+     */
+    @And ( "^The HCP saves the office visit$" )
+    public void hcpSavesOfficeVisit () {
+        driver.findElement( By.name( "submit" ) ).click();
+    }
 
-	/**
-	 * Checks if the changes were not allowed to be made
-	 */
-	@Then("^The ophthalmology office visit is not updated successfully$")
-	public void hcpUnsuccessfulOfficeVisit() {
-		// confirm that the error message is displayed
-		try {
-			final String temp = driver.findElement(By.name("errorMsg")).getText();
-			if (temp.equals("")) {
-				fail();
-			}
-		} catch (final Exception e) {
-		}
-	}
+    /**
+     * Checks if the changes were allowed to be made
+     */
+    @Then ( "^The ophthalmology office visit is updated successfully$" )
+    public void hcpSuccessfulOfficeVisit () {
+        // confirm that the message is displayed
+        try {
+            driver.findElement( By.name( "success" ) ).getText().contains( "Office visit edited successfully" );
+        }
+        catch ( final Exception e ) {
+            fail();
+        }
+    }
+
+    /**
+     * Checks if the changes were not allowed to be made
+     */
+    @Then ( "^The ophthalmology office visit is not updated successfully$" )
+    public void hcpUnsuccessfulOfficeVisit () {
+        // confirm that the error message is displayed
+        try {
+            final String temp = driver.findElement( By.name( "errorMsg" ) ).getText();
+            if ( temp.equals( "" ) ) {
+                fail();
+            }
+        }
+        catch ( final Exception e ) {
+        }
+    }
+
+    /**
+     * Modifies the date and the height of the office visit
+     * 
+     * @param date
+     *            the new date of the visit
+     * @param height
+     *            the new height of the patient
+     */
+    @And ( "^The OBGYN changes the date to (.+), time (.+), number of weeks pregnant (.+), fetal heart rate (HR, in BPM) (.+), fundal height of uterus (in cm) (.+), twins (yes/no) (.+), low-lying placenta (llp, present/not present) (.+)$" )
+    public void validEditOBGYN ( final String weeks, final String heartRate, final String fundalHeight,
+            final String twins, final String lowLyingPlacenta ) {
+        waitForAngular();
+
+        driver.findElement( By.name( "weeks" ) ).clear();
+        driver.findElement( By.name( "weeks" ) ).sendKeys( weeks );
+
+        driver.findElement( By.name( "heartRate" ) ).clear();
+        driver.findElement( By.name( "heartRate" ) ).sendKeys( heartRate );
+
+        driver.findElement( By.name( "height" ) ).clear();
+        driver.findElement( By.name( "height" ) ).sendKeys( fundalHeight );
+
+        driver.findElement( By.name( "twins" ) ).clear();
+        driver.findElement( By.name( "twins" ) ).sendKeys( twins );
+
+        driver.findElement( By.name( "placenta" ) ).clear();
+        driver.findElement( By.name( "placenta" ) ).sendKeys( lowLyingPlacenta );
+    }
+
+    /**
+     * Modifies the date and the height of the office visit
+     * 
+     * @param date
+     *            the new date of the visit
+     * @param height
+     *            the new height of the patient
+     */
+    @And ( "^The OBGYN incorrectly changes the date to (.+), time (.+), number of weeks pregnant (.+), fetal heart rate (HR, in BPM) (.+), fundal height of uterus (in cm) (.+), twins (yes/no) (.+), low-lying placenta (llp, present/not present) (.+)$" )
+    public void invalidEditOBGYN ( final String weeks, final String heartRate, final String fundalHeight,
+            final String twins, final String lowLyingPlacenta ) {
+        waitForAngular();
+
+        driver.findElement( By.name( "weeks" ) ).clear();
+        driver.findElement( By.name( "weeks" ) ).sendKeys( weeks );
+
+        driver.findElement( By.name( "heartRate" ) ).clear();
+        driver.findElement( By.name( "heartRate" ) ).sendKeys( heartRate );
+
+        driver.findElement( By.name( "height" ) ).clear();
+        driver.findElement( By.name( "height" ) ).sendKeys( fundalHeight );
+
+        driver.findElement( By.name( "twins" ) ).clear();
+        driver.findElement( By.name( "twins" ) ).sendKeys( twins );
+
+        driver.findElement( By.name( "placenta" ) ).clear();
+        driver.findElement( By.name( "placenta" ) ).sendKeys( lowLyingPlacenta );
+    }
+
+    /**
+     * Simulates clicking the submit button on the edit office visit page
+     */
+    @And ( "^The OBGYN saves the obstetrics office visit$" )
+    public void obgynSavesOfficeVisit () {
+        driver.findElement( By.name( "submit" ) ).click();
+    }
+
+    /**
+     * Checks if the changes were allowed to be made
+     */
+    @Then ( "^The obstetrics office visit is updated successfully$" )
+    public void obgynSuccessfulOfficeVisit () {
+        // confirm that the message is displayed
+        try {
+            driver.findElement( By.name( "success" ) ).getText().contains( "Office visit edited successfully" );
+        }
+        catch ( final Exception e ) {
+            fail();
+        }
+    }
+
+    /**
+     * Checks if the changes were not allowed to be made
+     */
+    @Then ( "^The obstetrics office visit is not updated successfully$" )
+    public void obgynUnsuccessfulOfficeVisit () {
+        // confirm that the error message is displayed
+        try {
+            final String temp = driver.findElement( By.name( "errorMsg" ) ).getText();
+            if ( temp.equals( "" ) ) {
+                fail();
+            }
+        }
+        catch ( final Exception e ) {
+        }
+    }
+
 }
