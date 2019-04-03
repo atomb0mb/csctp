@@ -447,6 +447,7 @@ public enum TransactionType {
      * ophthalmology surgery is deleted
      */
     OPHTHALMOLOGY_SURGERY_DELETE ( 2211, "ophthalmology surgery deleted", true ),
+<<<<<<< HEAD
     /**
      * obgyn visit is viewed by an hcp
      */
@@ -471,6 +472,23 @@ public enum TransactionType {
      * An obgyn office visit is viewed by its patient
      */
     OBGYNVISIT_PATIENT_VIEW ( 2505, "OBGYN offivce visit viewed by patient", true );
+=======
+
+    /**
+     * OBGYN HCP creates a new obstetrics record for a patient
+     */
+    OBGYN_CREATE_OBS_RECORD ( 2401, "OBGYN creates new obstetrics record for patient", true ),
+
+    /**
+     * HCP views the obstetrics records of a patient
+     */
+    HCP_VIEW_OBS_RECORD ( 2402, "HCP views obstetrics records of patient", true ),
+
+    /**
+     * Patient views their obstetrics records
+     */
+    PATIENT_VIEW_OBS_RECORD ( 2403, "patient views their obstetrics records", true );
+>>>>>>> 9a9a05cafa5ea94acd67890b9d5b7b350ca6ca5f
 
     /**
      * Creates a TransactionType for logging events
