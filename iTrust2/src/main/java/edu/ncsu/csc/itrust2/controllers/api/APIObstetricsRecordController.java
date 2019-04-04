@@ -27,6 +27,7 @@ import edu.ncsu.csc.itrust2.utils.LoggerUtil;
 @SuppressWarnings ( { "rawtypes", "unchecked" } )
 @RestController
 public class APIObstetricsRecordController extends APIController {
+
     /**
      * Saves a new ObstetricsRecord instance
      *

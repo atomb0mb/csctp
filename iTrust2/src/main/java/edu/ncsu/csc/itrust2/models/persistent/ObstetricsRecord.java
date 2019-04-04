@@ -12,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.criterion.Criterion;
 import org.hibernate.validator.constraints.Length;
@@ -61,6 +62,10 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
     @Convert ( converter = LocalDateConverter.class )
     @JsonAdapter ( LocalDateAdapter.class )
     private LocalDate         lastMenstrualPeriod;
+
+    // Stores # of weeks the patient has been pregnant
+    @NotNull
+    private Integer           numWeeksPregnant;
 
     /**
      * The estimated due date of the ongoing pregnancy (in milliseconds)

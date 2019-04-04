@@ -58,6 +58,15 @@ public class PregnancyTest {
         assertEquals( pregnancy.getIsTwins(), copy.getIsTwins() );
         assertTrue( pregnancy.getPatient().equals( copy.getPatient() ) );
 
+        final Pregnancy copy2 = Pregnancy.getByPatient( "patient" ).get( 0 );
+
+        assertEquals( pregnancy.getConceptionYear(), copy2.getConceptionYear() );
+        assertEquals( pregnancy.getNumberOfWeeksPregnant(), copy2.getNumberOfWeeksPregnant() );
+        assertEquals( pregnancy.getNumberOfHoursInLabor(), copy2.getNumberOfHoursInLabor() );
+        assertEquals( pregnancy.getDeliveryMethod(), copy2.getDeliveryMethod() );
+        assertEquals( pregnancy.getIsTwins(), copy2.getIsTwins() );
+        assertTrue( pregnancy.getPatient().equals( copy2.getPatient() ) );
+
     }
 
     /**
@@ -80,4 +89,53 @@ public class PregnancyTest {
         assertEquals( DeliveryMethod.CaesareanSection, pregnancy.getDeliveryMethod() );
         assertFalse( pregnancy.getIsTwins() );
     }
+
+    /**
+     * Tests for error message thrown when an invalid date is set
+     *
+     */
+    @Test
+    public void testInvalidDate () {
+        final Pregnancy pregnancy = new Pregnancy();
+
+        try {
+            pregnancy.setConceptionYear( 2200 );
+        }
+        catch ( final Exception e ) {
+            assertEquals( "Year must be on or before current year", e.getMessage() );
+        }
+    }
+
+    /**
+     * Tests for error message thrown when an invalid date is set
+     *
+     */
+    @Test
+    public void testInvalidNumWeeksPregnant () {
+        final Pregnancy pregnancy = new Pregnancy();
+
+        try {
+            pregnancy.setNumWeeksPregnant( 0 );
+        }
+        catch ( final Exception e ) {
+            assertEquals( "Number of weeks pregnant must be a positive, nonzero number", e.getMessage() );
+        }
+    }
+
+    /**
+     * Tests for error message thrown when an invalid date is set
+     *
+     */
+    @Test
+    public void testInvalidNumHoursInLabor () {
+        final Pregnancy pregnancy = new Pregnancy();
+
+        try {
+            pregnancy.setNumHoursLabor( 0 );
+        }
+        catch ( final Exception e ) {
+            assertEquals( "Number of hours in labor must be a positive, nonzero number", e.getMessage() );
+        }
+    }
+
 }

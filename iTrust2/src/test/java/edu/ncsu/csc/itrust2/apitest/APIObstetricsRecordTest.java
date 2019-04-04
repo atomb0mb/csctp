@@ -184,6 +184,8 @@ public class APIObstetricsRecordTest {
         final ObstetricsRecordForm obsForm = new ObstetricsRecordForm();
         obsForm.setLastMenstrualPeriod( "2019-01-15" );
 
+        mvc.perform( get( "/api/v1/obstetricsrecord/doesnotexist" ) ).andExpect( status().isNotFound() );
+
         mvc.perform( post( "/api/v1/obstetricsrecord/patient" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( obsForm ) ) ).andExpect( status().isOk() );
 
@@ -226,6 +228,8 @@ public class APIObstetricsRecordTest {
     public void testPregnancyGetHCP () throws Exception {
 
         createPatient();
+
+        mvc.perform( get( "/api/v1/pregnancy/doesnotexist" ) ).andExpect( status().isNotFound() );
 
         mvc.perform( get( "/api/v1/pregnancy/patient" ) ).andExpect( status().isOk() )
                 .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );

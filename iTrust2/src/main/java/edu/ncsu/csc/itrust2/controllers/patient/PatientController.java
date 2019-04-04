@@ -143,7 +143,7 @@ public class PatientController {
      */
     @GetMapping ( "/patient/obstetricsRecords/viewObstetricsRecords" )
     @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
-    public String viewFoodDiaryEntriesForm () {
+    public String viewObstetricsRecords () {
         return "/patient/obstetricsRecords/viewObstetricsRecords";
     }
 }
