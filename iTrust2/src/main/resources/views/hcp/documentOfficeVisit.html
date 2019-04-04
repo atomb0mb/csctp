@@ -291,6 +291,36 @@
                             $scope.errorMsg += "Please select one of the listed surgery types\n";
                         }
                     }
+                    /*Checks validity of Obsterics metrics*/
+                    function checkObstetricsVisit() {
+                    	if (/^[0-9]{1,3}?$/.test(String($scope.visit.numOfWeeksPreg).replace(/^0+/, '')) == false) {
+                            $scope.errorMsg += "Number of Weeks Pregnant must be a positive integer value\n"
+                        } else if (parseInt($scope.visit.numOfWeeksPreg) < 1 ) {
+                        	$scope.errorMsg += "Number of Weeks Pregnant must be a positive integer value\n"
+                        }
+                    	if (/^[0-9]{1,3}?$/.test(String($scope.visit.fetalHeartRate).replace(/^0+/, '')) == false) {
+                            $scope.errorMsg += "Fetal Heart Rate must be a positive integer value\n"
+                        } else if (parseInt($scope.visit.fetalHeartRate) < 1 ) {
+                        	$scope.errorMsg += "Fetal Heart Rate must be a positive integer value\n"	
+                        }
+                    	
+                    	if (/^[0-9]{1,3}?$/.test(String($scope.visit.fundalHeight).replace(/^0+/, '')) == false) {
+                            $scope.errorMsg += "Fundal Height of Uterus must be a positive integer value\n"
+                        }
+                    	else if (parseInt($scope.visit.fundalHeight) < 1 ) {
+                    		$scope.errorMsg += "Fundal Height of Uterus must be a positive integer value\n"	
+                        }
+
+                    	//Possible future add-on if boolean changed to drop down check box 
+                    }
+                    
+                    
+                
+                    
+                    
+                    
+                    
+                    
 
                     /**
                      * Checks if any BHM have been entered for OPH visit.
@@ -415,7 +445,23 @@
                                     $scope.errorMsg = "Error occurred creating office visit";
                                 })
                             }
+                        } else if ($scope.visit.type === 'OBGYN_OFFICE_VISIT') {
+                        	checkObstetricsVisit();
+                            if ($scope.errorMsg == "") {
+                                $http({
+                                    method: 'POST',
+                                    url: '/iTrust2/api/v1/ObstetricsVisit',
+                                    data: $scope.visit
+                                }).then(function (response) {
+                                    $scope.errorMsg = "";
+                                    $scope.message = "Office visit created successfully";
+                                }, function (rejection) {
+                                    $scope.message = "";
+                                    $scope.errorMsg = "Error occurred creating office visit";
+                                })
+                            }
                         } else {
+                        
                             $scope.message = "";
                             $scope.errorMsg = "Invalid office visit type";
                         }
@@ -1002,6 +1048,91 @@
 									</div>
 
 									<!-- END OF OPHTHALMOLOGY SECTION -->
+
+
+
+
+
+									<!-- OBGYN SECTIONS -->
+
+									<!-- OBGYN Health Panel  -->
+									<div ng-show="visit.type == 'OBGYN_OFFICE_VISIT'"
+										class="col-md-4">
+										<div class="panel panel-info">
+											<div class="panel-heading">
+												<h4>Obstetrics Office Visit</h4>
+											</div>
+											<div class="panel-body">
+
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Number of Weeks Pregnant:</label>
+													</div>
+													<div class="col-xs-6">
+														<input class="form-control" name="weeks"
+															ng-model="visit.numOfWeeksPreg" required="true"
+															type="text">
+													</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Fetal Heart Rate:</label>
+													</div>
+													<div class="col-xs-6">
+														<input class="form-control" name="heartRate"
+															ng-model="visit.fetalHeartRate" required="true"
+															type="text">
+													</div>
+												</div>
+
+
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Fundal Height of Uterus:</label>
+													</div>
+													<div class="col-xs-6">
+														<input class="form-control" name="fundalHeight"
+															ng-model="visit.fundalHeight" required="true" type="text">
+													</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Twins?:</label>
+													</div>
+													<div class="col-xs-6">
+														<label> <input type="checkbox" name="twins"
+															class="checkbox" ng-model="visit.twins">Yes
+														</label>
+													</div>
+												</div>
+
+
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Low-lying Placenta?:</label>
+													</div>
+													<div class="col-xs-6">
+														<label> <input type="checkbox" name="placenta"
+															class="checkbox" ng-model="visit.lowLyingPlacenta">Yes
+														</label>
+													</div>
+												</div>
+
+											</div>
+
+										</div>
+									</div>
+
+									<!-- END OF OBGYN SECTION -->
+
+
+
+
+
+
+
+
+
 
 
 									<!-- Prescription Panel -->

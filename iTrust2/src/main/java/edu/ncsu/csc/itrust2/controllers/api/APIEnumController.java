@@ -45,6 +45,13 @@ public class APIEnumController extends APIController {
         if ( role.equals( Role.ROLE_OD ) ) {
             return Arrays.asList( AppointmentType.GENERAL_CHECKUP, AppointmentType.GENERAL_OPHTHALMOLOGY );
         }
+        if ( role.equals( Role.ROLE_OBGYN ) ) {
+            return Arrays.asList( AppointmentType.GENERAL_CHECKUP, AppointmentType.OBGYN_OFFICE_VISIT );
+        }
+        if ( role.equals( Role.ROLE_OPH ) ) {
+            return Arrays.asList( AppointmentType.GENERAL_CHECKUP, AppointmentType.GENERAL_OPHTHALMOLOGY,
+                    AppointmentType.OPHTHALMOLOGY_SURGERY );
+        }
         return Arrays.asList( AppointmentType.values() );
     }
 
