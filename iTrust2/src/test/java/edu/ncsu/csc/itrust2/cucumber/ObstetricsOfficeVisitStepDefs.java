@@ -86,8 +86,9 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
         driver.findElement( By.name( "heartRate" ) ).clear();
         driver.findElement( By.name( "heartRate" ) ).sendKeys( hr );
 
-        driver.findElement( By.name( "height" ) ).clear();
-        driver.findElement( By.name( "height" ) ).sendKeys( height );
+        driver.findElement( By.name( "fundalHeight" ) ).clear();
+        driver.findElement( By.name( "fundalHeight" ) ).sendKeys( height );
+
     }
 
     /**
@@ -112,6 +113,7 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
     public void submitObstetricVisit () {
         waitForAngular();
         driver.findElement( By.name( "submit" ) ).click();
+
     }
 
     /**
@@ -170,13 +172,18 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
      *
      * @param date
      *            the new date of the visit
+     * @param weeks
+     *            the new number of weeks pregnant
      */
-    @And ( "^The HCP edits a new date (.+)$" )
-    public void modifyObstetrics ( final String date ) {
+    @And ( "^The HCP edits a new date (.+) and weeks (.+)$" )
+    public void modifyObstetrics ( final String date, final String weeks ) {
         waitForAngular();
 
         final WebElement dateElement = driver.findElement( By.name( "date" ) );
         dateElement.sendKeys( date.replace( "/", "" ) );
+
+        driver.findElement( By.name( "weeks" ) ).clear();
+        driver.findElement( By.name( "weeks" ) ).sendKeys( weeks );
     }
 
     /**
