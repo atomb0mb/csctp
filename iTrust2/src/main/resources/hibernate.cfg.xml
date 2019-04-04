@@ -62,7 +62,9 @@
 		<mapping
 			class="edu.ncsu.csc.itrust2.models.persistent.ObstetricsOfficeVisit" />
 		<mapping
-			class="edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord" />	
+			class="edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord" />
+			<mapping
+			class="edu.ncsu.csc.itrust2.models.persistent.Pregnancy" />	
 
 	</session-factory>
 </hibernate-configuration>

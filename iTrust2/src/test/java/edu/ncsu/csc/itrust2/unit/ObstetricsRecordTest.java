@@ -9,8 +9,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsRecordForm;
+import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
+import edu.ncsu.csc.itrust2.models.persistent.User;
 
 /**
  * Test the ObstetricsRecord class and its ability to store data read from the
@@ -21,6 +23,14 @@ import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
  */
 public class ObstetricsRecordTest {
 
+    /** Patient to be used for testing */
+    final User patient = new User( "patient", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+            Role.ROLE_PATIENT, 1 );
+
+    /**
+     * Erase all data before trying to write new things
+     *
+     */
     @Before
     public void setUp () {
         DomainObject.deleteAll( ObstetricsRecord.class );
@@ -37,11 +47,11 @@ public class ObstetricsRecordTest {
         final ObstetricsRecord obs = new ObstetricsRecord();
         obs.setLastMenstrualPeriod( testDate );
         obs.setId( (long) 2001 );
-        obs.setPatient( "Yolanda" );
+        obs.setPatient( "patient" );
 
         assertEquals( testDate, obs.getLastMenstrualPeriod() );
         assertEquals( testDate.plusDays( 280 ), obs.getEstimatedDueDate() );
-        assertTrue( obs.getPatient().equals( "Yolanda" ) );
+        assertTrue( obs.getPatient().equals( "patient" ) );
         assertTrue( obs.getId() == 2001 );
 
     }
@@ -58,11 +68,20 @@ public class ObstetricsRecordTest {
         obsForm.setLastMenstrualPeriod( "2016-10-17" );
 
         final ObstetricsRecord obs = new ObstetricsRecord( obsForm );
-
-        obs.save();
+        obs.setPatient( "patient" );
 
         assertEquals( testDate, obs.getLastMenstrualPeriod() );
         assertEquals( testDate.plusDays( 280 ), obs.getEstimatedDueDate() );
+
+        obs.save();
+
+        final ObstetricsRecord copy = ObstetricsRecord.getById( obs.getId() );
+
+        assertEquals( obs.getLastMenstrualPeriod(), copy.getLastMenstrualPeriod() );
+        assertEquals( obs.getEstimatedDueDate(), copy.getEstimatedDueDate() );
+        assertEquals( obs.getId(), copy.getId() );
+        assertTrue( obs.getPatient().equals( copy.getPatient() ) );
+
     }
 
 }
