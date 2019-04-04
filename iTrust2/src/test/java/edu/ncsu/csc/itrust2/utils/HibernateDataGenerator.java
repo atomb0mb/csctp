@@ -25,7 +25,6 @@ import edu.ncsu.csc.itrust2.models.persistent.GeneralCheckup;
 import edu.ncsu.csc.itrust2.models.persistent.Hospital;
 import edu.ncsu.csc.itrust2.models.persistent.ICDCode;
 import edu.ncsu.csc.itrust2.models.persistent.LOINC;
-import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.Personnel;
 import edu.ncsu.csc.itrust2.models.persistent.Prescription;
@@ -258,7 +257,7 @@ public class HibernateDataGenerator {
         alice.save();
 
         final Patient rebecca = new Patient();
-        alice.setFirstName( "AliceEighteen" );
+        rebecca.setFirstName( "RebeccaThirty" );
         final User rebeccaUser = new User( "RebeccaThirty",
                 "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
         rebeccaUser.save();
@@ -268,14 +267,7 @@ public class HibernateDataGenerator {
         rebecca.setDateOfBirth( LocalDate.now().minusYears( 30 ) ); // 30 years
                                                                     // old
 
-        final LocalDate testDate = LocalDate.of( 2016, 10, 17 );
-        final ObstetricsRecord obs = new ObstetricsRecord();
-        obs.setLastMenstrualPeriod( testDate );
-        obs.setId( (long) 2001 );
-        obs.setPatient( "rebecca" );
-
         rebecca.save();
-        obs.save();
 
         final Hospital hosp = new Hospital( "General Hospital", "123 Main St", "12345", "NC" );
         hosp.save();
