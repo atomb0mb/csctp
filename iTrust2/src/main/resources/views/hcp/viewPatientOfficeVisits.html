@@ -97,6 +97,8 @@
                   $scope.selectedVisit.houseSmokingStatus = $scope.visits[i].basicHealthMetrics.houseSmokingStatus;
                   $scope.selectedVisit.patientSmokingStatus = $scope.visits[i].basicHealthMetrics.patientSmokingStatus;
                   
+                  
+                  
                   validateBasicHealthMetrics();
 
                   // Eye health metrics
@@ -108,16 +110,23 @@
                   $scope.selectedVisit.cylinderOD = $scope.visits[i].cylinderOD;
                   $scope.selectedVisit.axisOS = $scope.visits[i].axisOS;
                   $scope.selectedVisit.axisOD = $scope.visits[i].axisOD;
+                  
+                  
+                  
                   $scope.selectedVisit.eyeDiagnoses = undefined;
                   if($scope.visits[i].diagnosis !== undefined && $scope.visits[i].diagnosis !== "")
                   	$scope.selectedVisit.eyeDiagnoses = $scope.visits[i].diagnosis.split(",");
                   $scope.selectedVisit.surgeryType = $scope.visits[i].surgeryType;
+                  
+         
 
                   // Diagnoses
                   if ($scope.selectedVisit.type == 'GENERAL_CHECKUP') {
                     $http.get("/iTrust2/api/v1/diagnosesforvisit/" + $scope.selectedVisitID).then(
                       function (response) {
                         $scope.diagnosesResponse = response.data;
+                       
+                        
                         for (var i = 0; i < $scope.diagnosesResponse.length; i++) {
                           $scope.diagnoses.push({
                             note: $scope.diagnosesResponse[i].note,
@@ -157,6 +166,70 @@
                         }
                       });
                   }
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  if ($scope.selectedVisit.type == 'OBGYN_OFFICE_VISIT') {
+                	  if ($scope.visits[i].id == $scope.selectedVisitID) {
+                		  $scope.selectedVisit.numOfWeeksPreg = $scope.visits[i].numOfWeeksPreg;
+                		  $scope.selectedVisit.fetalHeartRate = $scope.visits[i].fetalHeartRate;
+                		  $scope.selectedVisit.fundalHeight = $scope.visits[i].fundalHeight;
+                		  $scope.selectedVisit.twins = $scope.visits[i].twins;
+                		  $scope.selectedVisit.lowLyingPlacenta = $scope.visits[i].lowLyingPlacenta;
+                		  
+                		  
+                		  $http.get("/iTrust2/api/v1/ObstetricsVisit/" + $scope.selectedVisitID).then(
+                                  function (response) {
+                                    $scope.visitResponse = response.data;
+                                    
+                                    console.log(response.data);
+                                    
+                                    for (var i = 0; i < $scope.visitResponse.length; i++) {
+                                    
+                                      $scope.diagnoses.push({
+                                        numOfWeeksPreg: $scope.visitResponse[i].numOfWeeksPreg,
+                                        fetalHeartRate: $scope.visitResponse[i].fetalHeartRate,
+                                        fundalHeight: $scope.visitResponse[i].fundalHeight,
+                                        twins: $scope.visitResponse[i].twins,
+                                        lowLyingPlacenta: $scope.visitResponse[i].lowLyingPlacenta
+                                      });
+                                    }
+                                  });
+
+                	  }
+                	  
+                  }
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
                 }
               }
             }
@@ -472,6 +545,67 @@
 														</div>
 													</div>
 												</div>
+												
+												
+												
+												
+												
+												
+												
+												<!-- Obstetrics Visit Panel  -->
+												<div class="col-md-4"
+													ng-show="selectedVisit.type === 'OBGYN_OFFICE_VISIT'">
+													<div class="panel panel-info">
+														<div class="panel-heading">
+															<h4>Obstetrics Metrics</h4>
+														</div>
+														<div class="panel-body">
+															<div class="form-group row">
+																<div class="col-xs-6">
+																	<label>Number of Weeks Pregnant:</label>
+																</div>
+																<div name='weeks' class="col-xs-6">
+																	{{selectedVisit.numOfWeeksPreg}}</div>
+															</div>
+															<div class="form-group row">
+																<div class="col-xs-6">
+																	<label>Fetal Heart Rate:</label>
+																</div>
+																<div name='heartRate' class="col-xs-6">
+																	{{selectedVisit.fetalHeartRate}}</div>
+															</div>
+															<div class="form-group row">
+																<div class="col-xs-6">
+																	<label>Fundal Height of Uterus:</label>
+																</div>
+																<div name='height' class="col-xs-6">
+																	{{selectedVisit.fundalHeight}}</div>
+															</div>
+															<div class="form-group row">
+																<div class="col-xs-6">
+																	<label>Twins?:</label>
+																</div>
+																<div name='twins' class="col-xs-6">
+																	{{selectedVisit.twins}}</div>
+															</div>
+															<div class="form-group row">
+																<div class="col-xs-6">
+																	<label>Low-Lying Placenta?:</label>
+																</div>
+																<div name='placenta' class="col-xs-6">
+																	{{selectedVisit.lowLyingPlacenta}}</div>
+															</div>
+															
+														</div>
+													</div>
+												</div>
+
+
+
+
+
+
+
 
 												<!-- Prescription Panel -->
 												<div class="col-md-4"
