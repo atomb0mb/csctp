@@ -25,8 +25,7 @@ import edu.ncsu.csc.itrust2.models.persistent.OfficeVisit;
  */
 public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
 
-    private final String baseUrl       = "http://localhost:8080/iTrust2";
-    private final String patientString = "bobby";
+    private final String baseUrl = "http://localhost:8080/iTrust2";
 
     /**
      * Asserts that the text is on the page
@@ -203,6 +202,34 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
         ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('editOfficeVisit').click();" );
 
         assertEquals( "iTrust2: Edit Office Visit", driver.getTitle() );
+    }
+
+    /**
+     * Whether the visit has been added successfully
+     */
+    @Then ( "^The obstetric visit is valid and added$" )
+    public void obstetricAddedValid () {
+        waitForAngular();
+
+        assertTextPresent( "created successfully" );
+    }
+
+    /**
+     * Whether the visit has not been added
+     */
+    @Then ( "^The obstetric visit is not added$" )
+    public void obstetricNotAdded () {
+        waitForAngular();
+
+        try {
+            final String temp = driver.findElement( By.name( "errorMsg" ) ).getText();
+            if ( temp.equals( "" ) ) {
+                fail();
+            }
+        }
+        catch ( final Exception e ) {
+            // Empty block
+        }
     }
 
 }

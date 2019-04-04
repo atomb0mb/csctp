@@ -13,7 +13,7 @@ Scenario Outline: OB/GYN documents a valid obstetrics office visit
 	When The HCP enters the date <date>, time <time>, patient <patient>, type of visit <type>, hospital <hospital>
     And Adds obstetric values <weeks> <HR> <height>
     And The HCP submits the obstetric office visit
-	Then The office visit is documented successfully
+	Then The obstetric visit is valid and added
 
 Examples:
 	| date			| time				| patient 		| type 					| hospital 			| weeks 		| HR 		    | height 					| twins 			| llp     |
@@ -25,7 +25,7 @@ Scenario Outline: OB/GYN documents an invalid obstetrics office visit
 	When The HCP enters the date <date>, time <time>, patient <patient>, type of visit <type>, hospital <hospital>
     And Adds obstetric values <weeks> <HR> <height>
     And The HCP submits the obstetric office visit
-	Then The office visit is not documented
+	Then The obstetric visit is not added
 
 Examples:
 	| date			| time			| patient 		| type 					| hospital 			| weeks 		| HR 		    | height 					| twins 			| llp     |
@@ -38,7 +38,7 @@ Scenario Outline: OB/GYN HCP correctly edits an obstetrics office visit
 	When The HCP enters the date <date>, time <time>, patient <patient>, type of visit <type>, hospital <hospital>
     And Adds obstetric values <weeks> <HR> <height>
     And The HCP submits the obstetric office visit
-	Then The office visit is documented successfully
+	Then The obstetric visit is valid and added
 	When The OBGYN logs in to edit an office visit
 	And The most recent obstetrics office visit is chosen
 	And The HCP edits a new date <newDate>
@@ -55,7 +55,7 @@ Scenario Outline: OB/GYN HCP incorrectly edits an obstetrics office visit
 	When The HCP enters the date <date>, time <time>, patient <patient>, type of visit <type>, hospital <hospital>
     And Adds obstetric values <weeks> <HR> <height>
     And The HCP submits the obstetric office visit
-	Then The office visit is documented successfully
+	Then The obstetric visit is valid and added
 	When The OBGYN logs in to edit an office visit
 	And The most recent obstetrics office visit is chosen
 	And The HCP edits a new date <newDate>
