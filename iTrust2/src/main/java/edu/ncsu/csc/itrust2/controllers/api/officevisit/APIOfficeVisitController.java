@@ -14,6 +14,7 @@ import edu.ncsu.csc.itrust2.models.enums.TransactionType;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.GeneralCheckup;
 import edu.ncsu.csc.itrust2.models.persistent.GeneralOphthalmology;
+import edu.ncsu.csc.itrust2.models.persistent.ObstetricsOfficeVisit;
 import edu.ncsu.csc.itrust2.models.persistent.OfficeVisit;
 import edu.ncsu.csc.itrust2.models.persistent.OphthalmologySurgery;
 import edu.ncsu.csc.itrust2.models.persistent.User;
@@ -89,6 +90,7 @@ public class APIOfficeVisitController extends APIController {
         GeneralCheckup.deleteAll();
         DomainObject.deleteAll( OphthalmologySurgery.class );
         DomainObject.deleteAll( GeneralOphthalmology.class );
+        DomainObject.deleteAll( ObstetricsOfficeVisit.class );
         // TODO possibly for deleting all OBGYN office visits
     }
 
