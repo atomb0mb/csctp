@@ -141,6 +141,11 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
      *            the date of the LMP
      */
     public void setLastMenstrualPeriod ( final LocalDate date ) {
+
+        if ( date.isAfter( LocalDate.now() ) ) {
+            throw new IllegalArgumentException( "Date must be before current date" );
+        }
+
         lastMenstrualPeriod = date;
 
         estDueDate = lastMenstrualPeriod.plusDays( 280 );
