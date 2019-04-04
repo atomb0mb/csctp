@@ -84,9 +84,7 @@
 
 	    					// Validate entry date
 	                        var checkDate = new Date($scope.lmpInputDate);
-							console.log(checkDate);
 							var now = new Date(); // make sure it's not a future date
-	    					console.log(now)
 							if (!(checkDate instanceof Date) || isNaN(checkDate) || now - checkDate < 0) {
 	    						$scope.errorMsg += "Please input a valid date.\n";
 	    					} else {
@@ -96,6 +94,8 @@
 	    					}
 	    					
 	    					console.log("**Date string");
+	    					// The date string needs to be in the form YYYY-MM-DD to be parsed correctly, but it looks like what
+	    					// it shows in this toString() function: https://docs.oracle.com/javase/7/docs/api/java/util/Date.html#getMonth()
 	    					console.log(dateString);
 	    					$scope.record = {
 	    						lmp : dateString
