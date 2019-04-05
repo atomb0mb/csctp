@@ -54,7 +54,10 @@ public class ObstetricsRecordTest {
         assertTrue( obs.getPatient().equals( "patient" ) );
         assertTrue( obs.getId() == 2001 );
         assertTrue( 10 < obs.getNumWeeksPregnant() );
-        System.out.println( "num weeks preggo: " + obs.getNumWeeksPregnant() );
+
+        final LocalDate testDate2 = LocalDate.of( 2018, 12, 01 );
+        obs.setLastMenstrualPeriod( testDate2 );
+        assertTrue( 13 < obs.getNumWeeksPregnant() );
 
     }
 

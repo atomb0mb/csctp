@@ -2,6 +2,8 @@
 package edu.ncsu.csc.itrust2.apitest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -14,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -95,6 +98,47 @@ public class APIObstetricsRecordTest {
         patient.setZip( "27514" );
         mvc.perform( post( "/api/v1/patients" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( patient ) ) );
+    }
+
+    /**
+     * Ensure attempt to create obstetrics record or pregnancy as a generic HCP
+     * is denied
+     *
+     */
+    @Test
+    @WithMockUser ( username = "hcp", roles = { "HCP" } )
+    public void testInvalidHCPAccess () throws Exception {
+        createPatient();
+
+        // Create a form for a pregnancy that started January 15th, 2200
+        final ObstetricsRecordForm obsForm = new ObstetricsRecordForm();
+        obsForm.setLastMenstrualPeriod( "2019-01-15" );
+
+        try {
+            mvc.perform( post( "/api/v1/obstetricsrecord/patient" ).contentType( MediaType.APPLICATION_JSON )
+                    .content( TestUtils.asJsonString( obsForm ) ) ).andExpect( status().isForbidden() );
+            fail();
+        }
+        catch ( final Exception e ) {
+            assertTrue( e.getCause() instanceof AccessDeniedException );
+        }
+
+        final PregnancyForm pForm = new PregnancyForm();
+        pForm.setConceptionYear( 2016 );
+        pForm.setNumWeeksPregnant( 35 );
+        pForm.setNumHoursInLabor( 8 );
+        pForm.setDeliveryMethod( DeliveryMethod.CaesareanSection );
+        pForm.setIsTwins( false );
+
+        try {
+            mvc.perform( post( "/api/v1/pregnancy/patient" ).contentType( MediaType.APPLICATION_JSON )
+                    .content( TestUtils.asJsonString( pForm ) ) ).andExpect( status().isForbidden() );
+            fail();
+        }
+        catch ( final Exception e ) {
+            assertTrue( e.getCause() instanceof AccessDeniedException );
+        }
+
     }
 
     /**
@@ -195,6 +239,14 @@ public class APIObstetricsRecordTest {
         final List<LogEntry> entries = LoggerUtil.getAllForUser( "hcp" );
         assertEquals( TransactionType.HCP_VIEW_OBS_RECORD, entries.get( entries.size() - 1 ).getLogCode() );
 
+        try {
+            mvc.perform( get( "/api/v1/obstetricsrecord" ) ).andExpect( status().isForbidden() );
+            fail();
+        }
+        catch ( final Exception e ) {
+            assertTrue( e.getCause() instanceof AccessDeniedException );
+        }
+
     }
 
     /**
@@ -215,6 +267,14 @@ public class APIObstetricsRecordTest {
         final List<LogEntry> entries = LoggerUtil.getAllForUser( "patient" );
         assertEquals( TransactionType.PATIENT_VIEW_OBS_RECORD, entries.get( entries.size() - 1 ).getLogCode() );
 
+        try {
+            mvc.perform( get( "/api/v1/obstetricsrecord/patient" ) ).andExpect( status().isForbidden() );
+            fail();
+        }
+        catch ( final Exception e ) {
+            assertTrue( e.getCause() instanceof AccessDeniedException );
+        }
+
     }
 
     /**
@@ -234,6 +294,14 @@ public class APIObstetricsRecordTest {
         mvc.perform( get( "/api/v1/pregnancy/patient" ) ).andExpect( status().isOk() )
                 .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );
 
+        try {
+            mvc.perform( get( "/api/v1/pregnancy" ) ).andExpect( status().isForbidden() );
+            fail();
+        }
+        catch ( final Exception e ) {
+            assertTrue( e.getCause() instanceof AccessDeniedException );
+        }
+
     }
 
     /**
@@ -250,6 +318,14 @@ public class APIObstetricsRecordTest {
 
         mvc.perform( get( "/api/v1/pregnancy" ) ).andExpect( status().isOk() )
                 .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );
+
+        try {
+            mvc.perform( get( "/api/v1/pregnancy/patient" ) ).andExpect( status().isForbidden() );
+            fail();
+        }
+        catch ( final Exception e ) {
+            assertTrue( e.getCause() instanceof AccessDeniedException );
+        }
 
     }
 }
