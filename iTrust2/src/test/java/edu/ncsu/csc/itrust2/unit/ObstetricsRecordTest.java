@@ -43,7 +43,7 @@ public class ObstetricsRecordTest {
      */
     @Test
     public void testObstetricsRecord () {
-        final LocalDate testDate = LocalDate.of( 2016, 10, 17 );
+        final LocalDate testDate = LocalDate.of( 2019, 01, 01 );
         final ObstetricsRecord obs = new ObstetricsRecord();
         obs.setLastMenstrualPeriod( testDate );
         obs.setId( (long) 2001 );
@@ -53,6 +53,8 @@ public class ObstetricsRecordTest {
         assertEquals( testDate.plusDays( 280 ), obs.getEstimatedDueDate() );
         assertTrue( obs.getPatient().equals( "patient" ) );
         assertTrue( obs.getId() == 2001 );
+        assertTrue( 10 < obs.getNumWeeksPregnant() );
+        System.out.println( "num weeks preggo: " + obs.getNumWeeksPregnant() );
 
     }
 

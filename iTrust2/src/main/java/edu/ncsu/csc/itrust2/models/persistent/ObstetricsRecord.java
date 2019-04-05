@@ -153,6 +153,14 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
 
         lastMenstrualPeriod = date;
 
+        int today = LocalDate.now().getDayOfYear();
+
+        if ( today < date.getDayOfYear() ) {
+            today += 365;
+        }
+
+        numWeeksPregnant = ( today - date.getDayOfYear() ) / 7;
+
         estDueDate = lastMenstrualPeriod.plusDays( 280 );
     }
 
@@ -172,6 +180,24 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
      */
     public LocalDate getLastMenstrualPeriod () {
         return lastMenstrualPeriod;
+    }
+
+    /**
+     * Return number of weeks patient has been pregnant
+     *
+     * @return number of weeks pregnant
+     */
+    public Integer getNumWeeksPregnant () {
+
+        int today = LocalDate.now().getDayOfYear();
+
+        if ( today < lastMenstrualPeriod.getDayOfYear() ) {
+            today += 365;
+        }
+
+        numWeeksPregnant = ( today - lastMenstrualPeriod.getDayOfYear() ) / 7;
+
+        return numWeeksPregnant;
     }
 
     /**
