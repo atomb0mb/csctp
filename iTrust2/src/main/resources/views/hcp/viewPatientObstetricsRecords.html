@@ -15,10 +15,12 @@
                     $scope.Object = Object; // Allows for use of Object.keys()
                     $scope.priorPregnancies = [];
                     $scope.currentPregnancy = {lastMenstrualPeriod:'', estDueDate:'', numWeeksPregnant:0};
+                    $scope.entry = {lmpInputDate: new Date()};
                     //$scope.lmpInputDate = new Date();
                     
     				$scope.deliveryMethods = ['Vaginal Delivery', 'Caesarean Section', 'Miscarriage'];
-                    
+    				$scope.twinOptions = ['Yes', 'No'];
+    				
     				$scope.record = { lmpdate:''};
 					// Display users' names
                     $scope.displayName = function (p) {
@@ -54,9 +56,10 @@
                 				$scope.pregnancyEntry = {
                						conceptionYear: 0,
 									numWeeksPregnant: 0,
-               						numHrsLabor: 0,
+									numHoursInLabor: 0,
 									deliveryMethod: '',
-                					twins: false
+									isTwins: false,
+									//twins:'' //for the yes/no submission
                					};
                             
                             }, //if it failed
@@ -92,6 +95,12 @@
                      
                      	//Stuff for making a new pregnancy
                      	$scope.submitPregnancy = function() {
+							console.log("Submitting pregnancy");
+							console.log($scope.pregnancyEntry);
+							
+							//Clear any error messages
+                     		$scope.errorMsg = "";
+                     		
 							//Check conception year
 							var currentYear = 2019;
 							if (isNaN($scope.pregnancyEntry.conceptionYear) || $scope.pregnancyEntry.conceptionYear > currentYear) {
@@ -109,12 +118,13 @@
 							if (!$scope.pregnancyEntry.deliveryMethod) {
 								$scope.errorMsg += "A delivery method must be selected.\n";
 							}
-
-							if (!$scope.pregnancyEntry.isTwins) {
+							
+							if (!$scope.pregnancyEntry.isTwins || !($scope.pregnancyEntry.isTwins == 'Yes' || $scope.pregnancyEntry.isTwins == 'No') ) {
 								$scope.errorMsg += "You must enter whether the pregnancy was of twins or not.\n";
 							}
-                     		
-                     		
+
+							$scope.pregnancyEntry.isTwins = ($scope.pregnancyEntry.isTwins == 'Yes');
+							
                      		$http.post("/iTrust2/api/v1/pregnancy/" + $scope.selectedPatient, $scope.pregnancyEntry)
 							.then(
 								function success(response) {
@@ -123,12 +133,17 @@
 									document.location.href = '/iTrust2/hcp/viewPatientObstetricsRecords.html';
 							},
 							function failure(rejection) {
-								$scope.failAddEntry();
+								$scope.failAddPregEntry();
 							});
                      	}
                      	
+						$scope.failAddPregEntry = function() {
+			              	$scope.errorMsg += "Could not add pregnancy record.";
+			 				$scope.message = "";
+			      		}
+                     	
 						// Stuff for submitting new record 
-						$scope.failAddEntry = function() {
+						$scope.failAddObsEntry = function() {
 			              	$scope.errorMsg += "Could not add Obstestric record.";
 			 				$scope.message = "";
 			      		}
@@ -136,9 +151,14 @@
 						//Submit functionality for LMP input
 						$scope.submitOb = function() {
 	    					// Date info: https://docs.oracle.com/javase/7/docs/api/java/util/Date.html#getMonth()
+	    					
+	    					//Clear any error messages
+	    					$scope.errorMsg = "";
+	    					
 	    					// Validate entry date
-	                        var checkDate = new Date($scope.lmpInputDate);
-							var now = new Date(); // make sure it's not a future date
+	                        var checkDate = new Date($scope.entry.lmpInputDate);
+							
+	    					var now = new Date(); // make sure it's not a future date
 							if (!(checkDate instanceof Date) || isNaN(checkDate) || now - checkDate < 0) {
 	    						$scope.errorMsg += "Please input a valid date.\n";
 	    					} else {
@@ -170,7 +190,7 @@
 									}
 								},
 								function failure(rejection) {
-									$scope.failAddEntry();
+									$scope.failAddObsEntry();
 								});
 							}
                 });
@@ -209,32 +229,29 @@
 					<div class="panel-body">
 						<div style="margin-left: 10px;">
 							<div ng-if="!selectedPatient">Please select a patient for
-								which to view Obstetrics Records.</div>
+								which to view Obstetrics Records.
+							</div>
+							
 							<div
 								ng-if="selectedPatient && currentPregnancy.length == 0">
-								There is no current pregnancy recorded for this patient.<br><br>
+								<br><b>There is no current pregnancy recorded for this patient.</b><br><br>
 							</div>
-
-							<div
-								ng-if="selectedPatient && (!priorPregnancies || Object.keys(priorPregnancies).length == 0)">
-								There are no past pregnancies recorded for this patient.<br><br>
-							</div>
-							
-							<div class="form-group" ng-if="selectedPatient">
-								<button type="submit" class="btn btn-primary" ng-click=displayPregForm()
-								name="displayPregForm" id="displayPregForm">Toggle Pregnancy Form</button>
-							</div>
-							
 						</div>
 
 					<div class="col-md-5" ng-if="selectedPatient && currentPregnancy.length == 0">
 						<div class="form-group">
 							<label for="date">Last Menstrual Period</label>
 								<input class="form-control"
-								id="date" type="date" ng-model="lmpInputDate"  name="date"
+								id="date" type="date" ng-model="entry.lmpInputDate"  name="date"
 								required="true" />
 						</div>
 					</div>
+					
+					<div class="form-group" ng-if="selectedPatient && currentPregnancy.length == 0">
+						<button type="submit" class="btn btn-primary" ng-click=submitOb()
+							name="submitOb" id="submitOb">Create Record</button>
+					</div>
+
 						<!-- If the current pregnancy exists, display the information.
 						Otherwise, let the user create a new record by entering the LMP. -->
 						<div ng-if="selectedPatient && currentPregnancy.length > 0">
@@ -272,10 +289,21 @@
 						</table>
 						
 						<div
+								ng-if="selectedPatient && (!priorPregnancies || Object.keys(priorPregnancies).length == 0)">
+								<br><b>There are no past pregnancies recorded for this patient.</b><br><br>
+						</div>
+						
+						<div class="form-group" ng-if="selectedPatient">
+								<button type="submit" class="btn btn-primary" ng-click=displayPregForm()
+								name="displayPregForm" id="displayPregForm">Toggle New Pregnancy Form</button>
+						</div>
+						
+						<div
 							ng-if="displayedPregForm">
 							
 							<div class="row">
 								<div class="col">
+								<div style="margin-left: 10px;">
 									<b>New Pregnancy</b>
 								</div>
 
@@ -297,9 +325,9 @@
 									</div>
 									
 									<div class="form-group">
-										<label for="numHrsLabor">Number of Hours in Labor</label> <input
-											class="form-control" id="numHrsLabor" type="number"
-											ng-model="pregnancyEntry.numHrsLabor" name="numHrsLabor" />
+										<label for="numHoursInLabor">Number of Hours in Labor</label> <input
+											class="form-control" id="numHoursInLabor" type="number"
+											ng-model="pregnancyEntry.numHoursInLabor" name="numHoursInLabor" />
 									</div>
 									
 									<div class="form-group">
@@ -309,20 +337,28 @@
 											<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
 										</select>
 									</div>
+									
+									<div class="form-group">
+										<label for="isTwins">Twins</label> <select
+											class="form-control" ng-model="pregnancyEntry.isTwins" id="isTwins"
+											name="isTwins">
+											<option ng-repeat="twinOption in twinOptions">{{twinOption}}</option>
+										</select>
+									</div>
 
 								</div>
 							</div>
 							
 						</div>
 						
-						<div class="form-group" ng-if="selectedPatient">
-							<button type="submit" class="btn btn-primary" ng-click=submitOb()
-								name="submitOb" id="submitOb">Create Record</button>
+						<div class="form-group" ng-if="selectedPatient && displayedPregForm">
+							<button type="submit" class="btn btn-primary" ng-click=submitPregnancy()
+								name="submitPregnancy" id="submitPregnancy">Update Pregnancy Record </button>
 						</div>
-						
-						<div class="form-group" ng-if="selectedPatient && currentPregnancy.length == 0">
-							<button type="submit" class="btn btn-primary" ng-click=submitOb()
-								name="submitOb" id="submitOb">Create Record</button>
+					
+						<div class="form-group">
+							<div name="success" class="text-success" style="white-space: pre;">{{message}}</div>
+							<div name="errorMsg" class="text-danger" style="white-space: pre;">{{errorMsg}}</div>
 						</div>
 					</div>
 				</div>
