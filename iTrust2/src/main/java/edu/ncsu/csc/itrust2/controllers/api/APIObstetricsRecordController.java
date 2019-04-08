@@ -27,6 +27,7 @@ import edu.ncsu.csc.itrust2.utils.LoggerUtil;
 @SuppressWarnings ( { "rawtypes", "unchecked" } )
 @RestController
 public class APIObstetricsRecordController extends APIController {
+
     /**
      * Saves a new ObstetricsRecord instance
      *
@@ -61,13 +62,16 @@ public class APIObstetricsRecordController extends APIController {
     /**
      * Saves a new Pregnancy instance in the database
      *
+     * @param patient
+     *            - username of patient who had the pregnancy
      * @param pForm
      *            - the PregnancyForm to read and create Pregnancy instance from
      * @return ResponseEntity based on success of creating the Pregnancy
      */
     @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
     @PostMapping ( BASE_PATH + "/pregnancy/{patient}" )
-    public ResponseEntity createPregnancy ( @PathVariable final String patient, final PregnancyForm pForm ) {
+    public ResponseEntity createPregnancy ( @PathVariable final String patient,
+            @RequestBody final PregnancyForm pForm ) {
         try {
             final Pregnancy pregnancy = new Pregnancy( pForm );
             pregnancy.setPatient( patient );
@@ -127,7 +131,7 @@ public class APIObstetricsRecordController extends APIController {
      * @return List of pregnancies for the patient
      */
     @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
-    @GetMapping ( BASE_PATH + "/pregnancies/{patient}" )
+    @GetMapping ( BASE_PATH + "/pregnancy/{patient}" )
     public ResponseEntity getPregnanciesHCP ( @PathVariable final String patient ) {
         if ( null == Patient.getByName( patient ) ) {
             return new ResponseEntity( errorResponse( "No patients found with username " + patient ),
@@ -142,7 +146,7 @@ public class APIObstetricsRecordController extends APIController {
      * @return list of pregnancy objects
      */
     @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
-    @GetMapping ( BASE_PATH + "/pregnancies" )
+    @GetMapping ( BASE_PATH + "/pregnancy" )
     public ResponseEntity getPregnanciesPatient () {
         if ( null == Patient.getByName( LoggerUtil.currentUser() ) ) {
             return new ResponseEntity( errorResponse( "No patients found with username " + LoggerUtil.currentUser() ),

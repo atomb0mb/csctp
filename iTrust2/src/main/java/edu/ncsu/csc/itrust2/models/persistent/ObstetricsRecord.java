@@ -12,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.criterion.Criterion;
 import org.hibernate.validator.constraints.Length;
@@ -61,6 +62,10 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
     @Convert ( converter = LocalDateConverter.class )
     @JsonAdapter ( LocalDateAdapter.class )
     private LocalDate         lastMenstrualPeriod;
+
+    // Stores # of weeks the patient has been pregnant
+    @NotNull
+    private Integer           numWeeksPregnant;
 
     /**
      * The estimated due date of the ongoing pregnancy (in milliseconds)
@@ -142,7 +147,20 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
      *            the date of the LMP
      */
     public void setLastMenstrualPeriod ( final LocalDate date ) {
+
+        if ( date.isAfter( LocalDate.now() ) ) {
+            throw new IllegalArgumentException( "Date must be before current date" );
+        }
+
         lastMenstrualPeriod = date;
+
+        int today = LocalDate.now().getDayOfYear();
+
+        if ( today < date.getDayOfYear() ) {
+            today += 365;
+        }
+
+        numWeeksPregnant = ( today - date.getDayOfYear() ) / 7;
 
         estDueDate = lastMenstrualPeriod.plusDays( 280 );
     }
@@ -163,6 +181,24 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
      */
     public LocalDate getLastMenstrualPeriod () {
         return lastMenstrualPeriod;
+    }
+
+    /**
+     * Return number of weeks patient has been pregnant
+     *
+     * @return number of weeks pregnant
+     */
+    public Integer getNumWeeksPregnant () {
+
+        int today = LocalDate.now().getDayOfYear();
+
+        if ( today < lastMenstrualPeriod.getDayOfYear() ) {
+            today += 365;
+        }
+
+        numWeeksPregnant = ( today - lastMenstrualPeriod.getDayOfYear() ) / 7;
+
+        return numWeeksPregnant;
     }
 
     /**

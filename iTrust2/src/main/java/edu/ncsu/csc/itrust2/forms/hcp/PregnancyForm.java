@@ -64,7 +64,7 @@ public class PregnancyForm {
      * @param conceptionYear
      *            - year of conception (as an integer)
      */
-    public void setConceptionYear ( Integer conceptionYear ) {
+    public void setConceptionYear ( final Integer conceptionYear ) {
         this.conceptionYear = conceptionYear;
     }
 
@@ -84,7 +84,7 @@ public class PregnancyForm {
      * @param numWeeksPregnant
      *            - number of weeks patient was pregnant
      */
-    public void setNumWeeksPregnant ( Integer numWeeksPregnant ) {
+    public void setNumWeeksPregnant ( final Integer numWeeksPregnant ) {
         this.numWeeksPregnant = numWeeksPregnant;
     }
 
@@ -103,7 +103,7 @@ public class PregnancyForm {
      * @param numHoursInLabor
      *            - number of hours patient was in labor (whole integer)
      */
-    public void setNumHoursInLabor ( Integer numHoursInLabor ) {
+    public void setNumHoursInLabor ( final Integer numHoursInLabor ) {
         this.numHoursInLabor = numHoursInLabor;
     }
 
@@ -123,7 +123,7 @@ public class PregnancyForm {
      * @param deliveryMethod
      *            - delivery method
      */
-    public void setDeliveryMethod ( DeliveryMethod deliveryMethod ) {
+    public void setDeliveryMethod ( final DeliveryMethod deliveryMethod ) {
         this.deliveryMethod = deliveryMethod;
     }
 
@@ -143,7 +143,7 @@ public class PregnancyForm {
      * @param isTwins
      *            - boolean T/F: true if pregnant with twins, false if not
      */
-    public void setIsTwins ( Boolean isTwins ) {
+    public void setIsTwins ( final Boolean isTwins ) {
         this.isTwins = isTwins;
     }
 

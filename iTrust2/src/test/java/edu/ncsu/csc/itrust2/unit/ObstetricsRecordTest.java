@@ -43,7 +43,7 @@ public class ObstetricsRecordTest {
      */
     @Test
     public void testObstetricsRecord () {
-        final LocalDate testDate = LocalDate.of( 2016, 10, 17 );
+        final LocalDate testDate = LocalDate.of( 2019, 01, 01 );
         final ObstetricsRecord obs = new ObstetricsRecord();
         obs.setLastMenstrualPeriod( testDate );
         obs.setId( (long) 2001 );
@@ -53,6 +53,11 @@ public class ObstetricsRecordTest {
         assertEquals( testDate.plusDays( 280 ), obs.getEstimatedDueDate() );
         assertTrue( obs.getPatient().equals( "patient" ) );
         assertTrue( obs.getId() == 2001 );
+        assertTrue( 10 < obs.getNumWeeksPregnant() );
+
+        final LocalDate testDate2 = LocalDate.of( 2018, 12, 01 );
+        obs.setLastMenstrualPeriod( testDate2 );
+        assertTrue( 13 < obs.getNumWeeksPregnant() );
 
     }
 
@@ -81,6 +86,31 @@ public class ObstetricsRecordTest {
         assertEquals( obs.getEstimatedDueDate(), copy.getEstimatedDueDate() );
         assertEquals( obs.getId(), copy.getId() );
         assertTrue( obs.getPatient().equals( copy.getPatient() ) );
+
+        final ObstetricsRecord copy2 = ObstetricsRecord.getByPatient( "patient" ).get( 0 );
+
+        assertEquals( obs.getLastMenstrualPeriod(), copy2.getLastMenstrualPeriod() );
+        assertEquals( obs.getEstimatedDueDate(), copy2.getEstimatedDueDate() );
+        assertEquals( obs.getId(), copy2.getId() );
+        assertTrue( obs.getPatient().equals( copy2.getPatient() ) );
+
+    }
+
+    /**
+     * Test to ensure ObstetricsRecord rejects invalid date inputs
+     *
+     */
+    @Test
+    public void testInvalidDate () {
+        final ObstetricsRecordForm obsForm = new ObstetricsRecordForm();
+        obsForm.setLastMenstrualPeriod( "2200-01-01" );
+
+        try {
+            final ObstetricsRecord obs = new ObstetricsRecord( obsForm );
+        }
+        catch ( final Exception e ) {
+            assertEquals( "Date must be before current date", e.getMessage() );
+        }
 
     }
 
