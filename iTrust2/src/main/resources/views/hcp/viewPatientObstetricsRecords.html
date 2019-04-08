@@ -14,12 +14,13 @@
                 app.controller('viewPatientObstetricsRecords', function ($scope, $http) {
                     $scope.Object = Object; // Allows for use of Object.keys()
                     $scope.priorPregnancies = [];
-                    $scope.currentPregnancy = {lastMenstrualPeriod:'', estDueDate:''}; // probably need number of weeks
+                    $scope.currentPregnancy = {lastMenstrualPeriod:'', estDueDate:'', numWeeksPregnant:0};
                     //$scope.lmpInputDate = new Date();
                     
+    				$scope.deliveryMethods = ['Vaginal Delivery', 'Caesarean Section', 'Miscarriage'];
                     
-					$scope.record = { lmpdate:''};
-                    // Display users' names
+    				$scope.record = { lmpdate:''};
+					// Display users' names
                     $scope.displayName = function (p) {
                         return p.firstName + " " + p.lastName + " (" + p.self.username + ")";
                     }
@@ -34,7 +35,9 @@
                     $http.get("/iTrust2/api/v1/patients/female")
                     	.then(
                         function (response) {
-                            $scope.patients = response.data; //all patients
+                            $scope.patients = response.data; //get only female patients
+                            console.log("Patient response data");
+                            console.log(response.data);
                         },
                         function (rejection) {
                             $scope.patient = null;
@@ -43,17 +46,21 @@
                     //Get data associated with selected patient
                     $scope.selectPatient = function (patient) {
                     	// Get past pregnancy info for patient
-                        $http.get("/iTrust2/api/v1/pregnancies/" + $scope.selectedPatient)
+                        $http.get("/iTrust2/api/v1/pregnancy/" + $scope.selectedPatient)
                         	.then(
                             function (response) { // on success
-                            	console.log("Success priorPregnancies");
                             	$scope.priorPregnancies = response.data || [];
                                 $scope.message = "";
-                                console.log("priorPregnancies?");
-                                console.log(response.data);
+                				$scope.pregnancyEntry = {
+               						conceptionYear: 0,
+									numWeeksPregnant: 0,
+               						numHrsLabor: 0,
+									deliveryMethod: '',
+                					twins: false
+               					};
+                            
                             }, //if it failed
                             function (rejection) {
-                            	//console.log("Fail pregnancy");
                             	$scope.priorPregnancies = [];
                                 $scope.message = "Could not display prior pregnancies.";
                             });
@@ -62,29 +69,73 @@
                         $http.get("/iTrust2/api/v1/obstetricsrecord/" + $scope.selectedPatient)
                         	.then(
                             function (response) { // on success
-                            	//console.log("Success obst records");
                             	$scope.currentPregnancy = response.data || {};
-                                $scope.message = "";
-                                console.log(response.data);
+                				$scope.lmpInputDate = new Date();
+                            	$scope.lmp = response.data.lastMenstrualPeriod;
+                                $scope.estDueDate = response.data.estDueDate;
+                                $scope.numWeeksPregnant = response.data.numWeeksPregnant;
+                            	$scope.message = "";
                             }, //if it failed
                             function (rejection) {
-                            	//console.log("Fail obst records");
                             	$scope.currentPregnancy = {};
                                 $scope.message = "Could not display current pregnancy.";
                             });
                      };
-                
-						// Stuff for submitting new record ----------------- - - -- - - - - - - - - - - - - -  -- - 
+	
+                     	$scope.displayPregForm = function() {
+                     		if ($scope.displayedPregForm) {
+                     			$scope.displayedPregForm = false;
+                     		} else {
+                     			$scope.displayedPregForm = true;
+                     		}
+                     	}
+                     
+                     	//Stuff for making a new pregnancy
+                     	$scope.submitPregnancy = function() {
+							//Check conception year
+							var currentYear = 2019;
+							if (isNaN($scope.pregnancyEntry.conceptionYear) || $scope.pregnancyEntry.conceptionYear > currentYear) {
+								$scope.errorMsg += "The year of conception must be a previous or current year.\n";
+							}
+							
+							if (isNaN($scope.pregnancyEntry.numWeeksPregnant) || $scope.pregnancyEntry.numWeeksPregnant < 0) {
+								$scope.errorMsg += "The number of weeks pregnant must be a positive integer.\n";
+							}
+							
+							if (isNaN($scope.pregnancyEntry.numHoursInLabor) || $scope.pregnancyEntry.numHoursInLabor < 0) {
+								$scope.errorMsg += "The number of hours in labor must be a positive integer.\n";
+							}
+
+							if (!$scope.pregnancyEntry.deliveryMethod) {
+								$scope.errorMsg += "A delivery method must be selected.\n";
+							}
+
+							if (!$scope.pregnancyEntry.isTwins) {
+								$scope.errorMsg += "You must enter whether the pregnancy was of twins or not.\n";
+							}
+                     		
+                     		
+                     		$http.post("/iTrust2/api/v1/pregnancy/" + $scope.selectedPatient, $scope.pregnancyEntry)
+							.then(
+								function success(response) {
+									$scope.message = "Pregnancy record has been added successfully."
+									$scope.errorMsg = "";
+									document.location.href = '/iTrust2/hcp/viewPatientObstetricsRecords.html';
+							},
+							function failure(rejection) {
+								$scope.failAddEntry();
+							});
+                     	}
+                     	
+						// Stuff for submitting new record 
 						$scope.failAddEntry = function() {
-			              	$scope.errorMsg += "Could not add Obstestric record."
+			              	$scope.errorMsg += "Could not add Obstestric record.";
 			 				$scope.message = "";
 			      		}
-			      		
-
 
 						//Submit functionality for LMP input
 						$scope.submitOb = function() {
-							$scope.lmpInputDate = new Date();
+	    					// Date info: https://docs.oracle.com/javase/7/docs/api/java/util/Date.html#getMonth()
 	    					// Validate entry date
 	                        var checkDate = new Date($scope.lmpInputDate);
 							var now = new Date(); // make sure it's not a future date
@@ -94,27 +145,17 @@
 	    						var dd = checkDate.getDate();
 								var mm = checkDate.getMonth()+1; 
 								var yyyy = checkDate.getFullYear();
-								if(dd < 10) 
-								{
+								if(dd < 10) {
 								   dd = '0' + dd;
 								} 
 								
-								if(mm < 10) 
-								{
+								if(mm < 10) {
 								   mm = '0' + mm;
 								} 
 	    						now = yyyy + '-' + mm + '-' + dd;
 	    						
-	    						console.log(now);
 	    						$scope.record.lmpdate = now;
 	    					}
-	    					
-	    					//console.log("**Date string");
-	    					// The date string needs to be in the form YYYY-MM-DD to be parsed correctly, but it looks like what
-	    					// it shows in this toString() function: https://docs.oracle.com/javase/7/docs/api/java/util/Date.html#getMonth()
-	    					
-	    					// Thanks for the info. This is very helpful!
-	    					
 
 	                        // Post the record to the REST API endpoint, and handle success/error
 	              			//console.log($scope.record);
@@ -126,8 +167,6 @@
 									    $scope.record = { lmpdate:''};
 										$scope.errorMsg = "";
 										document.location.href = '/iTrust2/hcp/viewPatientObstetricsRecords.html';
-									} else {
-										console.log("You shouldn't have deleted this :)");
 									}
 								},
 								function failure(rejection) {
@@ -140,7 +179,7 @@
 
 		<div ng-app="myApp" ng-controller="viewPatientObstetricsRecords" class="row">
 			<div class="col-md-3">
-				<h2>Patients: hello</h2>
+				<h2>Patients:</h2>
 				<!-- info on filtering taken from here: https://www.w3schools.com/angular/angular_filters.asp
                     and https://docs.angularjs.org/api/ng/filter/filter -->
 				<h4>
@@ -173,17 +212,19 @@
 								which to view Obstetrics Records.</div>
 							<div
 								ng-if="selectedPatient && currentPregnancy.length == 0">
-								<!-- currentPregnancy = {{currentPregnancy}} -->
 								There is no current pregnancy recorded for this patient.<br><br>
 							</div>
 
 							<div
 								ng-if="selectedPatient && (!priorPregnancies || Object.keys(priorPregnancies).length == 0)">
-								<!-- currentPregnancy = {{currentPregnancy}}
-								PriorPregnancies = {{priorPregnancies}} -->
-								<!--List = {{Object.keys(priorPregnancies)}} -->
 								There are no past pregnancies recorded for this patient.<br><br>
 							</div>
+							
+							<div class="form-group" ng-if="selectedPatient">
+								<button type="submit" class="btn btn-primary" ng-click=displayPregForm()
+								name="displayPregForm" id="displayPregForm">Toggle Pregnancy Form</button>
+							</div>
+							
 						</div>
 
 					<div class="col-md-5" ng-if="selectedPatient && currentPregnancy.length == 0">
@@ -196,12 +237,11 @@
 					</div>
 						<!-- If the current pregnancy exists, display the information.
 						Otherwise, let the user create a new record by entering the LMP. -->
-						{{selectedPatient}}
 						<div ng-if="selectedPatient && currentPregnancy.length > 0">
 								<b>Current Pregnancy Information: </b>
-								<br> Last Menstrual Period :{{currentPregnancy.lastMenstrualPeriod}}
-								<br> Estimated Due Date    :{{currentPregnancy.estDueDate}}
-								<br> Weeks Pregnant        : Some amount of weeks
+								<br> Last Menstrual Period: {{currentPregnancy[0].lastMenstrualPeriod}}
+								<br> Estimated Due Date:    {{currentPregnancy[0].estDueDate}}
+								<br> Weeks Pregnant:        {{currentPregnancy[0].numWeeksPregnant}}
 						</div>
 
 						<div
@@ -230,6 +270,55 @@
 								</tr>
 							</tbody>
 						</table>
+						
+						<div
+							ng-if="displayedPregForm">
+							
+							<div class="row">
+								<div class="col">
+									<b>New Pregnancy</b>
+								</div>
+
+								<div class="col-md-5">
+									<div class="form-group">
+										<label for="conceptionYear">Year of Conception</label>
+										<div class="input-group">
+											<input class="form-control" id="conceptionYear" type="number"
+												ng-model="pregnancyEntry.conceptionYear" name="conceptionYear" />
+										</div>
+									</div>
+									
+									<div class="form-group">
+										<label for="numWeeksPregnant">Number of Weeks Pregnant</label>
+										<div class="input-group">
+											<input class="form-control" id="numWeeksPregnant" type="number"
+												ng-model="pregnancyEntry.numWeeksPregnant" name="numWeeksPregnant" />
+										</div>
+									</div>
+									
+									<div class="form-group">
+										<label for="numHrsLabor">Number of Hours in Labor</label> <input
+											class="form-control" id="numHrsLabor" type="number"
+											ng-model="pregnancyEntry.numHrsLabor" name="numHrsLabor" />
+									</div>
+									
+									<div class="form-group">
+										<label for="deliveryMethod">Delivery Method</label> <select
+											class="form-control" ng-model="pregnancyEntry.deliveryMethod" id="deliveryMethod"
+											name="deliveryMethod">
+											<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
+										</select>
+									</div>
+
+								</div>
+							</div>
+							
+						</div>
+						
+						<div class="form-group" ng-if="selectedPatient">
+							<button type="submit" class="btn btn-primary" ng-click=submitOb()
+								name="submitOb" id="submitOb">Create Record</button>
+						</div>
 						
 						<div class="form-group" ng-if="selectedPatient && currentPregnancy.length == 0">
 							<button type="submit" class="btn btn-primary" ng-click=submitOb()
