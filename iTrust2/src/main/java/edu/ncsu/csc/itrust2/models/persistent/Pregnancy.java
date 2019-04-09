@@ -100,7 +100,10 @@ public class Pregnancy extends DomainObject<Pregnancy> implements Serializable {
         final Vector<Criterion> criteria = new Vector<Criterion>();
         criteria.add( eq( "patient", patient ) );
 
-        return (List<Pregnancy>) getWhere( Pregnancy.class, criteria );
+        final List<Pregnancy> list = (List<Pregnancy>) getWhere( Pregnancy.class, criteria );
+        list.sort( new PregnancyComparator() );
+
+        return list;
     }
 
     /**
@@ -265,6 +268,23 @@ public class Pregnancy extends DomainObject<Pregnancy> implements Serializable {
      */
     public void setId ( final Long id ) {
         this.id = id;
+    }
+
+    /**
+     * Compares this to another Pregnancy based on conception year
+     *
+     * @param po
+     * @return -1 if this comes before po, 1 if it comes after, 0 if same year
+     */
+    public int compare ( Pregnancy po ) {
+        if ( getConceptionYear() < po.getConceptionYear() ) {
+            return 1;
+        }
+        else if ( getConceptionYear() > po.getConceptionYear() ) {
+            return -1;
+        }
+
+        return 0;
     }
 
 }
