@@ -8,11 +8,12 @@
 	<div th:fragment="content">
 
 		<script th:inline="javascript">
+				"use strict";
+		
                 /* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
                 /*<![CDATA[*/
                 var app = angular.module('myApp', []);
                 app.controller('viewPatientObstetricsRecords', function ($scope, $http) {
-                    $scope.Object = Object; // Allows for use of Object.keys()
                     $scope.priorPregnancies = [];
                     $scope.currentPregnancy = {lastMenstrualPeriod:'', estDueDate:'', numWeeksPregnant:0};
                     $scope.entry = {lmpInputDate: new Date()};
@@ -52,6 +53,8 @@
                         	.then(
                             function (response) { // on success
                             	$scope.priorPregnancies = response.data || [];
+                            	console.log("YO");
+                            	console.log($scope.priorPregnancies);
                                 $scope.message = "";
                 				$scope.pregnancyEntry = {
                						conceptionYear: 0,
@@ -59,7 +62,7 @@
 									numHoursInLabor: 0,
 									deliveryMethod: '',
 									isTwins: false,
-									//twins:'' //for the yes/no submission
+									twinsYes:'' //for the yes/no submission
                					};
                             
                             }, //if it failed
@@ -119,11 +122,11 @@
 								$scope.errorMsg += "A delivery method must be selected.\n";
 							}
 							
-							if (!$scope.pregnancyEntry.isTwins || !($scope.pregnancyEntry.isTwins == 'Yes' || $scope.pregnancyEntry.isTwins == 'No') ) {
+							if (!$scope.pregnancyEntry.twinsYes || !($scope.pregnancyEntry.twinsYes == 'Yes' || $scope.pregnancyEntry.twinsYes == 'No') ) {
 								$scope.errorMsg += "You must enter whether the pregnancy was of twins or not.\n";
 							}
 
-							$scope.pregnancyEntry.isTwins = ($scope.pregnancyEntry.isTwins == 'Yes');
+							$scope.pregnancyEntry.isTwins = ($scope.pregnancyEntry.twinsYes == 'Yes'); //save as boolean
 							
                      		$http.post("/iTrust2/api/v1/pregnancy/" + $scope.selectedPatient, $scope.pregnancyEntry)
 							.then(
@@ -234,23 +237,34 @@
 							
 							<div
 								ng-if="selectedPatient && currentPregnancy.length == 0">
-								<br><b>There is no current pregnancy recorded for this patient.</b><br><br>
+								<br>There is no current pregnancy recorded for this patient.<br><br>
+							</div>
+							
+							<div
+								ng-if="selectedPatient && (!priorPregnancies || priorPregnancies.length == 0) && !currentPregnancy[0].lastMenstrualPeriod">
+								To add a past pregnancy, initialize the patient with the last menstrual period.
+							</div>
+							<div
+								ng-if="priorPregnancies && priorPregnancies.length > 0">
+								<br><b>Prior Pregnancies</b>
 							</div>
 						</div>
 
 					<div class="col-md-5" ng-if="selectedPatient && currentPregnancy.length == 0">
 						<div class="form-group">
-							<label for="date">Last Menstrual Period</label>
+							<label for="date">Last Menstrual Period<br></label>
 								<input class="form-control"
 								id="date" type="date" ng-model="entry.lmpInputDate"  name="date"
 								required="true" />
 						</div>
+						
+						<div class="form-group" ng-if="selectedPatient && currentPregnancy.length == 0">
+							<button type="submit" class="btn btn-primary" ng-click=submitOb()
+								name="submitOb" id="submitOb">Create Pregnancy Record</button>
+						</div>
+						
 					</div>
 					
-					<div class="form-group" ng-if="selectedPatient && currentPregnancy.length == 0">
-						<button type="submit" class="btn btn-primary" ng-click=submitOb()
-							name="submitOb" id="submitOb">Create Record</button>
-					</div>
 
 						<!-- If the current pregnancy exists, display the information.
 						Otherwise, let the user create a new record by entering the LMP. -->
@@ -262,12 +276,13 @@
 						</div>
 
 						<div
-							ng-if="priorPregnancies && Object.keys(priorPregnancies).length > 0">
-							<b>Prior Pregnancies</b>
+							ng-if="selectedPatient && (!priorPregnancies || priorPregnancies.length == 0)">
+							<br><br>There are no past pregnancies recorded for this patient.
+								
 						</div>
 
-						<table class="table table-bordered"
-							ng-repeat="field in priorPregnancies">
+						<table class="table table-bordered" ng-if="selectedPatient && priorPregnancies.length > 0">
+							<!-- ng-repeat="pregnancy in priorPregnancies">  -->
 							<thead>
 								<tr>
 									<th>Year of Conception</th>
@@ -278,22 +293,19 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr ng-repeat="field track by $index">
-									<td id="conceptionYear-{{$index}}">{{field.conceptionYear}}</td>
-									<td id="numWeeksPregnant-{{$index}}">{{field.numWeeksPregnant}}</td>
-									<td id="numHoursInLabor-{{$index}}">{{field.numHoursInLabor}}</td>
-									<td id="deliveryMethod-{{$index}}">{{field.deliveryMethod}}</td>
-									<td id="isTwins-{{$index}}">{{field.isTwins}}</td>
+								<!-- <tr ng-repeat="pregnancy in priorPregnancies track by $index"> -->
+								<tr ng-repeat="pregnancy in priorPregnancies">
+									<td id="conceptionYear-{{$index}}">{{pregnancy.conceptionYear}}</td>
+									<td id="numWeeksPregnant-{{$index}}">{{pregnancy.numberOfWeeksPregnant}}</td>
+									<td id="numHoursInLabor-{{$index}}">{{pregnancy.numberOfHoursInLabor}}</td>
+									<td id="deliveryMethod-{{$index}}">{{pregnancy.deliveryMethod}}</td>
+									<td id="twins-{{$index}}" ng-if="pregnancy.twins">Yes</td>
+									<td id="twins2-{{$index}}" ng-if="!pregnancy.twins">No</td>
 								</tr>
 							</tbody>
 						</table>
 						
-						<div
-								ng-if="selectedPatient && (!priorPregnancies || Object.keys(priorPregnancies).length == 0)">
-								<br><b>There are no past pregnancies recorded for this patient.</b><br><br>
-						</div>
-						
-						<div class="form-group" ng-if="selectedPatient">
+						<div class="form-group" ng-if="selectedPatient && currentPregnancy[0].lastMenstrualPeriod">
 								<button type="submit" class="btn btn-primary" ng-click=displayPregForm()
 								name="displayPregForm" id="displayPregForm">Toggle New Pregnancy Form</button>
 						</div>
@@ -339,9 +351,9 @@
 									</div>
 									
 									<div class="form-group">
-										<label for="isTwins">Twins</label> <select
-											class="form-control" ng-model="pregnancyEntry.isTwins" id="isTwins"
-											name="isTwins">
+										<label for="twinsYes">Twins</label> <select
+											class="form-control" ng-model="pregnancyEntry.twinsYes" id="twinsYes"
+											name="twinsYes">
 											<option ng-repeat="twinOption in twinOptions">{{twinOption}}</option>
 										</select>
 									</div>
