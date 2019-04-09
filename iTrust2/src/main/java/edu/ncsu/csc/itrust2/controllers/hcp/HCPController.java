@@ -100,4 +100,27 @@ public class HCPController {
         return "/hcp/viewPatientFoodDiary";
     }
 
+    /**
+     * Returns the page allowing HCPs to view patient's obstetrics records
+     *
+     * @return The page to display
+     */
+    @GetMapping ( "/hcp/viewPatientObstetricsRecords" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
+    public String viewObstetricsRecords () {
+        return "/hcp/viewPatientObstetricsRecords";
+    }
+
+    /**
+     * Returns the page allowing OBGYNs to create obstetrics records for a
+     * patient
+     *
+     * @return The page to display
+     */
+    @GetMapping ( "/hcp/createPatientObstetricsRecords" )
+    @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
+    public String createObstetricsRecords () {
+        return "/hcp/createPatientObstetricsRecords";
+    }
+
 }

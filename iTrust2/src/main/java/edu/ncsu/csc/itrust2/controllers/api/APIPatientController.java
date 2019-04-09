@@ -1,5 +1,6 @@
 package edu.ncsu.csc.itrust2.controllers.api;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.ncsu.csc.itrust2.forms.hcp_patient.PatientForm;
+import edu.ncsu.csc.itrust2.models.enums.Gender;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
@@ -46,6 +48,27 @@ public class APIPatientController extends APIController {
             p.setRepresented( null );
         }
         return patients;
+    }
+
+    /**
+     * Retrieves and returns a list of all female Patients stored in the system
+     *
+     * @return list of patients
+     */
+    @GetMapping ( BASE_PATH + "/patients/female" )
+    public List<Patient> getFemalePatients () {
+        final List<Patient> patients = Patient.getPatients();
+        final List<Patient> femalePatients = new ArrayList<Patient>();
+        for ( final Patient p : patients ) {
+            if ( p.getGender() == Gender.Female ) {
+                femalePatients.add( p );
+            }
+        }
+        for ( final Patient p : femalePatients ) {
+            p.setRepresentatives( null );
+            p.setRepresented( null );
+        }
+        return femalePatients;
     }
 
     /**
