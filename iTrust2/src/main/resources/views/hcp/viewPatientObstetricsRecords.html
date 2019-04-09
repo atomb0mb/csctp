@@ -237,16 +237,17 @@
 							
 							<div
 								ng-if="selectedPatient && currentPregnancy.length == 0">
-								<br>There is no current pregnancy recorded for this patient.<br><br>
+								<br>There is no current pregnancy recorded for this patient.
+							</div>
+							
+							<div
+								ng-if="selectedPatient && (!priorPregnancies || priorPregnancies.length == 0)">
+								There are no past pregnancies recorded for this patient.
 							</div>
 							
 							<div
 								ng-if="selectedPatient && (!priorPregnancies || priorPregnancies.length == 0) && !currentPregnancy[0].lastMenstrualPeriod">
-								To add a past pregnancy, initialize the patient with the last menstrual period.
-							</div>
-							<div
-								ng-if="priorPregnancies && priorPregnancies.length > 0">
-								<br><b>Prior Pregnancies</b>
+								To add a past pregnancy, initialize the patient in the system with the last menstrual period.
 							</div>
 						</div>
 
@@ -276,11 +277,10 @@
 						</div>
 
 						<div
-							ng-if="selectedPatient && (!priorPregnancies || priorPregnancies.length == 0)">
-							<br><br>There are no past pregnancies recorded for this patient.
-								
+							ng-if="priorPregnancies && priorPregnancies.length > 0">
+							<br><b>Prior Pregnancies</b>
 						</div>
-
+							
 						<table class="table table-bordered" ng-if="selectedPatient && priorPregnancies.length > 0">
 							<!-- ng-repeat="pregnancy in priorPregnancies">  -->
 							<thead>
