@@ -106,7 +106,9 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
         final Vector<Criterion> criteria = new Vector<Criterion>();
         criteria.add( eq( "patient", patient ) );
 
-        return (List<ObstetricsRecord>) getWhere( ObstetricsRecord.class, criteria );
+        final List<ObstetricsRecord> list = (List<ObstetricsRecord>) getWhere( ObstetricsRecord.class, criteria );
+
+        return list;
     }
 
     /**

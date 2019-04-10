@@ -4,6 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,6 +15,7 @@ import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.Pregnancy;
+import edu.ncsu.csc.itrust2.models.persistent.PregnancyComparator;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 
 /**
@@ -136,6 +140,38 @@ public class PregnancyTest {
         catch ( final Exception e ) {
             assertEquals( "Number of hours in labor must be a positive, nonzero number", e.getMessage() );
         }
+    }
+
+    /** Tests Pregnancy's comparator class that is called in get */
+    @Test
+    public void testComparator () {
+        final Pregnancy p1 = new Pregnancy();
+        final Pregnancy p2 = new Pregnancy();
+        final Pregnancy p3 = new Pregnancy();
+        final Pregnancy p4 = new Pregnancy();
+        final Pregnancy p5 = new Pregnancy();
+        p1.setConceptionYear( 2017 );
+        p2.setConceptionYear( 2014 );
+        p3.setConceptionYear( 2012 );
+        p4.setConceptionYear( 2019 );
+        p5.setConceptionYear( 2016 );
+
+        final List<Pregnancy> pList = new ArrayList<Pregnancy>();
+
+        pList.add( p1 );
+        pList.add( p2 );
+        pList.add( p3 );
+        pList.add( p4 );
+        pList.add( p5 );
+
+        pList.sort( new PregnancyComparator() );
+
+        assertEquals( (Integer) 2019, pList.get( 0 ).getConceptionYear() );
+        assertEquals( (Integer) 2017, pList.get( 1 ).getConceptionYear() );
+        assertEquals( (Integer) 2016, pList.get( 2 ).getConceptionYear() );
+        assertEquals( (Integer) 2014, pList.get( 3 ).getConceptionYear() );
+        assertEquals( (Integer) 2012, pList.get( 4 ).getConceptionYear() );
+
     }
 
 }
