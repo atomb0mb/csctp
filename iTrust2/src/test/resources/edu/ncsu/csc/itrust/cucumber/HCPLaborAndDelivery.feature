@@ -27,12 +27,12 @@ Scenario Outline: View a Patient labor and delivery reports
 	And Dr Jenkin has logged in and chosen to view a patient labor and delivery record
 	Then he selects patient <name>
 	And he selects date to view <date>
-	The labor and delivery reports display <dateL> <timeL> <dateD> <timeD <type> <pounds> <inches> <bpm> <mmhg> <first> and <last>
+	Then The labor and delivery reports display <dateL> <timeL> <dateD> <timeD> <type> <pounds> <inches> <bpm> <mmhg> <first> and <last>
 	
 Examples:
 	| name      | dateL       | timeL     | dateD      | timeD    | type             | pounds | inches | bpm | mmhg | first | last     |
 	| patient   | 01/01/2018 | 10:15 AM   | 09/16/2018 | 06:15 PM | Vaginal Delivery | 8.2    | 14.0   | 120 | 64   | Peach | Salinger |
-        | patient   | 01/01/2018 | 10:16 AM   | 09/16/2018 | 06:19 PM | Cesarean Section | 8.8    | 13.6   | 116 | 63   | Peach | Savanna  |
+    | patient   | 01/01/2018 | 10:16 AM   | 09/16/2018 | 06:19 PM | Cesarean Section | 8.8    | 13.6   | 116 | 63   | Peach | Savanna  |
 	| emy13     | 04/01/2019 | 11:15 AM   | 10/02/2019 | 03:15 AM | Miscarriage      |        |        |     |      |       |          |
 
 
