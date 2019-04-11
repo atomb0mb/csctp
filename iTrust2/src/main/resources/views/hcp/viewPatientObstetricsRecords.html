@@ -39,8 +39,6 @@
                     	.then(
                         function (response) {
                             $scope.patients = response.data; //get only female patients
-                            console.log("Patient response data");
-                            console.log(response.data);
                         },
                         function (rejection) {
                             $scope.patient = null;
@@ -53,8 +51,6 @@
                         	.then(
                             function (response) { // on success
                             	$scope.priorPregnancies = response.data || [];
-                            	console.log("YO");
-                            	console.log($scope.priorPregnancies);
                                 $scope.message = "";
                 				$scope.pregnancyEntry = {
                						conceptionYear: 0,
@@ -98,15 +94,12 @@
                      
                      	//Stuff for making a new pregnancy
                      	$scope.submitPregnancy = function() {
-							console.log("Submitting pregnancy");
-							console.log($scope.pregnancyEntry);
-							
 							//Clear any error messages
                      		$scope.errorMsg = "";
                      		
 							//Check conception year
 							var currentYear = 2019;
-							if (isNaN($scope.pregnancyEntry.conceptionYear) || $scope.pregnancyEntry.conceptionYear > currentYear) {
+							if (isNaN($scope.pregnancyEntry.conceptionYear) || $scope.pregnancyEntry.conceptionYear > currentYear || $scope.pregnancyEntry.conceptionYear < 0) {
 								$scope.errorMsg += "The year of conception must be a previous or current year.\n";
 							}
 							
@@ -181,7 +174,6 @@
 	    					}
 
 	                        // Post the record to the REST API endpoint, and handle success/error
-	              			//console.log($scope.record);
 	     					$http.post("/iTrust2/api/v1/obstetricsrecord/" + $scope.selectedPatient, $scope.record)
 								.then(
 									function success(response) {
