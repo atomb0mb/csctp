@@ -267,6 +267,11 @@ public class HibernateDataGenerator {
         rebecca.setDateOfBirth( LocalDate.now().minusYears( 30 ) ); // 30 years
                                                                     // old
 
+
+        final LocalDate testDate = LocalDate.of( 2016, 10, 17 );
+        final ObstetricsRecord obs = new ObstetricsRecord();
+        obs.setLastMenstrualPeriod( testDate );
+        obs.setPatient( "rebecca" );
         rebecca.save();
 
         final Patient zara = new Patient();
