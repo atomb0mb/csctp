@@ -1,5 +1,6 @@
 package edu.ncsu.csc.itrust2.controllers.api;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.ncsu.csc.itrust2.forms.hcp_patient.PatientForm;
+import edu.ncsu.csc.itrust2.models.enums.Gender;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
@@ -46,6 +48,27 @@ public class APIPatientController extends APIController {
             p.setRepresented( null );
         }
         return patients;
+    }
+
+    /**
+     * Retrieves and returns a list of all female Patients stored in the system
+     *
+     * @return list of patients
+     */
+    @GetMapping ( BASE_PATH + "/patients/female" )
+    public List<Patient> getFemalePatients () {
+        final List<Patient> patients = Patient.getPatients();
+        final List<Patient> femalePatients = new ArrayList<Patient>();
+        for ( final Patient p : patients ) {
+            if ( p.getGender() == Gender.Female ) {
+                femalePatients.add( p );
+            }
+        }
+        for ( final Patient p : femalePatients ) {
+            p.setRepresentatives( null );
+            p.setRepresented( null );
+        }
+        return femalePatients;
     }
 
     /**
@@ -151,7 +174,8 @@ public class APIPatientController extends APIController {
         try {
             if ( ( !auth.getAuthorities().contains( new SimpleGrantedAuthority( "ROLE_HCP" ) )
                     && !auth.getAuthorities().contains( new SimpleGrantedAuthority( "ROLE_OD" ) )
-                    && !auth.getAuthorities().contains( new SimpleGrantedAuthority( "ROLE_OPH" ) ) )
+                    && !auth.getAuthorities().contains( new SimpleGrantedAuthority( "ROLE_OPH" ) )
+                    && !auth.getAuthorities().contains( new SimpleGrantedAuthority( "ROLE_OBGYN" ) ) )
                     && ( !auth.getAuthorities().contains( new SimpleGrantedAuthority( "ROLE_PATIENT" ) )
                             || !auth.getName().equals( id ) ) ) {
                 return new ResponseEntity( errorResponse( "You do not have permission to edit this record" ),
@@ -160,7 +184,8 @@ public class APIPatientController extends APIController {
 
             userEdit = auth.getAuthorities().contains( new SimpleGrantedAuthority( "ROLE_HCP" ) )
                     || auth.getAuthorities().contains( new SimpleGrantedAuthority( "ROLE_OD" ) )
-                    || auth.getAuthorities().contains( new SimpleGrantedAuthority( "ROLE_OPH" ) );
+                    || auth.getAuthorities().contains( new SimpleGrantedAuthority( "ROLE_OPH" ) )
+                    || auth.getAuthorities().contains( new SimpleGrantedAuthority( "ROLE_OBGYN" ) );
         }
         catch ( final Exception e ) {
             return new ResponseEntity( HttpStatus.UNAUTHORIZED );
@@ -208,7 +233,7 @@ public class APIPatientController extends APIController {
      * @return The patient objects for all the users representatives.
      */
     @GetMapping ( BASE_PATH + "/patient/representatives/{username}" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_PATIENT')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN', 'ROLE_PATIENT')" )
     public ResponseEntity getRepresentatives ( @PathVariable final String username ) {
         final User me = User.getByName( LoggerUtil.currentUser() );
         if ( me.getRole() == Role.ROLE_PATIENT && !me.getUsername().equals( username ) ) {
@@ -243,7 +268,7 @@ public class APIPatientController extends APIController {
      * @return The patient objects for all the users representatives.
      */
     @GetMapping ( BASE_PATH + "/patient/representing/{username}" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_PATIENT')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN', 'ROLE_PATIENT')" )
     public ResponseEntity getRepresenting ( @PathVariable final String username ) {
         final User me = User.getByName( LoggerUtil.currentUser() );
         if ( me.getRole() == Role.ROLE_PATIENT && !me.getUsername().equals( username ) ) {
@@ -280,7 +305,7 @@ public class APIPatientController extends APIController {
      * @return The patient objects for all the users representatives.
      */
     @GetMapping ( BASE_PATH + "/patient/representatives/{patient}/{representative}" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_PATIENT')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN', 'ROLE_PATIENT')" )
     public ResponseEntity addRepresentative ( @PathVariable final String patient,
             @PathVariable final String representative ) {
         final User me = User.getByName( LoggerUtil.currentUser() );
@@ -348,7 +373,7 @@ public class APIPatientController extends APIController {
      * @return The patient objects for all the users representatives.
      */
     @GetMapping ( BASE_PATH + "/patient/representatives/remove/{patient}/{representative}" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_PATIENT')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN', 'ROLE_PATIENT')" )
     public ResponseEntity removeRepresentative ( @PathVariable final String patient,
             @PathVariable final String representative ) {
         final User me = User.getByName( LoggerUtil.currentUser() );

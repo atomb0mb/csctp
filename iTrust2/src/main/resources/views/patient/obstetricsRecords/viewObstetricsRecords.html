@@ -1,0 +1,114 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="layout :: head(title=~{::title},links=~{})">
+<title>View Obstetrics Records</title>
+</head>
+
+<body th:include="layout :: body" th:with="content=~{::content}">
+	<div th:fragment="content">
+
+		<script th:inline="javascript">
+				"use strict";
+		
+                /* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
+                /*<![CDATA[*/
+                var app = angular.module('myApp', []);
+                app.controller('viewObstetricsRecords', function ($scope, $http) {
+                    $scope.priorPregnancies = [];
+                    $scope.currentPregnancy = {lastMenstrualPeriod:'', estDueDate:'', numWeeksPregnant:0};
+
+                   	// Get past pregnancy info for patient
+                       $http.get("/iTrust2/api/v1/pregnancy/")
+                       	.then(
+                           function (response) { // on success
+                           	$scope.priorPregnancies = response.data || [];
+                            $scope.message = "";
+               				$scope.pregnancyEntry = {
+           						conceptionYear: 0,
+								numWeeksPregnant: 0,
+								numHoursInLabor: 0,
+								deliveryMethod: '',
+								isTwins: false,
+								twinsYes:'' //for the yes/no submission
+           					};
+                           }, //if it failed
+                           function (rejection) {
+                           	$scope.priorPregnancies = [];
+                               $scope.message = "Could not display prior pregnancies.";
+                           });
+                       
+                       // Get current pregnancy info for patient
+                       $http.get("/iTrust2/api/v1/obstetricsrecord/")
+                       	.then(
+							function (response) { // on success
+                           		$scope.currentPregnancy = response.data || {};
+               					$scope.lmpInputDate = new Date();
+                           		$scope.lmp = response.data.lastMenstrualPeriod;
+								$scope.estDueDate = response.data.estDueDate;
+								$scope.numWeeksPregnant = response.data.numWeeksPregnant;
+                           		$scope.message = "";
+                           }, //if it failed
+                           function (rejection) {
+                           		$scope.currentPregnancy = {};
+                           		$scope.message = "Could not display current pregnancy.";
+                           });
+                });
+                /*]]>*/
+            </script>
+
+		<div ng-app="myApp" ng-controller="viewObstetricsRecords" class="row">
+			<div class="col-md-9">
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						<h3>Obstetrics Record</h3>
+					</div>
+					<div class="panel-body">
+						<div style="margin-left: 10px;">
+							<div
+								ng-if="currentPregnancy.length == 0">
+								<br>There is no current pregnancy recorded for this patient.
+							</div>
+							<div
+								ng-if="!priorPregnancies || priorPregnancies.length == 0">
+								There are no past pregnancies recorded for this patient.
+							</div>
+						<!-- If the current pregnancy exists, display the information.
+						Otherwise, let the user create a new record by entering the LMP. -->
+						<div ng-if="currentPregnancy.length > 0">
+								<b>Current Pregnancy Information: </b>
+								<br> Last Menstrual Period: {{currentPregnancy[0].lastMenstrualPeriod}}
+								<br> Estimated Due Date:    {{currentPregnancy[0].estDueDate}}
+								<br> Weeks Pregnant:        {{currentPregnancy[0].numWeeksPregnant}}
+						</div>
+						<div
+							ng-if="priorPregnancies && priorPregnancies.length > 0">
+							<br><b>Prior Pregnancies</b>
+						</div>
+							
+						<table class="table table-bordered" ng-if="priorPregnancies.length > 0">
+							<!-- ng-repeat="pregnancy in priorPregnancies">  -->
+							<thead>
+								<tr>
+									<th>Year of Conception</th>
+									<th>Weeks Pregnant</th>
+									<th>Hours in Labor</th>
+									<th>Delivery Method</th>
+									<th>Twins</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="pregnancy in priorPregnancies">
+									<td id="conceptionYear-{{$index}}">{{pregnancy.conceptionYear}}</td>
+									<td id="numWeeksPregnant-{{$index}}">{{pregnancy.numberOfWeeksPregnant}}</td>
+									<td id="numHoursInLabor-{{$index}}">{{pregnancy.numberOfHoursInLabor}}</td>
+									<td id="deliveryMethod-{{$index}}">{{pregnancy.deliveryMethod}}</td>
+									<td id="twins-{{$index}}" ng-if="pregnancy.twins">Yes</td>
+									<td id="twins2-{{$index}}" ng-if="!pregnancy.twins">No</td>
+								</tr>
+							</tbody>
+						</table>
+				</div>
+			</div>
+		</div>
+</body>
+</html>
