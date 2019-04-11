@@ -271,7 +271,6 @@ public class HibernateDataGenerator {
         final LocalDate testDate = LocalDate.of( 2016, 10, 17 );
         final ObstetricsRecord obs = new ObstetricsRecord();
         obs.setLastMenstrualPeriod( testDate );
-        obs.setId( (long) 2001 );
         obs.setPatient( "rebecca" );
 
         rebecca.save();
