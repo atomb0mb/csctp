@@ -13,8 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.ncsu.csc.itrust2.forms.hcp.LaborDeliveryForm;
+import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
 import edu.ncsu.csc.itrust2.models.persistent.LaborDeliveryReport;
+import edu.ncsu.csc.itrust2.models.persistent.Patient;
+import edu.ncsu.csc.itrust2.models.persistent.User;
 import edu.ncsu.csc.itrust2.utils.LoggerUtil;
 
 /**
@@ -49,6 +52,41 @@ public class APIDeliveryController extends APIController {
             report.save();
             LoggerUtil.log( TransactionType.OBGYN_CREATES_LABOR_DELIVERY_REPORT, LoggerUtil.currentUser(),
                     report.getPatient() );
+            try {
+                if ( report.getFirstname() != null ) {
+                    final Patient first = new Patient();
+                    first.setFirstName( report.getFirstname() );
+                    final User babyuser = new User( report.getFirstname() + report.getLastname(),
+                            "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
+                    babyuser.save();
+                    first.setSelf( babyuser );
+                    first.setDateOfBirth( report.getDeliveryDate().toLocalDate() );
+                    first.setMother( User.getByName( report.getPatient() ) );
+                    first.save();
+                    LoggerUtil.log( TransactionType.CREATE_USER, LoggerUtil.currentUser(),
+                            report.getFirstname() + report.getLastname(), null );
+                    LoggerUtil.log( TransactionType.CREATE_DEMOGRAPHICS, LoggerUtil.currentUser() );
+                }
+                if ( report.getFirstnameTwin() != null ) {
+                    final Patient second = new Patient();
+                    second.setFirstName( report.getFirstnameTwin() );
+                    final User twin = new User( report.getFirstnameTwin() + report.getLastnameTwin(),
+                            "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
+                    twin.save();
+                    second.setSelf( twin );
+                    second.setDateOfBirth( report.getDeliveryDate().toLocalDate() );
+                    second.setMother( User.getByName( report.getPatient() ) );
+                    second.save();
+                    LoggerUtil.log( TransactionType.CREATE_USER, LoggerUtil.currentUser(),
+                            report.getFirstname() + report.getLastname(), null );
+                    LoggerUtil.log( TransactionType.CREATE_DEMOGRAPHICS, LoggerUtil.currentUser() );
+                }
+            }
+            catch ( final Exception e ) {
+                return new ResponseEntity( errorResponse( "Could not create users because of " + e.getMessage() ),
+                        HttpStatus.BAD_REQUEST );
+            }
+
             return new ResponseEntity( report, HttpStatus.OK );
         }
         catch ( final Exception e ) {

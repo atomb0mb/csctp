@@ -87,6 +87,7 @@ public class APIDeliveryControllerTest {
         form.setDeliverymethod( DeliveryMethod.CaesareanSection );
         form.setLaborDate( "2048-04-16T09:50:00.000-04:00" );
         form.setFirstname( "Henry" );
+        form.setFirstnameTwin( "Twin" );
 
         mvc.perform( post( "/api/v1/LaborDelivery" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( form ) ) ).andExpect( status().isOk() );
