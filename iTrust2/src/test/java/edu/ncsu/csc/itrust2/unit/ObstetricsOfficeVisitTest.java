@@ -30,7 +30,7 @@ public class ObstetricsOfficeVisitTest {
      * Tests creating a new ObstetricsOfficeVisit with fields
      *
      * @throws ParseException
-     *             if the data from the form cant be parsed
+     *             if the data from the form can't be parsed
      */
     @Test
     public void testObstetricsOfficeVisit () throws ParseException {

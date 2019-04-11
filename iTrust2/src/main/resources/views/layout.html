@@ -93,43 +93,53 @@ a {
 
 <body th:fragment="body">
 	<script th:inline="javascript">
-		$(function () {
-			$http = angular.injector(["ng"]).get("$http");
-			$http.get("/iTrust2/api/v1/role").then(
-				function (response) {
-					var role = response.data.message; //contains user role
-					var navbarparent = document.getElementById('navbar-parent');
-					var admindropdown = document.getElementById('admin-dropdown');
-					var patientdropdown = document.getElementById('patient-dropdown');
-					var hcpdropdown = document.getElementById('hcp-dropdown');
-					var erdropdown = document.getElementById('er-dropdown');
-					var ltdropdown = document.getElementById('labtech-dropdown');
-					var obdropdown = document.getElementById('obgyn-dropdown');
-					if (!role.includes('PATIENT')) {
-						navbarparent.removeChild(patientdropdown);
-					}
-					if (!role.includes('ADMIN')) {
-						navbarparent.removeChild(admindropdown);
-					}
-					if (!(role.includes('HCP') || role.includes('OD') || role.includes('OPH'))) {
-						navbarparent.removeChild(hcpdropdown);
-					}
-					if (!role.includes('ER')) {
-						navbarparent.removeChild(erdropdown);
-					}
-					if (!role.includes('LABTECH')) {
-						navbarparent.removeChild(ltdropdown);
-					}
-					if (!role.includes('OBGYN')) {
-						navbarparent.removeChild(obdropdown);
-					}
-				});
+		$(function() {
+			$http = angular.injector([ "ng" ]).get("$http");
+			$http.get("/iTrust2/api/v1/role")
+					.then(
+							function(response) {
+								var role = response.data.message; //contains user role
+								var navbarparent = document
+										.getElementById('navbar-parent');
+								var admindropdown = document
+										.getElementById('admin-dropdown');
+								var patientdropdown = document
+										.getElementById('patient-dropdown');
+								var hcpdropdown = document
+										.getElementById('hcp-dropdown');
+								var erdropdown = document
+										.getElementById('er-dropdown');
+								var ltdropdown = document
+										.getElementById('labtech-dropdown');
+								var obdropdown = document
+										.getElementById('obgyn-dropdown');
+								if (!role.includes('PATIENT')) {
+									navbarparent.removeChild(patientdropdown);
+								}
+								if (!role.includes('ADMIN')) {
+									navbarparent.removeChild(admindropdown);
+								}
+								if (!(role.includes('HCP')
+										|| role.includes('OD') || role
+										.includes('OPH'))) {
+									navbarparent.removeChild(hcpdropdown);
+								}
+								if (!role.includes('ER')) {
+									navbarparent.removeChild(erdropdown);
+								}
+								if (!role.includes('LABTECH')) {
+									navbarparent.removeChild(ltdropdown);
+								}
+								if (!role.includes('OBGYN')) {
+									navbarparent.removeChild(obdropdown);
+								}
+							});
 			/* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
 			/*<![CDATA[*/
 
 		})
 
-			/*]]>*/
+		/*]]>*/
 	</script>
 	<div id="wrap">
 
@@ -183,8 +193,11 @@ a {
 								id="HCPFoodDiary">View Patient Food Diary</a></li>
 							<li><a href="/iTrust2/hcp/viewPatientOfficeVisits.html"
 								id="HCPOfficeVisits">View Patient Office Visits</a></li>
-							<li><a href="/iTrust2/hcp/viewPatientObstetricsRecordsRestricted.html"
+							<li><a
+								href="/iTrust2/hcp/viewPatientObstetricsRecordsRestricted.html"
 								id="HCPObstetricsRecordsRestricted">View Obstetrics Records</a></li>
+							<li><a href="/iTrust2/hcp/laborDeliveryReportsRestricted.html"
+								id="HCPLaborDeliveryReports">View Labor and Delivery Reports</a></li>
 						</ul></li>
 					<li class="dropdown"><a class="dropdown-toggle"
 						data-toggle="dropdown" href="#">Edit<span class="caret"></span></a>
@@ -197,7 +210,7 @@ a {
 								id="editPrescriptions-personnel">Edit Prescriptions</a></li>
 						</ul></li>
 				</ul>
-				
+
 				<!-- OBGYN navbar -->
 				<ul id="obgyn-dropdown" class="nav navbar-nav">
 					<li class="dropdown"><a class="dropdown-toggle"
@@ -221,6 +234,8 @@ a {
 								id="HCPOfficeVisits">View Patient Office Visits</a></li>
 							<li><a href="/iTrust2/hcp/viewPatientObstetricsRecords.html"
 								id="HCPObstetricsRecords">View Obstetrics Records</a></li>
+							<li><a href="/iTrust2/hcp/laborDeliveryReports.html"
+								id="OBGYNLaborDeliveryReport">View Labor and Delivery Reports</a></li>
 						</ul></li>
 					<li class="dropdown"><a class="dropdown-toggle"
 						data-toggle="dropdown" href="#">Edit<span class="caret"></span></a>
@@ -231,9 +246,11 @@ a {
 								id="editOfficeVisit">Edit Office Visit</a></li>
 							<li><a href="/iTrust2/hcp/editPrescriptions"
 								id="editPrescriptions-personnel">Edit Prescriptions</a></li>
+							<li><a href="/iTrust2/hcp/editLaborDeliveryReport"
+								id="editLDReport">Edit Labor and Delivery Report</a></li>
 						</ul></li>
 				</ul>
-				
+
 				<!-- ER Dropdown -->
 				<ul id="er-dropdown" class="nav navbar-nav">
 					<li class="dropdown"><a class="dropdown-toggle"
@@ -284,7 +301,8 @@ a {
 								id="viewFoodDiaryEntries">View Food Diary Entries</a></li>
 							<li><a href="/iTrust2/patient/foodDiary/addFoodDiaryEntry"
 								id="addFoodDiaryEntry">Add Food Diary Entry</a></li>
-							<li><a href="/iTrust2/patient/obstetricsRecords/viewObstetricsRecords.html"
+							<li><a
+								href="/iTrust2/patient/obstetricsRecords/viewObstetricsRecords.html"
 								id="viewObstetricsRecords">View Obstetrics Records</a></li>
 						</ul></li>
 					<li class="dropdown"><a class="dropdown-toggle"
