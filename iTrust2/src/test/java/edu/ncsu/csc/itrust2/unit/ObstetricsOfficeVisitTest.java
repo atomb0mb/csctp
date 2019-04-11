@@ -16,7 +16,6 @@ import edu.ncsu.csc.itrust2.models.persistent.BasicHealthMetrics;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.Hospital;
 import edu.ncsu.csc.itrust2.models.persistent.ObstetricsOfficeVisit;
-import edu.ncsu.csc.itrust2.models.persistent.OfficeVisit;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 
 /**
@@ -190,7 +189,6 @@ public class ObstetricsOfficeVisitTest {
 
         // Test the visit's persistence
         final ObstetricsOfficeVisit copy = ObstetricsOfficeVisit.getById( visit.getId() );
-        assertEquals( OfficeVisit.getOfficeVisits().size(), 1 );
         assertFalse( copy == null );
         assertEquals( visit.getId(), copy.getId() );
         assertEquals( visit.getAppointment(), copy.getAppointment() );

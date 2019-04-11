@@ -25,7 +25,6 @@ import edu.ncsu.csc.itrust2.models.persistent.GeneralCheckup;
 import edu.ncsu.csc.itrust2.models.persistent.Hospital;
 import edu.ncsu.csc.itrust2.models.persistent.ICDCode;
 import edu.ncsu.csc.itrust2.models.persistent.LOINC;
-import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.Personnel;
 import edu.ncsu.csc.itrust2.models.persistent.Prescription;
@@ -245,9 +244,9 @@ public class HibernateDataGenerator {
         bob.save();
 
         final Patient alice = new Patient();
-        alice.setFirstName( "AliceEighteen" );
-        final User aliceUser = new User( "AliceEighteen",
-                "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
+        alice.setFirstName( "Alice" );
+        final User aliceUser = new User( "AliceSmith", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_PATIENT, 1 );
         aliceUser.save();
         alice.setSelf( aliceUser );
         alice.setLastName( "Smith" );
@@ -258,23 +257,34 @@ public class HibernateDataGenerator {
         alice.save();
 
         final Patient rebecca = new Patient();
-        alice.setFirstName( "AliceEighteen" );
-        final User rebeccaUser = new User( "RebeccaThirty",
+        rebecca.setFirstName( "Rebecca" );
+        final User rebeccaUser = new User( "RebeccaJess",
                 "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
         rebeccaUser.save();
         rebecca.setSelf( rebeccaUser );
-        rebecca.setLastName( "jess" );
+        rebecca.setLastName( "Jess" );
         rebecca.setGender( Gender.Female );
         rebecca.setDateOfBirth( LocalDate.now().minusYears( 30 ) ); // 30 years
                                                                     // old
+
 
         final LocalDate testDate = LocalDate.of( 2016, 10, 17 );
         final ObstetricsRecord obs = new ObstetricsRecord();
         obs.setLastMenstrualPeriod( testDate );
         obs.setPatient( "rebecca" );
-
         rebecca.save();
-        obs.save();
+
+        final Patient zara = new Patient();
+        zara.setFirstName( "Zara" );
+        final User zaraUser = new User( "ZaraZi", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_PATIENT, 1 );
+        zaraUser.save();
+        zara.setSelf( zaraUser );
+        zara.setLastName( "Zi" );
+        zara.setGender( Gender.Female );
+        zara.setDateOfBirth( LocalDate.now().minusYears( 19 ) ); // 19 years
+                                                                 // old
+        zara.save();
 
         final Hospital hosp = new Hospital( "General Hospital", "123 Main St", "12345", "NC" );
         hosp.save();

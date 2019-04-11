@@ -126,6 +126,7 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
      *            the ObstetricsRecordForm to parse
      */
     public ObstetricsRecord ( final ObstetricsRecordForm orf ) {
+        // 2007-12-03 YYYY-MM-DD
         setLastMenstrualPeriod( LocalDate.parse( orf.getLastMenstrualPeriod() ) );
     }
 

@@ -106,9 +106,20 @@ public class HCPController {
      * @return The page to display
      */
     @GetMapping ( "/hcp/viewPatientObstetricsRecords" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_OBGYN')" )
     public String viewObstetricsRecords () {
         return "/hcp/viewPatientObstetricsRecords";
+    }
+
+    /**
+     * Returns the page allowing HCPs to view patient's obstetrics records
+     *
+     * @return The page to display
+     */
+    @GetMapping ( "/hcp/viewPatientObstetricsRecordsRestricted" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH')" )
+    public String viewObstetricsRecordsRestricted () {
+        return "/hcp/viewPatientObstetricsRecordsRestricted";
     }
 
     /**
