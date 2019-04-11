@@ -25,6 +25,7 @@ import edu.ncsu.csc.itrust2.models.persistent.GeneralCheckup;
 import edu.ncsu.csc.itrust2.models.persistent.Hospital;
 import edu.ncsu.csc.itrust2.models.persistent.ICDCode;
 import edu.ncsu.csc.itrust2.models.persistent.LOINC;
+import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.Personnel;
 import edu.ncsu.csc.itrust2.models.persistent.Prescription;
@@ -181,6 +182,7 @@ public class HibernateDataGenerator {
         billyUser.save();
         billy.setSelf( billyUser );
         billy.setLastName( "Bob" );
+        billy.setGender( Gender.Male );
         billy.setDateOfBirth( LocalDate.now().minusYears( 40 ) ); // 40 years
                                                                   // old
         billy.save();
@@ -192,6 +194,7 @@ public class HibernateDataGenerator {
         jillUser.save();
         jill.setSelf( jillUser );
         jill.setLastName( "Bob" );
+        jill.setGender( Gender.Female );
         jill.setDateOfBirth( LocalDate.now().minusYears( 40 ) ); // 40 years old
         jill.save();
 
@@ -225,6 +228,7 @@ public class HibernateDataGenerator {
         timUser.save();
         tim.setSelf( timUser );
         tim.setFirstName( "TimTheOneYearOld" );
+        tim.setGender( Gender.Male );
         tim.setLastName( "Smith" );
         tim.setDateOfBirth( LocalDate.now().minusYears( 1 ) ); // 1 year old
         tim.save();
@@ -234,22 +238,43 @@ public class HibernateDataGenerator {
         final User bobUser = new User( "BobTheFourYearOld",
                 "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
         bobUser.save();
+        bob.setGender( Gender.Male );
         bob.setSelf( bobUser );
         bob.setLastName( "Smith" );
         bob.setDateOfBirth( LocalDate.now().minusYears( 4 ) ); // 4 years old
         bob.save();
 
         final Patient alice = new Patient();
-        alice.setFirstName( "AliceThirteen" );
-        final User aliceUser = new User( "AliceThirteen",
+        alice.setFirstName( "AliceEighteen" );
+        final User aliceUser = new User( "AliceEighteen",
                 "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
         aliceUser.save();
         alice.setSelf( aliceUser );
         alice.setLastName( "Smith" );
-        alice.setDateOfBirth( LocalDate.now().minusYears( 13 ) ); // 13 years
+        alice.setGender( Gender.Female );
+        alice.setDateOfBirth( LocalDate.now().minusYears( 18 ) ); // 18 years
                                                                   // old
+
         alice.save();
 
+        final Patient rebecca = new Patient();
+        alice.setFirstName( "AliceEighteen" );
+        final User rebeccaUser = new User( "RebeccaThirty",
+                "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
+        rebeccaUser.save();
+        rebecca.setSelf( rebeccaUser );
+        rebecca.setLastName( "jess" );
+        rebecca.setGender( Gender.Female );
+        rebecca.setDateOfBirth( LocalDate.now().minusYears( 30 ) ); // 30 years
+                                                                    // old
+
+        final LocalDate testDate = LocalDate.of( 2016, 10, 17 );
+        final ObstetricsRecord obs = new ObstetricsRecord();
+        obs.setLastMenstrualPeriod( testDate );
+        obs.setPatient( "rebecca" );
+
+        rebecca.save();
+        obs.save();
         final Hospital hosp = new Hospital( "General Hospital", "123 Main St", "12345", "NC" );
         hosp.save();
 

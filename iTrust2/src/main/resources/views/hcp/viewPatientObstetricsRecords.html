@@ -1,0 +1,161 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="layout :: head(title=~{::title},links=~{})">
+<title>View Patient Obstetrics Records</title>
+</head>
+
+<body th:include="layout :: body" th:with="content=~{::content}">
+	<div th:fragment="content">
+
+		<script th:inline="javascript">
+                /* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
+                /*<![CDATA[*/
+                var app = angular.module('myApp', []);
+                app.controller('viewPatientObstetricsRecords', function ($scope, $http) {
+                    $scope.Object = Object; // Allows for use of Object.keys()
+                    
+                    // Display users' names
+                    $scope.displayName = function (p) {
+                        return p.firstName + " " + p.lastName + " (" + p.self.username + ")";
+                    }
+
+                    // documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
+                    $scope.searchFilter = "";
+                    $scope.filterPatients = function (patient) {
+                    	return ($scope.displayName(patient)).toLowerCase().match($scope.searchFilter.toLowerCase());
+                    }
+                    
+                    //Get info for the patients
+                    $http.get("/iTrust2/api/v1/patients/female")
+                    	.then(
+                        function (response) {
+                            $scope.patients = response.data; //all patients
+                        },
+                        function (rejection) {
+                            $scope.patient = null;
+                        });
+                    
+                    //Get data associated with selected patient
+                    $scope.selectPatient = function (patient) {
+                    	// Get past pregnancy info for patient
+                        $http.get("/iTrust2/api/v1/pregnancies/" + $scope.selectedPatient)
+                        	.then(
+                            function (response) { // on success
+                            	console.log("Success pregnancy");
+                            	$scope.priorPregnancies = response.data || {};
+                                console.log(response.data);
+                                $scope.message = "";
+                            }, //if it failed
+                            function (rejection) {
+                            	console.log("Fail pregnancy");
+                            	$scope.priorPregnancies = [];
+                                $scope.message = "Could not display prior pregnancies.";
+                            });
+                        
+                        // Get current pregnancy info for patient
+                        $http.get("/iTrust2/api/v1/obstetricsrecord/" + $scope.selectedPatient)
+                        	.then(
+                            function (response) { // on success
+                            	console.log("Success obst records");
+                            	$scope.currentPregnancy = response.data || {};
+                                $scope.message = "";
+                            }, //if it failed
+                            function (rejection) {
+                            	console.log("Fail obst records");
+                            	$scope.currentPregnancy = [];
+                                $scope.message = "Could not display current pregnancy.";
+                            });
+                     };
+                });
+                /*]]>*/
+            </script>
+
+		<div ng-app="myApp" ng-controller="viewPatientObstetricsRecords" class="row">
+			<div class="col-md-3">
+				<h2>Patients: hello</h2>
+				<!-- info on filtering taken from here: https://www.w3schools.com/angular/angular_filters.asp
+                    and https://docs.angularjs.org/api/ng/filter/filter -->
+				<h4>
+					Search: <input type="text" name="search" ng-model="searchFilter" />
+				</h4>
+				<!-- Info on scrolling taken from here: https://www.w3schools.com/cssref/pr_pos_overflow.asp -->
+				<!-- and here: https://stackoverflow.com/questions/9560330/how-to-hide-a-vertical-scroll-bar-when-not-needed -->
+				<div>
+					<div class="radio"
+						ng-repeat="patient in patients | filter:filterPatients">
+						<label> <input type="radio" id="{{patient.self.username}}"
+							ng-model="$parent.selectedPatient" name="patient"
+							value="{{patient.self.username}}"
+							ng-click='$parent.selectPatient(patient)' />
+							&nbsp;{{$parent.displayName(patient)}}
+						</label>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-9">
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						<h3>Obstetrics Records{{ selectedPatient ? ' for ' + selectedPatient
+							: '' }}</h3>
+					</div>
+					<div class="panel-body">
+						<div style="margin-left: 10px;">
+							<div ng-if="!selectedPatient">Please select a patient for
+								which to view Obstetrics Records.</div>
+							<div
+								ng-if="selectedPatient && !currentPregnancy">
+								currentPregnancy = {{currentPregnancy}}
+								There is no current pregnancy recorded for this patient.
+							</div>
+
+							<div
+								ng-if="selectedPatient && (!priorPregnancies || Object.keys(priorPregnancies).length == 0)">
+								PriorPregnancies = {{priorPregnancies}}
+								List = {{Object.keys(priorPregnancies)}}
+								There are no past pregnancies recorded for this patient.
+							</div>
+						</div>
+
+						<p
+							ng-show="currentPrengancy">
+							<b>Current Pregnancy Information: </b>
+							<b>Last Menstrual Period: {{}}</b> 
+							<b>Estimated Due Date: </b>
+							<b>Estimatd Weeks Pregnant: </b>
+						</p>
+
+
+						 <p
+							ng-show="priorPregnancies && Object.keys(priorPregnancies).length > 0">
+							<b>Prior Pregnancies</b>
+						</p>
+
+						<table class="table table-bordered"
+							ng-repeat="field in priorPregnancies">
+							<thead>
+								<tr>
+									<th>Year of Conception</th>
+									<th>Weeks Pregnant</th>
+									<th>Hours in Labor</th>
+									<th>Delivery Method</th>
+									<th>Twins</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="field track by $index">
+									<td id="conceptionYear-{{$index}}">{{field.conceptionYear}}</td>
+									<td id="numWeeksPregnant-{{$index}}">{{field.numWeeksPregnant}}</td>
+									<td id="numHoursInLabor-{{$index}}">{{field.numHoursInLabor}}</td>
+									<td id="deliveryMethod-{{$index}}">{{field.deliveryMethod}}</td>
+									<td id="isTwins-{{$index}}">{{field.isTwins}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+</body>
+
+</html>
