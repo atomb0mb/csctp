@@ -118,6 +118,25 @@ public class APIDeliveryController extends APIController {
     }
 
     /**
+     * Api returns all reports for a given patient
+     *
+     * @param username
+     *            the user name of the patient
+     * @return a list of all labor and delivery reports for that patient
+     */
+    @GetMapping ( BASE_PATH + "/LaborDelivery/patients/{username}" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
+    public ResponseEntity getReportForPatient ( @PathVariable final String username ) {
+        if ( null == Patient.getByName( username ) ) {
+            return new ResponseEntity( errorResponse( "No patients found with username " + username ),
+                    HttpStatus.NOT_FOUND );
+        }
+        LoggerUtil.log( TransactionType.HCP_VIEWS_LABOR_DELIVERY_REPORTS, User.getByName( LoggerUtil.currentUser() ),
+                User.getByName( username ) );
+        return new ResponseEntity( LaborDeliveryReport.getByPatient( username ), HttpStatus.OK );
+    }
+
+    /**
      * Edits an existing labor and delivery report
      *
      * @param id
