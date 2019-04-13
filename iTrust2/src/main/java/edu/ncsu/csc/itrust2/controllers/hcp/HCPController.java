@@ -161,7 +161,7 @@ public class HCPController {
      *
      * @return The page to display
      */
-    @GetMapping ( "/hcp/laborDeliveryReport" )
+    @GetMapping ( "/hcp/editLaborDeliveryReport" )
     @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
     public String editLaborDeliveryReports () {
         return "/hcp/editLaborDeliveryReport";

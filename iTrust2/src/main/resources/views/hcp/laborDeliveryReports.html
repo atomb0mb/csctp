@@ -4,6 +4,87 @@
 </head>
 <body th:include="layout :: body" th:with="content=~{::content}">
 	<div th:fragment="content">
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<script th:inline="javascript">
+				"use strict";
+		
+                /* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
+                /*<![CDATA[*/
+                var app = angular.module('myApp', []);
+                app.controller('laborDeliveryReports', function ($scope, $http) {
+                	
+                	// Display users' names
+                    $scope.displayName = function (p) {
+                        return p.firstName + " " + p.lastName + " (" + p.self.username + ")";
+                    }
+                	
+                 // documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
+                    $scope.searchFilter = "";
+                    $scope.filterPatients = function (patient) {
+                    	return ($scope.displayName(patient)).toLowerCase().match($scope.searchFilter.toLowerCase());
+                    }
+                    
+                    
+                  //Get info for the patients
+                    $http.get("/iTrust2/api/v1/patients/female")
+                    	.then(
+                        function (response) {
+                            $scope.patients = response.data; //get only female patients
+                        },
+                        function (rejection) {
+                            $scope.patient = null;
+                        });
+                    
+                    
+                    $scope.selectPatient = function (patient) {
+                    	
+                    	//$scope.patientRecords = 
+                    		//HOW TO GET RECORDS FOR THIS PATIENT?
+                    				//POSSIBLE METHOD IN LaborDeliveryReport.java
+                    	
+                    };
+                  
+                  
+                 
+                    
+
+                });
+                /*]]>*/
+            </script>
+            
+            
+            
+            
+            
+            
+            
+            
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 		<div ng-app="myApp" ng-controller="documentOfficeVisitCtrl">
 			<div style="float: left; width: 30%; height: 75%; overflow-y: auto">

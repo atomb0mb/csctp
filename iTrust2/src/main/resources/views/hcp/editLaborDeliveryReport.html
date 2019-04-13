@@ -1,6 +1,6 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:include="layout :: head(title=~{::title},links=~{})">
-<title>Labor and Delivery Reports</title>
+<title>Edit Labor and Delivery Report</title>
 </head>
 <body th:include="layout :: body" th:with="content=~{::content}">
 	<div th:fragment="content">
@@ -29,15 +29,7 @@
 			<!-- information on vertical rule found here: https://stackoverflow.com/questions/571900/is-there-a-vr-vertical-rule-in-html  -->
 			<div
 				style="float: left; width: 70%; border-left: 1px solid #bbb; padding-left: 3%; height: 75%; overflow-y: auto">
-				<h2 id="header0">View Patient Information</h2>
-
-
-				<div ng-if="selectedPatient && currentPregnancy.length > 0">
-					<b>Current Pregnancy Information: </b> <br> Last Menstrual
-					Period: {{currentPregnancy[0].lastMenstrualPeriod}} <br>
-					Estimated Due Date: {{currentPregnancy[0].estDueDate}} <br>
-					Weeks Pregnant: {{currentPregnancy[0].numWeeksPregnant}}
-				</div>
+				<h2 id="header0">Patient Labor and Delivery Reports</h2>
 
 
 				<div class="form-group" ng-if="selectedPatient && displayedPregForm">
@@ -56,6 +48,7 @@
 					<!-- ng-repeat="pregnancy in priorPregnancies">  -->
 					<thead>
 						<tr>
+						    <th>  </th>
 							<th>Labor Date</th>
 							<th>Labor Time</th>
 							<th>Delivery Date</th>
@@ -66,6 +59,17 @@
 
 					<tbody>
 						<tr ng-repeat="pregnancy in priorPregnancies">
+						
+						<td class="radio"
+						ng-repeat="patient in patients | filter:filterPatients">
+						<label> <input type="radio" id="{{patient.self.username}}"
+							ng-model="$parent.selectedPatient" name="patient"
+							value="{{patient.self.username}}"
+							ng-click='$parent.selectPatient(patient)' />
+							&nbsp;{{$parent.displayName(patient)}}
+						</label>
+					</td>
+					
 							<td id="conceptionYear-{{$index}}">{{pregnancy.conceptionYear}}</td>
 							<td id="numWeeksPregnant-{{$index}}">{{pregnancy.numberOfWeeksPregnant}}</td>
 							<td id="numHoursInLabor-{{$index}}">{{pregnancy.numberOfHoursInLabor}}</td>
