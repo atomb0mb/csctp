@@ -31,23 +31,23 @@
 							function($scope, $http) {
 
 								$scope.form = {
-									laborDate : '',
+ 									laborDate : '',
 									deliveryDate : '',
-									firstname : '',
+									//firstname : '',
 									lastname : '',
-									weight : '',
-									length : '',
-									heartRate : '',
-									systolic : '',
-									diastolic : '',
+									weight : 0,
+									length : 0,
+									heartRate : 0,
+									systolic : 0,
+									diastolic : 0,
 									deliveryMethod : '',
-									firstnameTwin : '',
+									//firstnameTwin : '',
 									lastnameTwin : '',
-									weightTwin : '',
-									lengthTwin : '',
-									heartRateTwin : '',
-									systolicTwin : '',
-									diastolicTwin : ''
+									weightTwin : 0,
+									lengthTwin : 0,
+									heartRateTwin : 0,
+									systolicTwin : 0,
+									diastolicTwin : 0 
 								};
 
 								// Display users' names
@@ -100,10 +100,6 @@
 									$scope.displayCreateLD = false;
 									$scope.boolMiscarriage = false;
 									$scope.showTwinForm = false;
-
-									//$scope.patientRecords = 
-									//HOW TO GET RECORDS FOR THIS PATIENT?
-									//POSSIBLE METHOD IN LaborDeliveryReport.java
 
 									// Get past pregnancy info for patient
 									$http.get(
@@ -216,30 +212,11 @@
 												.then(
 														function success(
 																response) {
-															if (response.data.patient) { //patient only exists on success
+
 																$scope.message = "Labor and delivery report has been added successfully."
-																$scope.form = {
-																	laborDate : '',
-																	deliveryDate : '',
-																	firstname : '',
-																	lastname : '',
-																	weight : '',
-																	length : '',
-																	heartRate : '',
-																	systolic : '',
-																	diastolic : '',
-																	deliveryMethod : '',
-																	firstnameTwin : '',
-																	lastnameTwin : '',
-																	weightTwin : '',
-																	lengthTwin : '',
-																	heartRateTwin : '',
-																	systolicTwin : '',
-																	diastolicTwin : ''
-																};
 																$scope.errorMsg = "";
 																document.location.href = '/iTrust2/hcp/laborDeliveryReports.html';
-															}
+															
 														},
 														function failure(
 																rejection) {
@@ -254,7 +231,7 @@
 											$scope.errorMsg += "You must enter whether the pregnancy was of twins or not.\n";
 										} else {
 											// Check first name 
-											if ($scope.form.firstname == '' || $scope.form.firstname.length == 0) {
+											if (!$scope.form.firstname) {
 												$scope.errorMsg += "First newborn's first name cannot be empty.\n";
 											}
 											//If no last name, default to mother's last name
@@ -287,7 +264,7 @@
 											}
 
 											if ($scope.entry.twinOption == 'Yes') {
-												if ($scope.form.firstnameTwin == '' || $scope.form.firstnameTwin.length == 0) {
+												if (!$scope.form.firstnameTwin) {
 													$scope.errorMsg += "Second Newborn's first name cannot be empty.\n";
 												}
 												//If no last name, default to mother's last name
@@ -327,31 +304,10 @@
 												.then(
 														function success(
 																response) {
-															if (response.data.patient) { //patient only exists on success
 																$scope.message = "Labor and delivery report has been added successfully";
-																console.log($scope.message);
-																$scope.form = {
-																	laborDate : '',
-																	deliveryDate : '',
-																	firstname : '',
-																	lastname : '',
-																	weight : '',
-																	length : '',
-																	heartRate : '',
-																	systolic : '',
-																	diastolic : '',
-																	deliveryMethod : '',
-																	firstnameTwin : '',
-																	lastnameTwin : '',
-																	weightTwin : '',
-																	lengthTwin : '',
-																	heartRateTwin : '',
-																	systolicTwin : '',
-																	diastolicTwin : ''
-																};
 																$scope.errorMsg = "";
 																document.location.href = '/iTrust2/hcp/laborDeliveryReports.html';
-															}
+
 														},
 														function failure(
 																rejection) {
@@ -821,10 +777,7 @@
 
 
 
-					<div class="form-group">
-						<div name="success" class="text-success" style="white-space: pre;">{{message}}</div>
-						<div name="errorMsg" class="text-danger" style="white-space: pre;">{{errorMsg}}</div>
-					</div>
+
 				</div>
 
 
@@ -836,7 +789,10 @@
 						Labor and Delivery Report</button>
 				</div>
 
-
+				<div class="form-group">
+						<div name="success" class="text-success" style="white-space: pre;">{{message}}</div>
+						<div name="errorMsg" class="text-danger" style="white-space: pre;">{{errorMsg}}</div>
+				</div>
 
 
 
