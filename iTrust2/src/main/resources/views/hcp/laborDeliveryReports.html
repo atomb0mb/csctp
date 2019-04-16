@@ -29,7 +29,27 @@
 					.controller(
 							'laborDeliveryReports',
 							function($scope, $http) {
-
+								
+								$scope.form = {
+										laborDate:'',
+										deliveryDate:'',
+										firstname:'',
+										lastname:'',
+										weight:'',
+										length:'',
+										heartRate:'',
+										systolic:'',
+										diastolic:'',
+										deliveryMethod:'',
+										firstnameTwin:'',
+										lastnameTwin:'',
+										weightTwin:'',
+										lengthTwin:'',
+										heartRateTwin:'',
+										systolicTwin:'',
+										diastolicTwin:''			 
+								};
+								
 								// Display users' names
 								$scope.displayName = function(p) {
 									return p.firstName + " " + p.lastName
@@ -49,15 +69,24 @@
 															.toLowerCase());
 								}
 
-								$scope.form = {
+/* 								$scope.form = {
 									deliveryMethods : '',
 									twinOptions : '',
 						
 									
-								};
+								}; */
+								// Stuff for submitting new record 
+								$scope.failAddldReport = function() {
+					              	$scope.errorMsg += "Could not add labor and delivery report.";
+					 				$scope.message = "";
+					      		}
 								
 								$scope.entry = {
-									twinOption : ''
+									twinOption : '',
+									inputlabordate: new Date(),
+									inputlabortime: new Date(0,0,0,0,0,null,null),
+									inputdeliverydate: new Date(),
+									inputdeliverytime: new Date(0,0,0,0,0,null,null)
 								}
 
 								//Get info for the patients
@@ -80,8 +109,7 @@
 
 									// Get past pregnancy info for patient
 									$http.get(
-											"/iTrust2/api/v1/LaborDelivery/"
-													+ $scope.patients
+											"/iTrust2/api/v1/LaborDelivery/patients/"
 													+ $scope.selectedPatient)
 											.then(function(response) { // on success
 
@@ -119,9 +147,49 @@
 									$scope.displayCreateLD = true;
 								}
 
-								$scope.submitLD = function() {
-
-									// Date info: https://docs.oracle.com/javase/7/docs/api/java/util/Date.html#getMonth()
+							
+								
+							$scope.submitLD = function() {	
+									
+									// Validate date and time of labor
+			                        var checkLaborDate = new Date($scope.entry.inputlabordate);
+									
+			    					var now = new Date(); // make sure it's not a future date
+									if (!(checkLaborDate instanceof Date) || isNaN(checkLaborDate) || now - checkLaborDate < 0) {
+			    						$scope.errorMsg += "Please input a valid labor date.\n";
+									}	
+			    					
+					                const ltime = new Date($scope.entry.inputlabortime);
+					                checkLaborDate.setHours(ltime.getHours());
+					                checkLaborDate.setMinutes(ltime.getMinutes());
+					                        
+					                // Check valid date and time combination
+									if (!(checkLaborDate instanceof Date) || isNaN(checkLaborDate) || now - checkLaborDate < 0) {
+			    						$scope.errorMsg += "Please input a valid labor date.\n";
+									} else {
+					                  $scope.form.laborDate = checkLaborDate.toISOString();
+					                }
+					                
+									// Validate date and time of delivery
+			                        var checkDelieveryDate = new Date($scope.entry.inputdeliverydate);
+									
+			    					var next = new Date(); // make sure it's not a future date
+									if (!(checkDelieveryDate instanceof Date) || isNaN(checkDelieveryDate) || next - checkDelieveryDate < 0) {
+			    						$scope.errorMsg += "Please input a valid delivery date.\n";
+									}	
+			    					
+					                const dtime = new Date($scope.entry.inputdeliverytime);
+					                checkDelieveryDate.setHours(dtime.getHours());
+					                checkDelieveryDate.setMinutes(dtime.getMinutes());
+					                        
+					                // Check valid date and time combination
+									if (!(checkDelieveryDate instanceof Date) || isNaN(checkDelieveryDate) || next - checkDelieveryDate < 0) {
+			    						$scope.errorMsg += "Please input a valid delivery date.\n";
+									} else {
+					                  $scope.form.deliveryDate = checkDelieveryDate.toISOString();
+					                }
+											
+										
 
 									//Clear any error messages
 									$scope.errorMsg = "";
@@ -136,7 +204,23 @@
 														if (response.data.patient) { //patient only exists on success
 															$scope.message = "Obstetrics record has been added successfully."
 															$scope.form = {
-																deliveryMethod : ''
+																	laborDate:'',
+																	deliveryDate:'',
+																	firstname:'',
+																	lastname:'',
+																	weight:'',
+																	length:'',
+																	heartRate:'',
+																	systolic:'',
+																	diastolic:'',
+																	deliveryMethod:'',
+																	firstnameTwin:'',
+																	lastnameTwin:'',
+																	weightTwin:'',
+																	lengthTwin:'',
+																	heartRateTwin:'',
+																	systolicTwin:'',
+																	diastolicTwin:''			 
 															};
 															$scope.errorMsg = "";
 															document.location.href = '/iTrust2/hcp/laborDeliveryReports.html';
@@ -144,7 +228,7 @@
 													},
 													function failure(rejection) {
 														$scope
-																.failAddObsEntry();
+																.failAddldReport();
 													});
 								}
 
@@ -215,12 +299,14 @@
 				</div>
 			</div>
 			<!-- information on vertical rule found here: https://stackoverflow.com/questions/571900/is-there-a-vr-vertical-rule-in-html  -->
-			<div
+			<div 
 				style="float: left; width: 70%; border-left: 1px solid #bbb; padding-left: 3%; height: 75%; overflow-y: auto">
-				<h2 id="header0">View Patient Information</h2>
+				<div ng-if="!displayCreateLD">
+					<h2 id="header0">View Patient Information</h2>
+				</div>
 
 
-				<div ng-if="selectedPatient && currentPregnancy.length > 0">
+				<div ng-if="selectedPatient && currentPregnancy.length > 0 && !displayCreateLD">
 					<b>Current Pregnancy Information: </b> <br> Last Menstrual
 					Period: {{currentPregnancy[0].lastMenstrualPeriod}} <br>
 					Estimated Due Date: {{currentPregnancy[0].estDueDate}} <br>
@@ -228,7 +314,7 @@
 				</div>
 
 
-				<div class="form-group" ng-if="selectedPatient">
+				<div class="form-group" ng-if="selectedPatient && currentPregnancy.length > 0 && !displayCreateLD">
 					<button type="submit" class="btn btn-primary"
 						ng-click=displayCreateForm() name="displayCreateForm"
 						id=displayCreateForm>Create Labor and Delivery Report</button>
@@ -239,7 +325,7 @@
 					<br> <b>CHANGE THIS: Previous Labor and Delivery Reports</b>
 				</div>
 
-				<table class="table table-bordered">
+				<table class="table table-bordered" ng-if ="!displayCreateLD">
 					<!-- ng-repeat="pregnancy in priorPregnancies">  -->
 					<thead>
 						<tr>
@@ -263,7 +349,7 @@
 				</table>
 
 
-				<table class="table table-bordered">
+				<table class="table table-bordered" ng-if="!displayCreateLD">
 					<!-- ng-repeat="pregnancy in priorPregnancies">  -->
 					<thead>
 						<tr>
@@ -294,7 +380,7 @@
 					</tbody>
 
 					<thead>
-						<tr ng-if="twins">
+						<tr ng-if="!displayCreateLD">
 							<th>Labor Date</th>
 							<th>Labor Time</th>
 							<th>Delivery Date</th>
@@ -331,43 +417,42 @@
 
 					<div class="row">
 						<div class="col">
-							<div style="margin-left: 10px;">
-								<b>New Labor and Delivery Report</b>
-							</div>
-
-							<div class="col-md-5">
-								<div class="form-group">
-									<label for="conceptionYear">Date of Labor</label>
+							<h2 id="header0">New Labor and Delivery Report</h2>
+								
+								<div class="form-group col-md-2">
+									<label for="date">Labor Date</label>
 									<div class="input-group">
-										<input class="form-control" id="conceptionYear" type="number"
-											ng-model="pregnancyEntry.conceptionYear"
-											name="conceptionYear" />
+										<input class="form-control" id="ldate" type="date"
+											ng-model="entry.inputlabordate"
+											name="inputlabordate" required="true" />
 									</div>
 								</div>
-
-								<div class="form-group">
-									<label for="conceptionYear">Time of Labor</label>
+								
+								<div class="form-group col-md-2">
+									<label for="date">Labor Time</label>
 									<div class="input-group">
-										<input class="form-control" id="conceptionYear" type="number"
-											ng-model="pregnancyEntry.conceptionYear"
-											name="conceptionYear" />
+										<input class="form-control" id="ltime" type="time"
+											ng-model="entry.inputlabortime"
+											name="inputlabortime" required="true" />
 									</div>
 								</div>
+								
 
-								<div class="form-group">
-									<label for="conceptionYear">Date of Delivery</label>
+								<div class="form-group col-md-2">
+									<label for="date">Delivery Date</label>
 									<div class="input-group">
-										<input class="form-control" id="conceptionYear" type="number"
-											ng-model="form.conceptionYear" name="conceptionYear" />
+										<input class="form-control" id="ddate" type="date"
+											ng-model="entry.inputdeliverydate"
+											name="inputdeliverydate" required="true" />
 									</div>
 								</div>
-
-								<div class="form-group">
-									<label for="conceptionYear">Time of Delivery</label>
+								
+								<div class="form-group col-md-2">
+									<label for="date">Delivery Time</label>
 									<div class="input-group">
-										<input class="form-control" id="conceptionYear" type="number"
-											ng-model="pregnancyEntry.conceptionYear"
-											name="conceptionYear" />
+										<input class="form-control" id="dtime" type="time"
+											ng-model="entry.inputdeliverytime"
+											name="inputdeliverytime" required="true" />
 									</div>
 								</div>
 
@@ -388,9 +473,9 @@
 												</div>
 											</div>
 										</div>
-									</div>
+								</div>
 									
-									<div class="form-group col-md-4">
+								<div ng-if="showForm" class="form-group col-md-4" >
 										<label>Twins?:</label>
 
 										<div class="panel panel-default">
@@ -406,169 +491,187 @@
 												</div>
 											</div>
 										</div>
-									</div>
+										
+													
+								</div>
 
 
 
 								
 								<!-- IF NOT A MISCARRIAGE SHOW REST OF FIELDS -->
-								<div ng-if="showForm">
-									<div class="form-group">
-										<label for="numHoursInLabor">Weight</label> <input
-											class="form-control" id="numHoursInLabor" type="number"
-											ng-model="pregnancyEntry.numHoursInLabor"
-											name="numHoursInLabor" />
-									</div>
-
-									<div class="form-group">
-										<label for="deliveryMethod">Length</label> <select
-											class="form-control" ng-model="pregnancyEntry.deliveryMethod"
-											id="deliveryMethod" name="deliveryMethod">
-											<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
-										</select>
-									</div>
-
-									<div class="form-group">
-										<label for="deliveryMethod">Heart Rate</label> <select
-											class="form-control" ng-model="pregnancyEntry.deliveryMethod"
-											id="deliveryMethod" name="deliveryMethod">
-											<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
-										</select>
-									</div>
-
-									<div class="form-group">
-										<label for="deliveryMethod">Systolic Blood Pressure</label> <select
-											class="form-control" ng-model="pregnancyEntry.deliveryMethod"
-											id="deliveryMethod" name="deliveryMethod">
-											<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
-										</select>
-									</div>
-
-									<div class="form-group">
-										<label for="deliveryMethod">Diastolic Blood Pressure</label> <select
-											class="form-control" ng-model="pregnancyEntry.deliveryMethod"
-											id="deliveryMethod" name="deliveryMethod">
-											<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
-										</select>
-									</div>
-
-									<div class="form-group">
-										<label for="deliveryMethod">First Name</label> <select
-											class="form-control" ng-model="pregnancyEntry.deliveryMethod"
-											id="deliveryMethod" name="deliveryMethod">
-											<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
-										</select>
-									</div>
-
-									<div class="form-group">
-										<label for="deliveryMethod">Last Name</label> <select
-											class="form-control" ng-model="pregnancyEntry.deliveryMethod"
-											id="deliveryMethod" name="deliveryMethod">
-											<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
-										</select>
-									</div>
-
-
-
-
-
-									<!-- IF TWINS, NEW TABLE -->
-
-									<div ng-if="showForm && showTwinForm">
-
-										<div class="row">
-											<div class="col">
-												<div style="margin-left: 10px;">
-													<b>New Labor and Delivery Report</b>
-												</div>
-
-
-												<div class="form-group">
-													<label for="conceptionYear">Time of Labor</label>
-													<div class="input-group">
-														<input class="form-control" id="conceptionYear"
-															type="number" ng-model="pregnancyEntry.conceptionYear"
-															name="conceptionYear" />
+								<!-- Single Infant's Information Panel -->
+									<div class="col-md-4" ng-if="showForm">
+										<div class="panel panel-info">
+										
+												<div class="panel-heading">
+														<h4>Single Infant's Information</h4>
 													</div>
+												<div class="panel-body">
+												
+												
+													<div class="form-group row">
+														<div class="col-xs-6">
+															<label>First Name:</label>
+														</div>
+														<div class="col-xs-6">
+															<input class="form-control" name="firstname"
+															ng-model="form.firstname" required="true" type="text">
+														</div>
+												   </div>
+												   
+												   
+												   <div class="form-group row">
+														<div class="col-xs-6">
+															<label>Last Name:</label>
+														</div>
+														<div class="col-xs-6">
+															<input class="form-control" name="lastname"
+															ng-model="form.lastname" required="true" type="text">
+														</div>
+												   </div>
+												   
+												   <div class="form-group row">
+														<div class="col-xs-6">
+															<label>Weight:</label>
+														</div>
+														<div class="col-xs-6">
+															<input class="form-control" name="weight"
+															ng-model="form.weight" required="true" type="text">
+														</div>
+												   </div>
+												   
+												   <div class="form-group row">
+														<div class="col-xs-6">
+															<label>Height/Length:</label>
+														</div>
+														<div class="col-xs-6">
+															<input class="form-control" name="length"
+															ng-model="form.length" required="true" type="text">
+														</div>
+												   </div>
+												   
+												   <div class="form-group row">
+														<div class="col-xs-6">
+															<label>Heart Rate:</label>
+														</div>
+														<div class="col-xs-6">
+															<input class="form-control" name="heartrate"
+															ng-model="form.heartRate" required="true" type="text">
+														</div>
+												   </div>
+												   
+												   <div class="form-group row">
+														<div class="col-xs-6">
+															<label>Systolic:</label>
+														</div>
+														<div class="col-xs-6">
+															<input class="form-control" name="systolic"
+															ng-model="form.systolic" required="true" type="text">
+														</div>
+												   </div>
+												   
+												   <div class="form-group row">
+														<div class="col-xs-6">
+															<label>Diastolic:</label>
+														</div>
+														<div class="col-xs-6">
+															<input class="form-control" name="diastolic"
+															ng-model="form.diastolic" required="true" type="text">
+														</div>
+												   </div>
+												  
+												   
 												</div>
-
-
-												<div class="form-group">
-													<label for="conceptionYear">Time of Delivery</label>
-													<div class="input-group">
-														<input class="form-control" id="conceptionYear"
-															type="number" ng-model="pregnancyEntry.conceptionYear"
-															name="conceptionYear" />
-													</div>
-												</div>
-
-
-												<div class="form-group">
-													<label for="numHoursInLabor">Weight</label> <input
-														class="form-control" id="numHoursInLabor" type="number"
-														ng-model="pregnancyEntry.numHoursInLabor"
-														name="numHoursInLabor" />
-												</div>
-
-												<div class="form-group">
-													<label for="deliveryMethod">Length</label> <select
-														class="form-control"
-														ng-model="pregnancyEntry.deliveryMethod"
-														id="deliveryMethod" name="deliveryMethod">
-														<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
-													</select>
-												</div>
-
-												<div class="form-group">
-													<label for="deliveryMethod">Heart Rate</label> <select
-														class="form-control"
-														ng-model="pregnancyEntry.deliveryMethod"
-														id="deliveryMethod" name="deliveryMethod">
-														<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
-													</select>
-												</div>
-
-												<div class="form-group">
-													<label for="deliveryMethod">Systolic Blood Pressure</label>
-													<select class="form-control"
-														ng-model="pregnancyEntry.deliveryMethod"
-														id="deliveryMethod" name="deliveryMethod">
-														<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
-													</select>
-												</div>
-
-												<div class="form-group">
-													<label for="deliveryMethod">Diastolic Blood
-														Pressure</label> <select class="form-control"
-														ng-model="pregnancyEntry.deliveryMethod"
-														id="deliveryMethod" name="deliveryMethod">
-														<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
-													</select>
-												</div>
-
-												<div class="form-group">
-													<label for="deliveryMethod">First Name</label> <select
-														class="form-control"
-														ng-model="pregnancyEntry.deliveryMethod"
-														id="deliveryMethod" name="deliveryMethod">
-														<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
-													</select>
-												</div>
-
-												<div class="form-group">
-													<label for="deliveryMethod">Last Name</label> <select
-														class="form-control"
-														ng-model="pregnancyEntry.deliveryMethod"
-														id="deliveryMethod" name="deliveryMethod">
-														<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
-													</select>
-												</div>
-
-
-
-											</div>
 										</div>
-									</div>
+									</div>						
+								
+									<!-- Twin Information Panel -->
+									<div class="col-md-4" ng-if="showTwinForm && showForm">
+										<div class="panel panel-info">
+										
+												<div class="panel-heading">
+														<h4>Second Infant's Information</h4>
+												</div>
+												<div class="panel-body">
+												
+												
+													<div class="form-group row">
+														<div class="col-xs-6">
+															<label>First Name:</label>
+														</div>
+														<div class="col-xs-6">
+															<input class="form-control" name="firstnameTwin"
+															ng-model="form.firstnameTwin" required="true" type="text">
+														</div>
+												   </div>
+												   
+												   
+												   <div class="form-group row">
+														<div class="col-xs-6">
+															<label>Last Name:</label>
+														</div>
+														<div class="col-xs-6">
+															<input class="form-control" name="lastnameTwin"
+															ng-model="form.lastnameTwin" required="true" type="text">
+														</div>
+												   </div>
+												   
+												   <div class="form-group row">
+														<div class="col-xs-6">
+															<label>Weight:</label>
+														</div>
+														<div class="col-xs-6">
+															<input class="form-control" name="weightTwin"
+															ng-model="form.weightTwin" required="true" type="text">
+														</div>
+												   </div>
+												   
+												   <div class="form-group row">
+														<div class="col-xs-6">
+															<label>Height/Length:</label>
+														</div>
+														<div class="col-xs-6">
+															<input class="form-control" name="lengthTwin"
+															ng-model="form.lengthTwin" required="true" type="text">
+														</div>
+												   </div>
+												   
+												   <div class="form-group row">
+														<div class="col-xs-6">
+															<label>Heart Rate:</label>
+														</div>
+														<div class="col-xs-6">
+															<input class="form-control" name="heartrateTwin"
+															ng-model="form.heartRateTwin" required="true" type="text">
+														</div>
+												   </div>
+												   
+												   <div class="form-group row">
+														<div class="col-xs-6">
+															<label>Systolic:</label>
+														</div>
+														<div class="col-xs-6">
+															<input class="form-control" name="systolicTwin"
+															ng-model="form.systolicTwin" required="true" type="text">
+														</div>
+												   </div>
+												   
+												   <div class="form-group row">
+														<div class="col-xs-6">
+															<label>Diastolic:</label>
+														</div>
+														<div class="col-xs-6">
+															<input class="form-control" name="diastolicTwin"
+															ng-model="form.diastolicTwin" required="true" type="text">
+														</div>
+												   </div>
+												   
+												   
+												   
+												</div>
+											</div>
+										</div>							
+								
 									<!--closes ngif twin -->
 
 
@@ -578,12 +681,8 @@
 
 							</div>
 
-							<div class="form-group"
-								ng-if="selectedPatient && displayCreateLD">
-								<button type="submit" class="btn btn-primary"
-									ng-click=submitLD() name="submitLD" id="submitLD">Submit
-									Labor and Delivery Report</button>
-							</div>
+							
+
 
 							<div class="form-group">
 								<div name="success" class="text-success"
@@ -592,6 +691,20 @@
 									style="white-space: pre;">{{errorMsg}}</div>
 							</div>
 						</div>
+						
+						
+						
+						<div class="panel-footer text-right"
+								ng-if="selectedPatient && displayCreateLD">
+								<button type="submit" class="btn btn-primary btn-lg"
+									ng-click=submitLD() name="submitLD" id="submitLD">Submit
+									Labor and Delivery Report</button>
+						</div>
+						
+						
+						
+						
+						
 					</div>
 				</div>
 				<!-- CLOSES LABOR AND DELIVERY REPORT CREATE FORM -->
