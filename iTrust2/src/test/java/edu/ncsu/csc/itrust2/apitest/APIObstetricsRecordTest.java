@@ -8,7 +8,6 @@ import static org.junit.Assert.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -47,7 +46,9 @@ import edu.ncsu.csc.itrust2.models.enums.State;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
 import edu.ncsu.csc.itrust2.models.persistent.Hospital;
 import edu.ncsu.csc.itrust2.models.persistent.LogEntry;
+import edu.ncsu.csc.itrust2.models.persistent.ObstetricsOfficeVisit;
 import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
+import edu.ncsu.csc.itrust2.models.persistent.OfficeVisit;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.Pregnancy;
 import edu.ncsu.csc.itrust2.mvc.config.WebMvcConfiguration;
@@ -84,6 +85,9 @@ public class APIObstetricsRecordTest {
             for ( final Pregnancy prg : Pregnancy.getByPatient( "patient" ) ) {
                 prg.delete();
             }
+            for ( final OfficeVisit ov : OfficeVisit.getForPatient( "patient" ) ) {
+                ov.delete();
+            }
 
             p.delete();
         }
@@ -104,7 +108,7 @@ public class APIObstetricsRecordTest {
         patient.setAddress2( "Some Location" );
         patient.setBloodType( BloodType.APos.toString() );
         patient.setCity( "Viipuri" );
-        patient.setDateOfBirth( "1977-06-15" );
+        patient.setDateOfBirth( "1984-02-01" );
         patient.setEmail( "patient@itrust.fi" );
         patient.setEthnicity( Ethnicity.Hispanic.toString() );
         patient.setFirstName( "Yolanda" );
@@ -361,18 +365,17 @@ public class APIObstetricsRecordTest {
     @WithMockUser ( username = "hcp", roles = { "OBGYN", "ADMIN" } )
     public void testPregnancyFlags () throws Exception {
 
+        // Initialize a patient, an hcp user, and a hospital
         createPatient();
-
         final UserForm hcp = new UserForm( "hcp", "123456", Role.ROLE_HCP, 1 );
         mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( hcp ) ) );
 
-        /* Create a Hospital to use too */
         final Hospital hospital = new Hospital( "iTrust Test Hospital 2", "1 iTrust Test Street", "27607", "NC" );
         mvc.perform( post( "/api/v1/hospitals" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( hospital ) ) );
 
-        // Prior Pregnancy
+        // Create and record a prior pregnancy
         final PregnancyForm pForm = new PregnancyForm();
         pForm.setConceptionYear( 2016 );
         pForm.setNumWeeksPregnant( 35 );
@@ -389,7 +392,7 @@ public class APIObstetricsRecordTest {
         visit.setPatient( "patient" );
         visit.setHcp( "hcp" );
         visit.setDiastolic( 82 );
-        visit.setHospital( "iTrust Test Hospital" );
+        visit.setHospital( "iTrust Test Hospital 2" );
         visit.setHdl( 70 );
         visit.setHeight( 69.1f );
         visit.setHouseSmokingStatus( HouseholdSmokingStatus.INDOOR );
@@ -402,14 +405,14 @@ public class APIObstetricsRecordTest {
         mvc.perform( post( "/api/v1/generalcheckups" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( visit ) ) ).andExpect( status().isOk() );
 
-        // Create a obstetrics record for pregnancy that started January 15th,
-        // 2019
+        // Create a obstetrics record for pregnancy that started 01/15/2019
         final ObstetricsRecordForm obsForm = new ObstetricsRecordForm();
-        obsForm.setLastMenstrualPeriod( "2019-01-15" );
+        obsForm.setLastMenstrualPeriod( "2019-02-02" );
 
         mvc.perform( post( "/api/v1/obstetricsrecord/patient" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( obsForm ) ) ).andExpect( status().isOk() );
 
+        // Check values of flags that can be set using basic user info
         assertTrue( ObstetricsRecord.getByPatient( "patient" ).hasAdvancedMaternalAge() );
         assertFalse( ObstetricsRecord.getByPatient( "patient" ).isRHNegative() );
         assertTrue( ObstetricsRecord.getByPatient( "patient" ).hasMiscarriagePotential() );
@@ -417,6 +420,7 @@ public class APIObstetricsRecordTest {
         assertFalse( ObstetricsRecord.getByPatient( "patient" ).hasHighBloodPressure() );
         assertFalse( ObstetricsRecord.getByPatient( "patient" ).hasAbnormalFetalHeartRate() );
 
+        // Now create + save an obstetrics office visit for the patient
         final ObstetricsVisitForm obForm = new ObstetricsVisitForm();
         obForm.setDate( "2019-02-02T09:50:00.000-04:00" ); // 2/2/2019 9:50 AM
         obForm.setHcp( "hcp" );
@@ -429,12 +433,13 @@ public class APIObstetricsRecordTest {
         obForm.setNumOfWeeksPreg( 3 );
         obForm.setTwins( false );
         obForm.setLowLyingPlacenta( false );
+        obForm.setDiastolic( 92 );
+        obForm.setSystolic( 105 );
 
         mvc.perform( post( "/api/v1/ObstetricsVisit" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( obForm ) ) ).andExpect( status().isOk() );
 
-        mvc.perform( put( "/api/v1/obstetricsrecord" ).contentType( MediaType.APPLICATION_JSON )
-                .content( TestUtils.asJsonString( obForm ) ) ).andExpect( status().isOk() );
+        assertTrue( !ObstetricsOfficeVisit.getForPatient( "patient" ).isEmpty() );
 
         assertTrue( ObstetricsRecord.getByPatient( "patient" ).hasHighBloodPressure() );
         assertTrue( ObstetricsRecord.getByPatient( "patient" ).hasAbnormalFetalHeartRate() );

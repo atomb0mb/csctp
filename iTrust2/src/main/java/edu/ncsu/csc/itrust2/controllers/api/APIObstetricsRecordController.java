@@ -7,15 +7,12 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsRecordForm;
-import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsVisitForm;
 import edu.ncsu.csc.itrust2.forms.hcp.PregnancyForm;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
-import edu.ncsu.csc.itrust2.models.persistent.ObstetricsOfficeVisit;
 import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.Pregnancy;
@@ -58,35 +55,6 @@ public class APIObstetricsRecordController extends APIController {
             e.printStackTrace();
             return new ResponseEntity(
                     errorResponse( "Could not create ObstetricsRecord provided due to " + e.getMessage() ),
-                    HttpStatus.BAD_REQUEST );
-        }
-    }
-
-    /**
-     * Allows for an ongoing obstetrics record to be edited when an obstetrics
-     * office visit is made
-     *
-     * @param form
-     *            the office visit form from the obstetrics office visit
-     * @return ResponseEntity based on success of function
-     */
-    @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
-    @PutMapping ( BASE_PATH + "/obstetricsrecord" )
-    public ResponseEntity editObstetricsRecord ( @RequestBody final ObstetricsVisitForm form ) {
-        try {
-            final ObstetricsOfficeVisit visit = new ObstetricsOfficeVisit( form );
-            final String patient = visit.getPatient().getUsername();
-            final ObstetricsRecord orec = ObstetricsRecord.getByPatient( patient );
-
-            orec.updateObstetricsRecord( visit );
-
-            orec.save();
-
-            return new ResponseEntity( visit, HttpStatus.OK );
-        }
-        catch ( final Exception e ) {
-            return new ResponseEntity(
-                    errorResponse( "Could not update " + form.toString() + " because of " + e.getMessage() ),
                     HttpStatus.BAD_REQUEST );
         }
     }
