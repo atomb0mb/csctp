@@ -4,108 +4,215 @@
 </head>
 <body th:include="layout :: body" th:with="content=~{::content}">
 	<div th:fragment="content">
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<script th:inline="javascript">
-				"use strict";
-		
-                /* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
-                /*<![CDATA[*/
-                var app = angular.module('myApp', []);
-                app.controller('laborDeliveryReports', function ($scope, $http) {
-                	
-                	// Display users' names
-                    $scope.displayName = function (p) {
-                        return p.firstName + " " + p.lastName + " (" + p.self.username + ")";
-                    }
-                	
-                 // documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
-                    $scope.searchFilter = "";
-                    $scope.filterPatients = function (patient) {
-                    	return ($scope.displayName(patient)).toLowerCase().match($scope.searchFilter.toLowerCase());
-                    }
-                    
-                    
-                  //Get info for the patients
-                    $http.get("/iTrust2/api/v1/patients/female")
-                    	.then(
-                        function (response) {
-                            $scope.patients = response.data; //get only female patients
-                        },
-                        function (rejection) {
-                            $scope.patient = null;
-                        });
-                    
-                    
-                    $scope.selectPatient = function (patient) {
-                    	
-                    	//$scope.patientRecords = 
-                    		//HOW TO GET RECORDS FOR THIS PATIENT?
-                    				//POSSIBLE METHOD IN LaborDeliveryReport.java
-                    	
-                    };
-                  
-                  
-                 
-                    
 
-                });
-                /*]]>*/
-            </script>
-            
-            
-            
-            
-            
-            
-            
-            
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
-		<div ng-app="myApp" ng-controller="documentOfficeVisitCtrl">
-			<div style="float: left; width: 30%; height: 75%; overflow-y: auto">
+
+
+
+
+
+
+
+
+
+
+
+
+
+		<script th:inline="javascript">
+			"use strict";
+
+			/* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
+			/*<![CDATA[*/
+			var app = angular.module('myApp', []);
+			app
+					.controller(
+							'laborDeliveryReports',
+							function($scope, $http) {
+
+								// Display users' names
+								$scope.displayName = function(p) {
+									return p.firstName + " " + p.lastName
+											+ " (" + p.self.username + ")";
+								}
+
+								$scope.deliveryMethods = [ 'Vaginal Delivery',
+										'Caesarean Section', 'Miscarriage' ];
+								$scope.twinOptions = [ 'Yes', 'No' ];
+
+								// documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
+								$scope.searchFilter = "";
+								$scope.filterPatients = function(patient) {
+									return ($scope.displayName(patient))
+											.toLowerCase().match(
+													$scope.searchFilter
+															.toLowerCase());
+								}
+
+								$scope.form = {
+									deliveryMethods : '',
+									twinOptions : '',
+						
+									
+								};
+								
+								$scope.entry = {
+									twinOption : ''
+								}
+
+								//Get info for the patients
+								$http.get("/iTrust2/api/v1/patients/female")
+										.then(function(response) {
+											$scope.patients = response.data; //get only female patients
+										}, function(rejection) {
+											$scope.patient = null;
+										});
+
+								$scope.selectPatient = function(patient) {
+
+									$scope.displayCreateLD = false;
+									$scope.boolMiscarriage = false;
+									$scope.showTwinForm = false;
+
+									//$scope.patientRecords = 
+									//HOW TO GET RECORDS FOR THIS PATIENT?
+									//POSSIBLE METHOD IN LaborDeliveryReport.java
+
+									// Get past pregnancy info for patient
+									$http.get(
+											"/iTrust2/api/v1/LaborDelivery/"
+													+ $scope.patients
+													+ $scope.selectedPatient)
+											.then(function(response) { // on success
+
+											}, //if it failed
+											function(rejection) {
+
+											});
+									// Get current pregnancy info for patient
+									$http
+											.get(
+													"/iTrust2/api/v1/obstetricsrecord/"
+															+ $scope.selectedPatient)
+											.then(
+													function(response) { // on success
+														$scope.currentPregnancy = response.data
+																|| {};
+														$scope.lmpInputDate = new Date();
+														$scope.lmp = response.data.lastMenstrualPeriod;
+														$scope.estDueDate = response.data.estDueDate;
+														$scope.numWeeksPregnant = response.data.numWeeksPregnant;
+														$scope.message = "";
+													}, //if it failed
+													function(rejection) {
+														$scope.currentPregnancy = {};
+														$scope.message = "Could not display current pregnancy.";
+													});
+
+									// Get current pregnancy info for patient                        	
+
+								};
+
+								$scope.displayCreateLD = false;
+
+								$scope.displayCreateForm = function() {
+									$scope.displayCreateLD = true;
+								}
+
+								$scope.submitLD = function() {
+
+									// Date info: https://docs.oracle.com/javase/7/docs/api/java/util/Date.html#getMonth()
+
+									//Clear any error messages
+									$scope.errorMsg = "";
+
+									// Post the record to the REST API endpoint, and handle success/error
+									$http
+											.post(
+													"/iTrust2/api/v1/LaborDelivery",
+													$scope.form)
+											.then(
+													function success(response) {
+														if (response.data.patient) { //patient only exists on success
+															$scope.message = "Obstetrics record has been added successfully."
+															$scope.form = {
+																deliveryMethod : ''
+															};
+															$scope.errorMsg = "";
+															document.location.href = '/iTrust2/hcp/laborDeliveryReports.html';
+														}
+													},
+													function failure(rejection) {
+														$scope
+																.failAddObsEntry();
+													});
+								}
+
+								//$scope.deliveryString = document.getElementById("deliveryMethod");
+								$scope.isMiscarriage = function() {
+									console.log("Test");
+									if($scope.form.deliveryMethod != 'Miscarriage') {
+									  $scope.showForm = true;
+									} else {
+										$scope.showForm = false;
+									}
+								}
+								
+								$scope.checkTwin = function() {
+									console.log("Test TWINS");
+									if($scope.entry.twinOption == 'Yes') {
+										  $scope.showTwinForm = true;
+										} else {
+											$scope.showTwinForm = false;
+										}
+								}
+
+							});
+			/*]]>*/
+		</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		<div ng-app="myApp" ng-controller="laborDeliveryReports" class="row">
+			<div class="col-md-3">
 				<h2>Patients:</h2>
 				<!-- info on filtering taken from here: https://www.w3schools.com/angular/angular_filters.asp
-				and https://docs.angularjs.org/api/ng/filter/filter -->
+                    and https://docs.angularjs.org/api/ng/filter/filter -->
 				<h4>
 					Search: <input type="text" name="search" ng-model="searchFilter" />
 				</h4>
 				<!-- Info on scrolling taken from here: https://www.w3schools.com/cssref/pr_pos_overflow.asp -->
 				<!-- and here: https://stackoverflow.com/questions/9560330/how-to-hide-a-vertical-scroll-bar-when-not-needed -->
-				<ul style="overflow: auto;height=90%;" id="patientList">
-					<!-- Information on how labels wor from here: https://stackoverflow.com/questions/7863251/clicking-the-text-to-select-corresponding-radio-button -->
-					<li ng-repeat="patient in patients | filter:filterPatients"><h4>
-							<label> <input type="radio"
-								ng-model="$parent.selectedPatient" name="patient"
-								value="{{patient.self.username}}"
-								ng-click='$parent.selectPatient(patient)' />&nbsp;{{$parent.displayName(patient)}}
-							</label>
-						</h4></li>
-				</ul>
+				<div>
+					<div class="radio"
+						ng-repeat="patient in patients | filter:filterPatients">
+						<label> <input type="radio" id="{{patient.self.username}}"
+							ng-model="$parent.selectedPatient" name="patient"
+							value="{{patient.self.username}}"
+							ng-click='$parent.selectPatient(patient)' />
+							&nbsp;{{$parent.displayName(patient)}}
+						</label>
+					</div>
+				</div>
 			</div>
 			<!-- information on vertical rule found here: https://stackoverflow.com/questions/571900/is-there-a-vr-vertical-rule-in-html  -->
 			<div
@@ -121,19 +228,18 @@
 				</div>
 
 
-				<div class="form-group" ng-if="selectedPatient && displayedPregForm">
-					<button type="submit" class="btn btn-primary" ng-click=createLD()
-						name="createLD" id="submitPregnancy">Create Labor and
-						Delivery Report</button>
+				<div class="form-group" ng-if="selectedPatient">
+					<button type="submit" class="btn btn-primary"
+						ng-click=displayCreateForm() name="displayCreateForm"
+						id=displayCreateForm>Create Labor and Delivery Report</button>
 				</div>
 
 
-				<div ng-if="priorPregnancies && priorPregnancies.length > 0">
-					<br> <b>Previous Labor and Delivery Reports</b>
+				<div ng-if="!previousReports && previousReports.length == 0">
+					<br> <b>CHANGE THIS: Previous Labor and Delivery Reports</b>
 				</div>
 
-
-				<table class="table table-bordered" ng-if="child.length == 0">
+				<table class="table table-bordered">
 					<!-- ng-repeat="pregnancy in priorPregnancies">  -->
 					<thead>
 						<tr>
@@ -146,19 +252,18 @@
 					</thead>
 
 					<tbody>
-						<tr ng-repeat="pregnancy in priorPregnancies">
-							<td id="conceptionYear-{{$index}}">{{pregnancy.conceptionYear}}</td>
-							<td id="numWeeksPregnant-{{$index}}">{{pregnancy.numberOfWeeksPregnant}}</td>
-							<td id="numHoursInLabor-{{$index}}">{{pregnancy.numberOfHoursInLabor}}</td>
-							<td id="deliveryMethod-{{$index}}">{{pregnancy.deliveryMethod}}</td>
-							<td id="twins-{{$index}}" ng-if="pregnancy.twins">Yes</td>
-							<td id="twins2-{{$index}}" ng-if="!pregnancy.twins">No</td>
-						</tr>
+						<!--	<tr ng-repeat="patient in patients">
+							<td id="laborDate-{{$index}}">{{pregnancy.conceptionYear}}</td>
+							<td id="laborTime-{{$index}}">{{pregnancy.numberOfWeeksPregnant}}</td>
+							<td id="deliveryDate-{{$index}}">{{pregnancy.numberOfHoursInLabor}}</td>
+							<td id="deliveryTime-{{$index}}">{{pregnancy.deliveryMethod}}</td>
+							<td id="type-{{$index}}" ng-if="pregnancy.twins">Yes</td>
+						</tr> -->
 					</tbody>
 				</table>
 
 
-				<table class="table table-bordered" ng-if="child.length > 0">
+				<table class="table table-bordered">
 					<!-- ng-repeat="pregnancy in priorPregnancies">  -->
 					<thead>
 						<tr>
@@ -194,7 +299,7 @@
 							<th>Labor Time</th>
 							<th>Delivery Date</th>
 							<th>Delivery Time</th>
-							<th>Type of Delivery</th>
+							<th>Delivery Method</th>
 							<th>First Name</th>
 							<th>Last Name</th>
 							<th>Weight</th>
@@ -222,7 +327,7 @@
 
 
 
-				<div ng-if="displayedPregForm">
+				<div ng-if="displayCreateLD">
 
 					<div class="row">
 						<div class="col">
@@ -253,8 +358,7 @@
 									<label for="conceptionYear">Date of Delivery</label>
 									<div class="input-group">
 										<input class="form-control" id="conceptionYear" type="number"
-											ng-model="pregnancyEntry.conceptionYear"
-											name="conceptionYear" />
+											ng-model="form.conceptionYear" name="conceptionYear" />
 									</div>
 								</div>
 
@@ -267,19 +371,48 @@
 									</div>
 								</div>
 
-								<div class="form-group">
-									<label for="twinsYes">Type of Delivery</label> <select
-										class="form-control" ng-model="pregnancyEntry.twinsYes"
-										id="twinsYes" name="twinsYes">
-										<option ng-repeat="twinOption in twinOptions">{{twinOption}}</option>
-									</select>
-								</div>
+
+								<div class="form-group col-md-4">
+										<label>Delivery Method:</label>
+
+										<div class="panel panel-default">
+											<div class="panel-body">
+												<div class="form-check">
+													<ul
+														style="overflow: auto; list-style: none;">
+														<li ng-repeat="deliveryMethod in deliveryMethods"><label> <input
+																type="radio" ng-model="form.deliveryMethod"
+																name="{{deliveryMethod}}" value="{{deliveryMethod}}" required="true" ng-click = "isMiscarriage()" /> {{deliveryMethod}}
+														</label></li>
+													</ul>
+												</div>
+											</div>
+										</div>
+									</div>
+									
+									<div class="form-group col-md-4">
+										<label>Twins?:</label>
+
+										<div class="panel panel-default">
+											<div class="panel-body">
+												<div class="form-check">
+													<ul
+														style="overflow: auto; list-style: none;">
+														<li ng-repeat="twinOption in twinOptions"><label> <input
+																type="radio" ng-model="entry.twinOption"
+																name="{{twinOption}}" value="{{twinOption}}" required="true" ng-click = "checkTwin()" /> {{twinOption}}
+														</label></li>
+													</ul>
+												</div>
+											</div>
+										</div>
+									</div>
 
 
 
-
+								
 								<!-- IF NOT A MISCARRIAGE SHOW REST OF FIELDS -->
-								<div ng-if="notMiscarriage">
+								<div ng-if="showForm">
 									<div class="form-group">
 										<label for="numHoursInLabor">Weight</label> <input
 											class="form-control" id="numHoursInLabor" type="number"
@@ -341,7 +474,7 @@
 
 									<!-- IF TWINS, NEW TABLE -->
 
-									<div ng-if="twins">
+									<div ng-if="showForm && showTwinForm">
 
 										<div class="row">
 											<div class="col">
@@ -446,9 +579,9 @@
 							</div>
 
 							<div class="form-group"
-								ng-if="selectedPatient && displayedPregForm">
+								ng-if="selectedPatient && displayCreateLD">
 								<button type="submit" class="btn btn-primary"
-									ng-click=submitLD() name="submitLD" id="submitPregnancy">Submit
+									ng-click=submitLD() name="submitLD" id="submitLD">Submit
 									Labor and Delivery Report</button>
 							</div>
 
@@ -460,9 +593,10 @@
 							</div>
 						</div>
 					</div>
-				</div> <!-- CLOSES LABOR AND DELIVERY REPORT CREATE FORM -->
-			
-			
+				</div>
+				<!-- CLOSES LABOR AND DELIVERY REPORT CREATE FORM -->
+
+
 			</div>
 		</div>
 	</div>
