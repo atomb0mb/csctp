@@ -63,7 +63,7 @@ public class ObstetricsRecordStepDefs extends CucumberTest {
         final WebElement submit = driver.findElement( By.className( "btn" ) );
         submit.click();
 
-        if ( id.equals( "OGBYN" ) || id.equals( "hcp" ) ) {
+        if ( id.equals( "OBGYN" ) || id.equals( "hcp" ) ) {
             assertEquals( "iTrust2: HCP Home", driver.getTitle() );
         }
         else {

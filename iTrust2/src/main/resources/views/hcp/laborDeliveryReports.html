@@ -339,6 +339,13 @@
 
 																$scope.message = "Labor and delivery report has been added successfully."
 																$scope.errorMsg = "";
+																$http.delete("/iTrust2/api/v1/obstetricsrecord/"+ $scope.form.patient)
+										                        .then(function (response) {
+										                        	console.log("remove sucess")
+										                        	deferred.resolve(response.data);
+										                        });
+																
+																
 																document.location.href = '/iTrust2/hcp/laborDeliveryReports.html';
 															
 														},
@@ -428,6 +435,11 @@
 																response) {
 																$scope.message = "Labor and delivery report has been added successfully";
 																$scope.errorMsg = "";
+																$http.delete("/iTrust2/api/v1/obstetricsrecord/"+ $scope.form.patient)
+										                        .then(function (response) {
+										                        	console.log("remove sucess")
+										                        	deferred.resolve(response.data);
+										                        });
 																document.location.href = '/iTrust2/hcp/laborDeliveryReports.html';
 
 														},

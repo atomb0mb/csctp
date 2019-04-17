@@ -209,7 +209,7 @@ public class HibernateDataGenerator {
         robort.save();
 
         /** Test user for OBGYN */
-        final User testOBGYN = new User( "OGBYN", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+        final User testOBGYN = new User( "OBGYN", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
                 Role.ROLE_OBGYN, 1 );
         testOBGYN.save();
 
