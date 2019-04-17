@@ -73,11 +73,20 @@
                         	.then(
                             function (response) { // on success
                             	$scope.currentPregnancy = response.data || {};
-                				$scope.lmpInputDate = new Date();
+                				$scope.lmpInputDate = today;
                             	$scope.lmp = response.data.lastMenstrualPeriod;
                                 $scope.estDueDate = response.data.estDueDate;
                                 $scope.numWeeksPregnant = response.data.numWeeksPregnant;
-                            	$scope.message = "";
+
+                                // Set flags for abnormalities with pregnancy                    	
+                            	$scope.highBloodPressure = true;
+                                $scope.advancedAge = true; //Set everything to true for now for testing purposes
+                                $scope.pastMiscarriage = true;
+                                $scope.abnormalFetalHeart = true;
+                                $scope.rhFlag = true;
+                                $scope.abWeight = true;								
+                                
+                                $scope.message = "";
                             }, //if it failed
                             function (rejection) {
                             	$scope.currentPregnancy = {};
@@ -271,6 +280,13 @@
 								<br> Last Menstrual Period: {{currentPregnancy[0].lastMenstrualPeriod}}
 								<br> Estimated Due Date:    {{currentPregnancy[0].estDueDate}}
 								<br> Weeks Pregnant:        {{currentPregnancy[0].numWeeksPregnant}}
+						</div>
+
+						<div>
+							Flaggy flags
+							
+							ng-if="priorPregnancies && priorPregnancies.length > 0">
+							
 						</div>
 
 						<div
