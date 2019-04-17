@@ -267,6 +267,14 @@
 												if (/^[0-9]{1,3}$/.test(String($scope.edit.diastolicTwin).replace(/^0+/, '')) == false) {
 													$scope.errorMsg += "Second Newborn's Diastolic blood pressure can be up to a 3-digit positive number\n"
 												}
+											} else {
+												$scope.edit.firstnameTwin = "";
+												$scope.edit.lastnameTwin = "";
+												$scope.edit.weightTwin = 0;
+												$scope.edit.lengthTwin = 0;
+												$scope.edit.heartRateTwin = 0;
+												$scope.edit.systolicTwin = 0;
+												$scope.edit.diastolicTwin = 0;
 											}
 										} // / end of delivery else
 										
