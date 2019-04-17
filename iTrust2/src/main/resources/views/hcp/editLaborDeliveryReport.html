@@ -92,19 +92,6 @@
 												$scope.edit.laborDate = new Date($scope.edit.laborDate);
 												$scope.edit.deliveryDate = new Date($scope.edit.deliveryDate);
 												
-												if($scope.edit.lastname != "") {
-													$scope.hasChild = true;
-												} else {
-													$scope.hasChild = false;
-												}
-												
-												
-												if($scope.edit.lastnameTwin != "") {
-													$scope.hasTwin = true;
-												} else {
-													$scope.hasTwin = false;
-												}
-											
 												$scope.message = "";
 											}, //if it failed
 											function(rejection) {
@@ -234,6 +221,12 @@
 															.replace(/^0+/, '')) == false) {
 												$scope.errorMsg += "First newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision\n"
 											}
+											
+											// Check heartRate
+											if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.heartRate).replace(/^0+/, '')) == false || $scope.edit.heartRate < 0) {
+												$scope.errorMsg += "First Newborn's heart Rate can be up to a 3-digit positive number and potentially one digit of decimal precision\n"
+											}
+											
 											// Check systolic
 											if (/^[0-9]{1,3}$/.test(String(
 													$scope.edit.systolic).replace(
@@ -246,9 +239,10 @@
 													/^0+/, '')) == false) {
 												$scope.errorMsg += "First newborn's Diastolic blood pressure can be up to a 3-digit positive number\n"
 											}
-
-											if ($scope.hasTwin) {
-												if (!$scope.edit.firstnameTwin) {
+											
+											// If user has decided to add another twins
+											if ($scope.edit.firstnameTwin) {
+												if ($scope.edit.firstnameTwin == '') {
 													$scope.errorMsg += "Second Newborn's first name cannot be empty.\n";
 												}
 
@@ -260,14 +254,17 @@
 												if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.lengthTwin).replace(/^0+/, '')) == false) {
 													$scope.errorMsg += "Second Newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision\n"
 												}
+												// Check heartRate
+												if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.heartRateTwin).replace(/^0+/, '')) == false) {
+													$scope.errorMsg += "Second Newborn's heart Rate can be up to a 3-digit positive number and potentially one digit of decimal precision\n"
+												}
+												
 												// Check systolic
 												if (/^[0-9]{1,3}$/.test(String($scope.edit.systolicTwin).replace(/^0+/, '')) == false) {
 													$scope.errorMsg += "Second Newborn's Systolic blood pressure can be up to a 3-digit positive number\n"
 												}
 												// Check diatolic
-												if (/^[0-9]{1,3}$/.test(String(
-														$scope.edit.diastolicTwin)
-														.replace(/^0+/, '')) == false) {
+												if (/^[0-9]{1,3}$/.test(String($scope.edit.diastolicTwin).replace(/^0+/, '')) == false) {
 													$scope.errorMsg += "Second Newborn's Diastolic blood pressure can be up to a 3-digit positive number\n"
 												}
 											}
@@ -425,7 +422,7 @@
 							
 
 							<!-- Single Infant's Ineditation Panel -->
-							<div class="col-md-4" ng-if="hasChild">
+							<div class="col-md-4">
 								<div class="panel panel-info">
 
 									<div class="panel-heading">
@@ -511,7 +508,7 @@
 							</div>
 
 							<!-- Twin Ineditation Panel -->
-							<div class="col-md-4" ng-if="hasTwin">
+							<div class="col-md-4">
 								<div class="panel panel-info">
 										<div class="panel-heading">
 											<h4>Second Newborn's Information</h4>
