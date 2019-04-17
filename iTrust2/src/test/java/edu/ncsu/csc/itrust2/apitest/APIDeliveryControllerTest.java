@@ -25,8 +25,13 @@ import org.springframework.web.context.WebApplicationContext;
 import edu.ncsu.csc.itrust2.config.RootConfiguration;
 import edu.ncsu.csc.itrust2.forms.admin.UserForm;
 import edu.ncsu.csc.itrust2.forms.hcp.LaborDeliveryForm;
+import edu.ncsu.csc.itrust2.forms.hcp_patient.PatientForm;
+import edu.ncsu.csc.itrust2.models.enums.BloodType;
 import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
+import edu.ncsu.csc.itrust2.models.enums.Ethnicity;
+import edu.ncsu.csc.itrust2.models.enums.Gender;
 import edu.ncsu.csc.itrust2.models.enums.Role;
+import edu.ncsu.csc.itrust2.models.enums.State;
 import edu.ncsu.csc.itrust2.models.persistent.LaborDeliveryReport;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.mvc.config.WebMvcConfiguration;
@@ -78,14 +83,33 @@ public class APIDeliveryControllerTest {
         mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( hcp ) ) );
 
-        final UserForm patient = new UserForm( "patient", "123456", Role.ROLE_PATIENT, 1 );
+        final UserForm patientUser = new UserForm( "patient", "123456", Role.ROLE_PATIENT, 1 );
         mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( patientUser ) ) );
+
+        final PatientForm patient = new PatientForm();
+        patient.setAddress1( "1 Test Street" );
+        patient.setAddress2( "Some Location" );
+        patient.setBloodType( BloodType.APos.toString() );
+        patient.setCity( "FFF" );
+        patient.setDateOfBirth( "1977-06-15" );
+        patient.setEmail( "antti@itrust.fi" );
+        patient.setEthnicity( Ethnicity.Caucasian.toString() );
+        patient.setFirstName( "Test" );
+        patient.setGender( Gender.Male.toString() );
+        patient.setLastName( "Patient" );
+        patient.setPhone( "123-456-7890" );
+        patient.setSelf( "patient" );
+        patient.setState( State.NC.toString() );
+        patient.setZip( "27514" );
+        mvc.perform( post( "/api/v1/patients" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( patient ) ) );
 
         final LaborDeliveryForm form = new LaborDeliveryForm();
         form.setDeliveryDate( "2048-04-16T09:50:00.000-04:00" );
         form.setDeliverymethod( DeliveryMethod.CaesareanSection );
         form.setLaborDate( "2048-04-16T09:50:00.000-04:00" );
+        form.setPatient( "patient" );
         form.setFirstname( "Henry" );
         form.setFirstnameTwin( "Twin" );
 
@@ -93,6 +117,9 @@ public class APIDeliveryControllerTest {
                 .content( TestUtils.asJsonString( form ) ) ).andExpect( status().isOk() );
 
         mvc.perform( get( "/api/v1/LaborDelivery" ) ).andExpect( status().isOk() )
+                .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );
+
+        mvc.perform( get( "/api/v1/LaborDelivery/patients/patient" ) ).andExpect( status().isOk() )
                 .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );
 
         final List<LaborDeliveryReport> reports = LaborDeliveryReport.getAllReports();

@@ -106,9 +106,20 @@ public class HCPController {
      * @return The page to display
      */
     @GetMapping ( "/hcp/viewPatientObstetricsRecords" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_OBGYN')" )
     public String viewObstetricsRecords () {
         return "/hcp/viewPatientObstetricsRecords";
+    }
+
+    /**
+     * Returns the page allowing HCPs to view patient's obstetrics records
+     *
+     * @return The page to display
+     */
+    @GetMapping ( "/hcp/viewPatientObstetricsRecordsRestricted" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH')" )
+    public String viewObstetricsRecordsRestricted () {
+        return "/hcp/viewPatientObstetricsRecordsRestricted";
     }
 
     /**
@@ -121,6 +132,39 @@ public class HCPController {
     @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
     public String createObstetricsRecords () {
         return "/hcp/createPatientObstetricsRecords";
+    }
+
+    /**
+     * Returns the page allowing HCPs to view patient's food diary
+     *
+     * @return The page to display
+     */
+    @GetMapping ( "/hcp/laborDeliveryReportsRestricted" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH')" )
+    public String laborDeliveryReportsRestricted () {
+        return "/hcp/laborDeliveryReportsRestricted";
+    }
+
+    /**
+     * Returns the page allowing HCPs to view patient's food diary
+     *
+     * @return The page to display
+     */
+    @GetMapping ( "/hcp/laborDeliveryReports" )
+    @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
+    public String laborDeliveryReports () {
+        return "/hcp/laborDeliveryReports";
+    }
+
+    /**
+     * Returns the page allowing HCPs to view patient's food diary
+     *
+     * @return The page to display
+     */
+    @GetMapping ( "/hcp/editLaborDeliveryReport" )
+    @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
+    public String editLaborDeliveryReports () {
+        return "/hcp/editLaborDeliveryReport";
     }
 
 }
