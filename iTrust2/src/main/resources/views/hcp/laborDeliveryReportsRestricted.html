@@ -1,0 +1,135 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: head(title=~{::title},links=~{})">
+<title>Labor and Delivery Reports</title>
+</head>
+<body th:include="layout :: body" th:with="content=~{::content}">
+	<div th:fragment="content">
+
+		<div ng-app="myApp" ng-controller="documentOfficeVisitCtrl">
+			<div style="float: left; width: 30%; height: 75%; overflow-y: auto">
+				<h2>Patients:</h2>
+				<!-- info on filtering taken from here: https://www.w3schools.com/angular/angular_filters.asp
+				and https://docs.angularjs.org/api/ng/filter/filter -->
+				<h4>
+					Search: <input type="text" name="search" ng-model="searchFilter" />
+				</h4>
+				<!-- Info on scrolling taken from here: https://www.w3schools.com/cssref/pr_pos_overflow.asp -->
+				<!-- and here: https://stackoverflow.com/questions/9560330/how-to-hide-a-vertical-scroll-bar-when-not-needed -->
+				<ul style="overflow: auto;height=90%;" id="patientList">
+					<!-- Information on how labels wor from here: https://stackoverflow.com/questions/7863251/clicking-the-text-to-select-corresponding-radio-button -->
+					<li ng-repeat="patient in patients | filter:filterPatients"><h4>
+							<label> <input type="radio"
+								ng-model="$parent.selectedPatient" name="patient"
+								value="{{patient.self.username}}"
+								ng-click='$parent.selectPatient(patient)' />&nbsp;{{$parent.displayName(patient)}}
+							</label>
+						</h4></li>
+				</ul>
+			</div>
+			<!-- information on vertical rule found here: https://stackoverflow.com/questions/571900/is-there-a-vr-vertical-rule-in-html  -->
+			<div
+				style="float: left; width: 70%; border-left: 1px solid #bbb; padding-left: 3%; height: 75%; overflow-y: auto">
+				<h2 id="header0">View Patient Information</h2>
+
+				<div ng-if="selectedPatient && currentPregnancy.length > 0">
+					<b>Current Pregnancy Information: </b> <br> Last Menstrual
+					Period: {{currentPregnancy[0].lastMenstrualPeriod}} <br>
+					Estimated Due Date: {{currentPregnancy[0].estDueDate}} <br>
+					Weeks Pregnant: {{currentPregnancy[0].numWeeksPregnant}}
+				</div>
+
+
+				<div ng-if="priorPregnancies && priorPregnancies.length > 0">
+					<br> <b>Previous Labor and Delivery Reports</b>
+				</div>
+
+
+				<table class="table table-bordered" ng-if="child.length == 0">
+					<!-- ng-repeat="pregnancy in priorPregnancies">  -->
+					<thead>
+						<tr>
+							<th>Labor Date</th>
+							<th>Labor Time</th>
+							<th>Delivery Date</th>
+							<th>Delivery Time</th>
+							<th>Type of Delivery</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<tr ng-repeat="pregnancy in priorPregnancies">
+							<td id="conceptionYear-{{$index}}">{{pregnancy.conceptionYear}}</td>
+							<td id="numWeeksPregnant-{{$index}}">{{pregnancy.numberOfWeeksPregnant}}</td>
+							<td id="numHoursInLabor-{{$index}}">{{pregnancy.numberOfHoursInLabor}}</td>
+							<td id="deliveryMethod-{{$index}}">{{pregnancy.deliveryMethod}}</td>
+							<td id="twins-{{$index}}" ng-if="pregnancy.twins">Yes</td>
+							<td id="twins2-{{$index}}" ng-if="!pregnancy.twins">No</td>
+						</tr>
+					</tbody>
+				</table>
+
+
+				<table class="table table-bordered" ng-if="child.length > 0">
+					<!-- ng-repeat="pregnancy in priorPregnancies">  -->
+					<thead>
+						<tr>
+							<th>Labor Date</th>
+							<th>Labor Time</th>
+							<th>Delivery Date</th>
+							<th>Delivery Time</th>
+							<th>Type of Delivery</th>
+							<th>First Name</th>
+							<th>Last Name</th>
+							<th>Weight</th>
+							<th>Height/Length</th>
+							<th>Heart Rate</th>
+							<th>Systolic Blood Pressure</th>
+							<th>Diastolic Blood Pressure</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<tr ng-repeat="pregnancy in priorPregnancies">
+							<td id="conceptionYear-{{$index}}">{{pregnancy.conceptionYear}}</td>
+							<td id="numWeeksPregnant-{{$index}}">{{pregnancy.numberOfWeeksPregnant}}</td>
+							<td id="numHoursInLabor-{{$index}}">{{pregnancy.numberOfHoursInLabor}}</td>
+							<td id="deliveryMethod-{{$index}}">{{pregnancy.deliveryMethod}}</td>
+							<td id="twins-{{$index}}" ng-if="pregnancy.twins">Yes</td>
+							<td id="twins2-{{$index}}" ng-if="!pregnancy.twins">No</td>
+						</tr>
+					</tbody>
+
+					<thead>
+						<tr ng-if="twins">
+							<th>Labor Date</th>
+							<th>Labor Time</th>
+							<th>Delivery Date</th>
+							<th>Delivery Time</th>
+							<th>Type of Delivery</th>
+							<th>First Name</th>
+							<th>Last Name</th>
+							<th>Weight</th>
+							<th>Height/Length</th>
+							<th>Heart Rate</th>
+							<th>Systolic Blood Pressure</th>
+							<th>Diastolic Blood Pressure</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<!-- <tr ng-repeat="pregnancy in priorPregnancies track by $index"> -->
+						<tr ng-repeat="pregnancy in priorPregnancies">
+							<td id="conceptionYear-{{$index}}">{{pregnancy.conceptionYear}}</td>
+							<td id="numWeeksPregnant-{{$index}}">{{pregnancy.numberOfWeeksPregnant}}</td>
+							<td id="numHoursInLabor-{{$index}}">{{pregnancy.numberOfHoursInLabor}}</td>
+							<td id="deliveryMethod-{{$index}}">{{pregnancy.deliveryMethod}}</td>
+							<td id="twins-{{$index}}" ng-if="pregnancy.twins">Yes</td>
+							<td id="twins2-{{$index}}" ng-if="!pregnancy.twins">No</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
