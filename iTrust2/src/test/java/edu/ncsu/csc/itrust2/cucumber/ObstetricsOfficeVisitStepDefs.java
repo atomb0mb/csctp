@@ -52,7 +52,7 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
         driver.get( baseUrl );
         final WebElement username = driver.findElement( By.name( "username" ) );
         username.clear();
-        username.sendKeys( "OGBYN" );
+        username.sendKeys( "OBGYN" );
         final WebElement password = driver.findElement( By.name( "password" ) );
         password.clear();
         password.sendKeys( "123456" );
@@ -197,7 +197,7 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
 
         final WebElement username = driver.findElement( By.name( "username" ) );
         username.clear();
-        username.sendKeys( "OGBYN" );
+        username.sendKeys( "OBGYN" );
         final WebElement password = driver.findElement( By.name( "password" ) );
         password.clear();
         password.sendKeys( "123456" );
