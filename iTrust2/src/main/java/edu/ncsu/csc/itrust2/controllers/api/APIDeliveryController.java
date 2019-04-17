@@ -59,7 +59,6 @@ public class APIDeliveryController extends APIController {
                     final User babyuser = new User( report.getFirstname() + report.getLastname(),
                             "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
                     babyuser.save();
-                    first.addRepresentative( Patient.getByName( report.getPatient() ) );
                     first.setSelf( babyuser );
                     first.setDateOfBirth( report.getDeliveryDate().toLocalDate() );
                     first.setMother( User.getByName( report.getPatient() ) );
@@ -75,7 +74,6 @@ public class APIDeliveryController extends APIController {
                             "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
                     twin.save();
                     second.setSelf( twin );
-                    second.addRepresentative( Patient.getByName( report.getPatient() ) );
                     second.setDateOfBirth( report.getDeliveryDate().toLocalDate() );
                     second.setMother( User.getByName( report.getPatient() ) );
                     second.save();
