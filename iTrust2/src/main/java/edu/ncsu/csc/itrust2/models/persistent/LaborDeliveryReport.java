@@ -143,6 +143,11 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> imple
     private Long              id;
 
     /**
+     * The twins delivery method
+     */
+    private DeliveryMethod    deliverymethodTwin;
+
+    /**
      * Empty Constructor hibernate
      */
     public LaborDeliveryReport () {
@@ -173,6 +178,7 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> imple
         setHeartRateTwin( form.getHeartRateTwin() );
         setSystolicTwin( form.getSystolicTwin() );
         setDiastolicTwin( form.getDiastolicTwin() );
+        setDeliverymethodTwin( form.getDeliverymethodTwin() );
     }
 
     /**
@@ -559,6 +565,25 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> imple
     }
 
     /**
+     * Returns the delivery method of the twin
+     *
+     * @return the deliverymethodTwin
+     */
+    public DeliveryMethod getDeliverymethodTwin () {
+        return deliverymethodTwin;
+    }
+
+    /**
+     * Sets the delivery method of the twin
+     *
+     * @param deliverymethodTwin
+     *            the deliverymethodTwin to set
+     */
+    public void setDeliverymethodTwin ( final DeliveryMethod deliverymethodTwin ) {
+        this.deliverymethodTwin = deliverymethodTwin;
+    }
+
+    /**
      * Update current values
      *
      * @param form
@@ -583,6 +608,8 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> imple
         setHeartRateTwin( form.getHeartRateTwin() );
         setSystolicTwin( form.getSystolicTwin() );
         setDiastolicTwin( form.getDiastolicTwin() );
+        setDeliverymethodTwin( form.getDeliverymethodTwin() );
+
     }
 
     /**

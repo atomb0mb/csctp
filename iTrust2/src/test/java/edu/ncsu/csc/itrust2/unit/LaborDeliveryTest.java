@@ -55,6 +55,7 @@ public class LaborDeliveryTest {
         report.setLengthTwin( 8 );
         report.setSystolicTwin( 65 );
         report.setWeightTwin( 3 );
+        report.setDeliverymethodTwin( DeliveryMethod.VaginalDelivery );
 
         report.save();
 
@@ -78,6 +79,7 @@ public class LaborDeliveryTest {
         assertEquals( retrieved.getLengthTwin(), report.getLengthTwin(), .1 );
         assertEquals( retrieved.getSystolicTwin(), report.getSystolicTwin() );
         assertEquals( retrieved.getWeightTwin(), report.getWeightTwin(), .1 );
+        assertEquals( retrieved.getDeliverymethodTwin(), report.getDeliverymethodTwin() );
 
         final LaborDeliveryForm form = new LaborDeliveryForm( retrieved );
         assertEquals( retrieved.getDeliverymethod(), form.getDeliverymethod() );
@@ -131,5 +133,6 @@ public class LaborDeliveryTest {
         assertEquals( form.getLengthTwin(), report.getLengthTwin(), .1 );
         assertEquals( form.getSystolicTwin(), report.getSystolicTwin() );
         assertEquals( form.getWeightTwin(), report.getWeightTwin(), .1 );
+        assertEquals( form.getDeliverymethodTwin(), report.getDeliverymethodTwin() );
     }
 }

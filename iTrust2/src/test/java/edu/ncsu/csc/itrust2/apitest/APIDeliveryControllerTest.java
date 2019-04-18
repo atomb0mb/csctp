@@ -112,6 +112,8 @@ public class APIDeliveryControllerTest {
         form.setPatient( "patient" );
         form.setFirstname( "Henry" );
         form.setFirstnameTwin( "Twin" );
+        form.setLastname( "Smith" );
+        form.setLastnameTwin( "Smith" );
 
         mvc.perform( post( "/api/v1/LaborDelivery" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( form ) ) ).andExpect( status().isOk() );
