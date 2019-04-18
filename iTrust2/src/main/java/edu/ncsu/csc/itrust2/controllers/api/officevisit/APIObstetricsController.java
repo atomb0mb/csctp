@@ -39,7 +39,7 @@ public class APIObstetricsController extends APIController {
     @GetMapping ( BASE_PATH + "/ObstetricsVisit/{id}" )
     @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_PATIENT', 'ROLE_OBGYN')" )
     public ResponseEntity getObstetricsVisitById ( @PathVariable final Long id ) {
-        final ObstetricsOfficeVisit visit = (ObstetricsOfficeVisit) ObstetricsOfficeVisit.getById( id );
+        final ObstetricsOfficeVisit visit = ObstetricsOfficeVisit.getById( id );
         if ( visit == null ) {
             return new ResponseEntity( errorResponse( "No Obstetrics office visit found for " + id ),
                     HttpStatus.NOT_FOUND );
@@ -66,7 +66,7 @@ public class APIObstetricsController extends APIController {
     @DeleteMapping ( BASE_PATH + "/ObstetricsVisit/{id}" )
     @PreAuthorize ( "hasAnyRole('ROLE_OBGYN', 'ROLE_PATIENT')" )
     public ResponseEntity deleteObstetricsVisit ( @PathVariable final Long id ) {
-        final ObstetricsOfficeVisit visit = (ObstetricsOfficeVisit) ObstetricsOfficeVisit.getById( id );
+        final ObstetricsOfficeVisit visit = ObstetricsOfficeVisit.getById( id );
         if ( visit == null ) {
             return new ResponseEntity( errorResponse( "No Obstetrics office visit found for " + id ),
                     HttpStatus.NOT_FOUND );
@@ -133,7 +133,7 @@ public class APIObstetricsController extends APIController {
                 return new ResponseEntity( errorResponse( "Id does not match" ), HttpStatus.CONFLICT );
             }
 
-            final ObstetricsOfficeVisit newVisit = (ObstetricsOfficeVisit) ObstetricsOfficeVisit.getById( id );
+            final ObstetricsOfficeVisit newVisit = ObstetricsOfficeVisit.getById( id );
             if ( newVisit == null ) {
                 return new ResponseEntity( errorResponse( "Couldn't find visit" ), HttpStatus.NOT_FOUND );
             }
@@ -159,7 +159,7 @@ public class APIObstetricsController extends APIController {
      * @return whether the visit was found
      */
     public ResponseEntity viewAsPatient ( @PathVariable final Long id, @RequestBody final ObstetricsVisitForm form ) {
-        final ObstetricsOfficeVisit visit = (ObstetricsOfficeVisit) ObstetricsOfficeVisit.getById( id );
+        final ObstetricsOfficeVisit visit = ObstetricsOfficeVisit.getById( id );
         if ( visit == null ) {
             return new ResponseEntity( errorResponse( "No visit found" ), HttpStatus.NOT_FOUND );
         }
@@ -180,7 +180,7 @@ public class APIObstetricsController extends APIController {
     @PostMapping ( BASE_PATH + "/ObstetricsVisit/hcp/view/{id}" )
     @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
     public ResponseEntity viewAsHCP ( @PathVariable final Long id, @RequestBody final ObstetricsVisitForm form ) {
-        final ObstetricsOfficeVisit visit = (ObstetricsOfficeVisit) ObstetricsOfficeVisit.getById( id );
+        final ObstetricsOfficeVisit visit = ObstetricsOfficeVisit.getById( id );
         if ( visit == null ) {
             return new ResponseEntity( errorResponse( "No visit found" ), HttpStatus.NOT_FOUND );
         }

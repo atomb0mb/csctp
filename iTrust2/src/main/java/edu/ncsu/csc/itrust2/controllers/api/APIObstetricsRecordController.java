@@ -3,6 +3,7 @@ package edu.ncsu.csc.itrust2.controllers.api;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,8 +45,7 @@ public class APIObstetricsRecordController extends APIController {
     public ResponseEntity createObstetricsRecord ( @PathVariable final String patient,
             @RequestBody final ObstetricsRecordForm obsForm ) {
         try {
-            final ObstetricsRecord obr = new ObstetricsRecord( obsForm );
-            obr.setPatient( patient );
+            final ObstetricsRecord obr = new ObstetricsRecord( patient, obsForm );
             obr.save();
 
             LoggerUtil.log( TransactionType.OBGYN_CREATE_OBS_RECORD, LoggerUtil.currentUser() );
@@ -56,6 +56,31 @@ public class APIObstetricsRecordController extends APIController {
             return new ResponseEntity(
                     errorResponse( "Could not create ObstetricsRecord provided due to " + e.getMessage() ),
                     HttpStatus.BAD_REQUEST );
+        }
+    }
+
+    /**
+     * Deletes the ObstetricsRecord. Marks the end of a pregnancy
+     *
+     * @param patient
+     *            username of patient belonging to the record
+     * @return ResponseEntity based on success of function
+     */
+    @DeleteMapping ( BASE_PATH + "/obstetricsrecord/{patient}" )
+    @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
+    public ResponseEntity deleteObstetricsRecord ( @PathVariable final String patient ) {
+        final ObstetricsRecord orec = ObstetricsRecord.getByPatient( patient );
+        if ( orec == null ) {
+            return new ResponseEntity( errorResponse( "No Obstetrics Records found for " + patient ),
+                    HttpStatus.NOT_FOUND );
+        }
+        try {
+            orec.delete();
+            return new ResponseEntity( patient, HttpStatus.OK );
+        }
+        catch ( final Exception e ) {
+            e.printStackTrace();
+            return new ResponseEntity( "Could not delete record for " + patient, HttpStatus.BAD_REQUEST );
         }
     }
 
@@ -89,6 +114,9 @@ public class APIObstetricsRecordController extends APIController {
     /**
      * Retrieves the Obstetrics Record for a patient of the HCP currently logged
      * into iTrust2
+     *
+     * @param patient
+     *            - username of patient
      *
      * @return ResponseEntity with the ObstetricsRecord for the patient, or an
      *         error message if cannot be found
@@ -127,6 +155,9 @@ public class APIObstetricsRecordController extends APIController {
     /**
      * Return list of past pregnancies for a patient regjstered to receive care
      * from this HCP
+     *
+     * @param patient
+     *            - username of patient
      *
      * @return List of pregnancies for the patient
      */

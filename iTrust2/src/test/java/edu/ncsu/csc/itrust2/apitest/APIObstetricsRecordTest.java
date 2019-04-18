@@ -2,8 +2,10 @@
 package edu.ncsu.csc.itrust2.apitest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -27,18 +29,28 @@ import org.springframework.web.context.WebApplicationContext;
 
 import edu.ncsu.csc.itrust2.config.RootConfiguration;
 import edu.ncsu.csc.itrust2.forms.admin.UserForm;
+import edu.ncsu.csc.itrust2.forms.hcp.GeneralCheckupForm;
 import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsRecordForm;
+import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsVisitForm;
 import edu.ncsu.csc.itrust2.forms.hcp.PregnancyForm;
 import edu.ncsu.csc.itrust2.forms.hcp_patient.PatientForm;
+import edu.ncsu.csc.itrust2.models.enums.AppointmentType;
 import edu.ncsu.csc.itrust2.models.enums.BloodType;
 import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
 import edu.ncsu.csc.itrust2.models.enums.Ethnicity;
 import edu.ncsu.csc.itrust2.models.enums.Gender;
+import edu.ncsu.csc.itrust2.models.enums.HouseholdSmokingStatus;
+import edu.ncsu.csc.itrust2.models.enums.PatientSmokingStatus;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.enums.State;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
+import edu.ncsu.csc.itrust2.models.persistent.Hospital;
 import edu.ncsu.csc.itrust2.models.persistent.LogEntry;
+import edu.ncsu.csc.itrust2.models.persistent.ObstetricsOfficeVisit;
+import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
+import edu.ncsu.csc.itrust2.models.persistent.OfficeVisit;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
+import edu.ncsu.csc.itrust2.models.persistent.Pregnancy;
 import edu.ncsu.csc.itrust2.mvc.config.WebMvcConfiguration;
 import edu.ncsu.csc.itrust2.utils.LoggerUtil;
 
@@ -67,6 +79,16 @@ public class APIObstetricsRecordTest {
 
         final Patient p = Patient.getByName( "patient" );
         if ( p != null ) {
+            while ( ObstetricsRecord.getByPatient( "patient" ) != null ) {
+                ObstetricsRecord.getByPatient( "patient" ).delete();
+            }
+            for ( final Pregnancy prg : Pregnancy.getByPatient( "patient" ) ) {
+                prg.delete();
+            }
+            for ( final OfficeVisit ov : OfficeVisit.getForPatient( "patient" ) ) {
+                ov.delete();
+            }
+
             p.delete();
         }
     }
@@ -86,7 +108,7 @@ public class APIObstetricsRecordTest {
         patient.setAddress2( "Some Location" );
         patient.setBloodType( BloodType.APos.toString() );
         patient.setCity( "Viipuri" );
-        patient.setDateOfBirth( "1977-06-15" );
+        patient.setDateOfBirth( "1984-02-01" );
         patient.setEmail( "patient@itrust.fi" );
         patient.setEthnicity( Ethnicity.Hispanic.toString() );
         patient.setFirstName( "Yolanda" );
@@ -165,6 +187,14 @@ public class APIObstetricsRecordTest {
 
         final List<LogEntry> entries = LoggerUtil.getAllForUser( "hcp" );
         assertEquals( TransactionType.OBGYN_CREATE_OBS_RECORD, entries.get( entries.size() - 1 ).getLogCode() );
+
+        // Now, delete it
+        mvc.perform( delete( "/api/v1/obstetricsrecord/patient" ).contentType( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isOk() );
+
+        // Try to delete again, expect error
+        mvc.perform( delete( "/api/v1/obstetricsrecord/patient" ).contentType( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isNotFound() );
 
     }
 
@@ -258,11 +288,11 @@ public class APIObstetricsRecordTest {
     @Test
     @WithMockUser ( username = "patient", roles = { "PATIENT" } )
     public void testObstetricsRecordGetPatient () throws Exception {
-
         createPatient();
 
-        mvc.perform( get( "/api/v1/obstetricsrecord" ) ).andExpect( status().isOk() )
-                .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );
+        mvc.perform( get( "/api/v1/obstetricsrecord" ) ).andExpect( status().isOk() );
+        // .andExpect( content().contentType(
+        // MediaType.APPLICATION_JSON_UTF8_VALUE ) );
 
         final List<LogEntry> entries = LoggerUtil.getAllForUser( "patient" );
         assertEquals( TransactionType.PATIENT_VIEW_OBS_RECORD, entries.get( entries.size() - 1 ).getLogCode() );
@@ -274,7 +304,6 @@ public class APIObstetricsRecordTest {
         catch ( final Exception e ) {
             assertTrue( e.getCause() instanceof AccessDeniedException );
         }
-
     }
 
     /**
@@ -286,7 +315,6 @@ public class APIObstetricsRecordTest {
     @Test
     @WithMockUser ( username = "hcp", roles = { "HCP" } )
     public void testPregnancyGetHCP () throws Exception {
-
         createPatient();
 
         mvc.perform( get( "/api/v1/pregnancy/doesnotexist" ) ).andExpect( status().isNotFound() );
@@ -301,7 +329,6 @@ public class APIObstetricsRecordTest {
         catch ( final Exception e ) {
             assertTrue( e.getCause() instanceof AccessDeniedException );
         }
-
     }
 
     /**
@@ -326,6 +353,97 @@ public class APIObstetricsRecordTest {
         catch ( final Exception e ) {
             assertTrue( e.getCause() instanceof AccessDeniedException );
         }
+    }
+
+    /**
+     * Tests for the special flags related to an ObstetricsRecord
+     *
+     * @throws Exception
+     *
+     */
+    @Test
+    @WithMockUser ( username = "hcp", roles = { "OBGYN", "ADMIN" } )
+    public void testPregnancyFlags () throws Exception {
+
+        // Initialize a patient, an hcp user, and a hospital
+        createPatient();
+        final UserForm hcp = new UserForm( "hcp", "123456", Role.ROLE_HCP, 1 );
+        mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( hcp ) ) );
+
+        final Hospital hospital = new Hospital( "iTrust Test Hospital 2", "1 iTrust Test Street", "27607", "NC" );
+        mvc.perform( post( "/api/v1/hospitals" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( hospital ) ) );
+
+        // Create and record a prior pregnancy
+        final PregnancyForm pForm = new PregnancyForm();
+        pForm.setConceptionYear( 2016 );
+        pForm.setNumWeeksPregnant( 35 );
+        pForm.setNumHoursInLabor( 8 );
+        pForm.setDeliveryMethod( DeliveryMethod.Miscarriage );
+        pForm.setIsTwins( false );
+
+        mvc.perform( post( "/api/v1/pregnancy/patient" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( pForm ) ) ).andExpect( status().isOk() );
+
+        // Prior general check-up office visit
+        final GeneralCheckupForm visit = new GeneralCheckupForm();
+        visit.setDate( "2018-11-19T04:50:00.000-05:00" ); // 11/19/2016 4:50 AM
+        visit.setPatient( "patient" );
+        visit.setHcp( "hcp" );
+        visit.setDiastolic( 82 );
+        visit.setHospital( "iTrust Test Hospital 2" );
+        visit.setHdl( 70 );
+        visit.setHeight( 69.1f );
+        visit.setHouseSmokingStatus( HouseholdSmokingStatus.INDOOR );
+        visit.setLdl( 30 );
+        visit.setPatientSmokingStatus( PatientSmokingStatus.FORMER );
+        visit.setSystolic( 102 );
+        visit.setTri( 150 );
+        visit.setWeight( 175.2f );
+
+        mvc.perform( post( "/api/v1/generalcheckups" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( visit ) ) ).andExpect( status().isOk() );
+
+        // Create a obstetrics record for pregnancy that started 01/15/2019
+        final ObstetricsRecordForm obsForm = new ObstetricsRecordForm();
+        obsForm.setLastMenstrualPeriod( "2019-02-02" );
+
+        mvc.perform( post( "/api/v1/obstetricsrecord/patient" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( obsForm ) ) ).andExpect( status().isOk() );
+
+        // Check values of flags that can be set using basic user info
+        assertTrue( ObstetricsRecord.getByPatient( "patient" ).hasAdvancedMaternalAge() );
+        assertFalse( ObstetricsRecord.getByPatient( "patient" ).isRHNegative() );
+        assertTrue( ObstetricsRecord.getByPatient( "patient" ).hasMiscarriagePotential() );
+
+        assertFalse( ObstetricsRecord.getByPatient( "patient" ).hasHighBloodPressure() );
+        assertFalse( ObstetricsRecord.getByPatient( "patient" ).hasAbnormalFetalHeartRate() );
+
+        // Now create + save an obstetrics office visit for the patient
+        final ObstetricsVisitForm obForm = new ObstetricsVisitForm();
+        obForm.setDate( "2019-02-02T09:50:00.000-04:00" ); // 2/2/2019 9:50 AM
+        obForm.setHcp( "hcp" );
+        obForm.setPatient( "patient" );
+        obForm.setNotes( "Test office visit" );
+        obForm.setType( AppointmentType.OBGYN_OFFICE_VISIT.toString() );
+        obForm.setHospital( "iTrust Test Hospital 2" );
+        obForm.setFundalHeight( 0.2 );
+        obForm.setFetalHeartRate( 100 );
+        obForm.setNumOfWeeksPreg( 3 );
+        obForm.setTwins( false );
+        obForm.setLowLyingPlacenta( false );
+        obForm.setDiastolic( 92 );
+        obForm.setSystolic( 105 );
+
+        mvc.perform( post( "/api/v1/ObstetricsVisit" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( obForm ) ) ).andExpect( status().isOk() );
+
+        assertTrue( !ObstetricsOfficeVisit.getForPatient( "patient" ).isEmpty() );
+
+        assertTrue( ObstetricsRecord.getByPatient( "patient" ).hasHighBloodPressure() );
+        assertTrue( ObstetricsRecord.getByPatient( "patient" ).hasAbnormalFetalHeartRate() );
+        System.out.println( ObstetricsRecord.getByPatient( "patient" ).getRecommendedWeightGain() );
 
     }
 }
