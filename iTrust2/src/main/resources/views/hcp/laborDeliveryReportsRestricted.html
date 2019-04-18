@@ -1,0 +1,305 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: head(title=~{::title},links=~{})">
+<title>Labor and Delivery Reports</title>
+</head>
+<body th:include="layout :: body" th:with="content=~{::content}">
+	<div th:fragment="content">
+		<script th:inline="javascript">
+			"use strict";
+
+			/* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
+			/*<![CDATA[*/
+			var app = angular.module('myApp', []);
+			app.controller('HCPLaborDeliveryReports', function ($scope, $http) {
+					// Display users' names
+					$scope.displayName = function(p) {
+		
+						return p.firstName + " " + p.lastName
+								+ " (" + p.self.username + ")";
+					}
+
+					// documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
+					$scope.searchFilter = "";
+					$scope.filterPatients = function(patient) {
+						return ($scope.displayName(patient)).toLowerCase().match($scope.searchFilter.toLowerCase());
+					}
+
+					//Get info for the patients
+					// **Shouldn't this only be for females with pregnancies initialized?
+					$http.get("/iTrust2/api/v1/patients/female")
+							.then(function(response) {
+								$scope.patients = response.data; //get only female patients
+							}, function(rejection) {
+								$scope.patient = null;
+							});
+		
+					$scope.selectPatient = function(patient) {
+						$scope.motherlastName = patient.lastName;
+						$scope.displayCreateLD = false;
+						$scope.boolMiscarriage = false;
+						$scope.showTwinForm = false;
+			
+		
+						// Get past pregnancy info for patient
+						$http.get("/iTrust2/api/v1/LaborDelivery/patients/" + $scope.selectedPatient)
+								.then(function(response) { // on success
+									console.log("Past pregnancy info");
+									console.log(response);
+									$scope.laborAndDeliveryReport = response.data || [];
+									
+									var size = $scope.laborAndDeliveryReport.length;
+									// Labor date
+									for( var i = 0; i < size; i++) {
+									
+										var lbdate = new Date(response.data[i].laborDate);
+										
+			    						var dd = lbdate.getDate();
+										var mm = lbdate.getMonth()+1; 
+										var yyyy = lbdate.getFullYear();
+										if(dd < 10) {
+										   dd = '0' + dd;
+										} 
+										
+										if(mm < 10) {
+										   mm = '0' + mm;
+										} 
+										
+										var minutes = lbdate.getMinutes();
+										
+										if( minutes < 10) {
+											minutes = '0' + minutes;
+										}
+										
+										var hours = lbdate.getHours();
+										
+										if ( hours == 0) {
+											hours = '12';
+											minutes = minutes + ' ' + 'AM';
+										} else if( hours < 10) {
+											hours = '0' + hours;
+											minutes = minutes + ' ' + 'AM';
+										} else if ( hours > 12 ) {
+											hours = hours - 12;
+											minutes = minutes + ' ' + 'PM';
+										} else if( hours == 11) {
+											minutes = minutes + ' ' + 'AM'
+										} else if( hours == 12) {
+											minutes = minutes + ' ' + 'PM'
+										} else {
+											minutes = minutes + ' ' + 'AM'
+										}
+										
+										//Final labor Date to present
+										var finalldate = mm + '/' + dd + '/' + yyyy;
+										//Final labor Time to present
+										var lbtime = hours + ':' + minutes;
+										
+										$scope.laborAndDeliveryReport[i].newLdate = finalldate;
+										$scope.laborAndDeliveryReport[i].newLtime = lbtime;
+										
+										
+										// Delivery date
+										var dldate = new Date(response.data[i].deliveryDate);
+										
+										dd = dldate.getDate();
+										mm = dldate.getMonth()+1; 
+										yyyy = dldate.getFullYear();
+										if(dd < 10) {
+										   dd = '0' + dd;
+										} 
+										
+										if(mm < 10) {
+										   mm = '0' + mm;
+										} 
+										
+										minutes = dldate.getMinutes();
+										
+										if( minutes < 10) {
+											minutes = '0' + minutes;
+										}
+										
+										hours = dldate.getHours();
+										
+										if ( hours == 0) {
+											hours = '12';
+											minutes = minutes + ' ' + 'AM';
+										} else if( hours < 10) {
+											hours = '0' + hours;
+											minutes = minutes + ' ' + 'AM';
+										} else if ( hours > 12 ) {
+											hours = hours - 12;
+											minutes = minutes + ' ' + 'PM';
+										} else if( hours == 11) {
+											minutes = minutes + ' ' + 'AM'
+										} else if( hours == 12) {
+											minutes = minutes + ' ' + 'PM'
+										} else {
+											minutes = minutes + ' ' + 'AM'
+										}
+										// final delivery date to present
+										var finaldldate = mm + '/' + dd + '/' + yyyy;
+										//final delivery time to present
+										var dltime = hours + ':' + minutes;
+										
+										$scope.laborAndDeliveryReport[i].newDdate = finaldldate;
+										$scope.laborAndDeliveryReport[i].newDtime = dltime;								
+									
+										// To not display those 0 values
+										var type = response.data[i].deliverymethod;
+									
+										if(type == 'Miscarriage') {
+											$scope.laborAndDeliveryReport[i].weight = "";
+											$scope.laborAndDeliveryReport[i].length = "";
+											$scope.laborAndDeliveryReport[i].heartRate = "";
+											$scope.laborAndDeliveryReport[i].systolic = "";
+											$scope.laborAndDeliveryReport[i].diastolic = "";
+											$scope.laborAndDeliveryReport[i].weightTwin = "";
+											$scope.laborAndDeliveryReport[i].lengthTwin = "";
+											$scope.laborAndDeliveryReport[i].heartRateTwin = "";
+											$scope.laborAndDeliveryReport[i].systolicTwin = "";
+											$scope.laborAndDeliveryReport[i].diastolicTwin = "";
+										}
+									}																
+									$scope.message = "";
+								}, //if it failed
+								function(rejection) {
+									$scope.laborAndDeliveryReport = [];
+		                               $scope.message = "Could not display labor and delivery report.";
+								});
+						// Get current pregnancy info for patient
+						$http.get("/iTrust2/api/v1/obstetricsrecord/" + $scope.selectedPatient)
+								.then(
+										function(response) { // on success
+											console.log("Current pregnancy info");
+											console.log(response);
+											$scope.currentPregnancy = response.data
+													|| {};
+											$scope.lmpInputDate = new Date();
+											$scope.lmp = response.data.lastMenstrualPeriod;
+											$scope.estDueDate = response.data.estDueDate;
+											$scope.numWeeksPregnant = response.data.numWeeksPregnant;
+											$scope.message = "";
+		
+										}, //if it failed
+										function(rejection) {
+											$scope.currentPregnancy = {};
+											$scope.message = "Could not display current pregnancy.";
+										});
+		
+						// Get current pregnancy info for patient                        	
+		
+					};
+				});
+			/*]]>*/
+		</script>
+
+		<div ng-app="myApp" ng-controller="HCPLaborDeliveryReports" class="row">
+			<div class="col-md-3">
+				<h2>Patients:</h2>
+				<!-- info on filtering taken from here: https://www.w3schools.com/angular/angular_filters.asp
+                    and https://docs.angularjs.org/api/ng/filter/filter -->
+				<h4>
+					Search: <input type="text" name="search" ng-model="searchFilter" />
+				</h4>
+				<!-- Info on scrolling taken from here: https://www.w3schools.com/cssref/pr_pos_overflow.asp -->
+				<!-- and here: https://stackoverflow.com/questions/9560330/how-to-hide-a-vertical-scroll-bar-when-not-needed -->
+				<div>
+					<div class="radio"
+						ng-repeat="patient in patients | filter:filterPatients">
+						<label> <input type="radio" id="{{patient.self.username}}"
+							ng-model="$parent.selectedPatient" name="patient"
+							value="{{patient.self.username}}"
+							ng-click='$parent.selectPatient(patient)' />
+							&nbsp;{{$parent.displayName(patient)}}
+						</label>
+					</div>
+				</div>
+			</div>
+
+			<div
+				style="float: left; width: 100%; border-left: 1px solid #bbb; padding-left: 3%; height: 75%; overflow-y: auto">
+			<div class="panel panel-primary" ng-if ="!displayCreateLD">		
+			<div class="panel-heading">
+				<h3>Labor and Delivery Report{{ selectedPatient ? ' for ' + selectedPatient
+							: '' }}</h3>
+			</div>				
+				<div ng-if="!selectedPatient">
+					<br><br>
+						Please select a patient for which to view labor and delivery report.
+					</br></br>
+				</div>
+			
+				<div
+					ng-if="selectedPatient && currentPregnancy.length > 0 && !displayCreateLD">
+					<b>Current Pregnancy Information: </b> <br> Last Menstrual
+					Period: {{currentPregnancy[0].lastMenstrualPeriod}} <br>
+					Estimated Due Date: {{currentPregnancy[0].estDueDate}} <br>
+					Weeks Pregnant: {{currentPregnancy[0].numWeeksPregnant}}
+				</div>
+
+				<div ng-if= "selectedPatient && laborAndDeliveryReport.length == 0 && !displayCreateLD" >
+					<br>There is no current labor and delivery report for this patient.
+				</div>
+		
+		<div ng-if="selectedPatient">	
+			<div ng-if="laborAndDeliveryReport || laborAndDeliveryReport.length > 0">	
+				<table class="table table-bordered" ng-if="!displayCreateLD && selectedPatient && laborAndDeliveryReport.length > 0">
+					<thead>
+						<tr>
+							<th>Labor Date</th>
+							<th>Labor Time</th>
+							<th>Delivery Date</th>
+							<th>Delivery Time</th>
+							<th>Delivery Method</th>
+							<th>First Name</th>
+							<th>Last Name</th>
+							<th>Weight</th>
+							<th>Height/Length</th>
+							<th>Heart Rate</th>
+							<th>Systolic Blood Pressure</th>
+							<th>Diastolic Blood Pressure</th>
+						</tr>
+					</thead>
+						<tbody>
+							<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
+								<td id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
+								<td id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
+								<td id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
+								<td id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
+								<td id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
+								
+								<td id="firstname-{{$index}}">{{laborNdelivery.firstname}}</td>
+								<td id="lastname-{{$index}}">{{laborNdelivery.lastname}}</td>
+								<td id="weight-{{$index}}">{{laborNdelivery.weight}}</td>
+								<td id="length-{{$index}}">{{laborNdelivery.length}}</td>
+								<td id="heartRate-{{$index}}">{{laborNdelivery.heartRate}}</td>
+								<td id="systolic-{{$index}}">{{laborNdelivery.systolic}}</td>
+								<td id="diastolic-{{$index}}">{{laborNdelivery.diastolic}}</td>
+							</tr>
+						</tbody>
+					
+						<tbody>
+							<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
+								
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="firstnameTwin-{{$index}}">{{laborNdelivery.firstnameTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="lastnameTwin-{{$index}}">{{laborNdelivery.lastnameTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="weightTwin-{{$index}}">{{laborNdelivery.weightTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="lengthTwin-{{$index}}">{{laborNdelivery.lengthTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="heartRateTwin-{{$index}}">{{laborNdelivery.heartRateTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="systolicTwin-{{$index}}">{{laborNdelivery.systolicTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="diastolicTwin-{{$index}}">{{laborNdelivery.diastolicTwin}}</td>
+							</tr>
+						</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+			</div>
+		</div>
+</body>
+</html>

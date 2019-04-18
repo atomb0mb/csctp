@@ -134,4 +134,37 @@ public class HCPController {
         return "/hcp/createPatientObstetricsRecords";
     }
 
+    /**
+     * Returns the page allowing HCPs to view patient's food diary
+     *
+     * @return The page to display
+     */
+    @GetMapping ( "/hcp/laborDeliveryReportsRestricted" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH')" )
+    public String laborDeliveryReportsRestricted () {
+        return "/hcp/laborDeliveryReportsRestricted";
+    }
+
+    /**
+     * Returns the page allowing HCPs to view patient's food diary
+     *
+     * @return The page to display
+     */
+    @GetMapping ( "/hcp/laborDeliveryReports" )
+    @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
+    public String laborDeliveryReports () {
+        return "/hcp/laborDeliveryReports";
+    }
+
+    /**
+     * Returns the page allowing HCPs to view patient's food diary
+     *
+     * @return The page to display
+     */
+    @GetMapping ( "/hcp/editLaborDeliveryReport" )
+    @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
+    public String editLaborDeliveryReports () {
+        return "/hcp/editLaborDeliveryReport";
+    }
+
 }

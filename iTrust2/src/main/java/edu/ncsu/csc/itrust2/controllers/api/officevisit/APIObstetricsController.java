@@ -1,5 +1,7 @@
 package edu.ncsu.csc.itrust2.controllers.api.officevisit;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +17,7 @@ import edu.ncsu.csc.itrust2.controllers.api.APIController;
 import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsVisitForm;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
 import edu.ncsu.csc.itrust2.models.persistent.ObstetricsOfficeVisit;
+import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 import edu.ncsu.csc.itrust2.utils.LoggerUtil;
 
@@ -39,7 +42,7 @@ public class APIObstetricsController extends APIController {
     @GetMapping ( BASE_PATH + "/ObstetricsVisit/{id}" )
     @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_PATIENT', 'ROLE_OBGYN')" )
     public ResponseEntity getObstetricsVisitById ( @PathVariable final Long id ) {
-        final ObstetricsOfficeVisit visit = (ObstetricsOfficeVisit) ObstetricsOfficeVisit.getById( id );
+        final ObstetricsOfficeVisit visit = ObstetricsOfficeVisit.getById( id );
         if ( visit == null ) {
             return new ResponseEntity( errorResponse( "No Obstetrics office visit found for " + id ),
                     HttpStatus.NOT_FOUND );
@@ -66,7 +69,7 @@ public class APIObstetricsController extends APIController {
     @DeleteMapping ( BASE_PATH + "/ObstetricsVisit/{id}" )
     @PreAuthorize ( "hasAnyRole('ROLE_OBGYN', 'ROLE_PATIENT')" )
     public ResponseEntity deleteObstetricsVisit ( @PathVariable final Long id ) {
-        final ObstetricsOfficeVisit visit = (ObstetricsOfficeVisit) ObstetricsOfficeVisit.getById( id );
+        final ObstetricsOfficeVisit visit = ObstetricsOfficeVisit.getById( id );
         if ( visit == null ) {
             return new ResponseEntity( errorResponse( "No Obstetrics office visit found for " + id ),
                     HttpStatus.NOT_FOUND );
@@ -94,11 +97,15 @@ public class APIObstetricsController extends APIController {
     public ResponseEntity addObstetricsVisit ( @RequestBody final ObstetricsVisitForm visitF ) {
         try {
             final ObstetricsOfficeVisit visit = new ObstetricsOfficeVisit( visitF );
-
+            final List<ObstetricsRecord> record = ObstetricsRecord.getByPatient( visitF.getPatient() );
             if ( null != ObstetricsOfficeVisit.getById( visit.getId() ) ) {
                 return new ResponseEntity(
                         errorResponse( "Office visit with the id " + visit.getId() + " already exists" ),
                         HttpStatus.CONFLICT );
+            }
+            if ( record.size() == 0 ) {
+                return new ResponseEntity( errorResponse( "Patient is not a valid obsatetrics patient" ),
+                        HttpStatus.BAD_REQUEST );
             }
             visit.save();
             LoggerUtil.log( TransactionType.OBGYNVISIT_CREATE, LoggerUtil.currentUser(),
@@ -133,7 +140,7 @@ public class APIObstetricsController extends APIController {
                 return new ResponseEntity( errorResponse( "Id does not match" ), HttpStatus.CONFLICT );
             }
 
-            final ObstetricsOfficeVisit newVisit = (ObstetricsOfficeVisit) ObstetricsOfficeVisit.getById( id );
+            final ObstetricsOfficeVisit newVisit = ObstetricsOfficeVisit.getById( id );
             if ( newVisit == null ) {
                 return new ResponseEntity( errorResponse( "Couldn't find visit" ), HttpStatus.NOT_FOUND );
             }
@@ -159,7 +166,7 @@ public class APIObstetricsController extends APIController {
      * @return whether the visit was found
      */
     public ResponseEntity viewAsPatient ( @PathVariable final Long id, @RequestBody final ObstetricsVisitForm form ) {
-        final ObstetricsOfficeVisit visit = (ObstetricsOfficeVisit) ObstetricsOfficeVisit.getById( id );
+        final ObstetricsOfficeVisit visit = ObstetricsOfficeVisit.getById( id );
         if ( visit == null ) {
             return new ResponseEntity( errorResponse( "No visit found" ), HttpStatus.NOT_FOUND );
         }
@@ -180,7 +187,7 @@ public class APIObstetricsController extends APIController {
     @PostMapping ( BASE_PATH + "/ObstetricsVisit/hcp/view/{id}" )
     @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
     public ResponseEntity viewAsHCP ( @PathVariable final Long id, @RequestBody final ObstetricsVisitForm form ) {
-        final ObstetricsOfficeVisit visit = (ObstetricsOfficeVisit) ObstetricsOfficeVisit.getById( id );
+        final ObstetricsOfficeVisit visit = ObstetricsOfficeVisit.getById( id );
         if ( visit == null ) {
             return new ResponseEntity( errorResponse( "No visit found" ), HttpStatus.NOT_FOUND );
         }
