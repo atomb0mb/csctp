@@ -1,4 +1,3 @@
-
 package edu.ncsu.csc.itrust2.apitest;
 
 import static org.junit.Assert.assertEquals;
@@ -79,8 +78,8 @@ public class APIObstetricsRecordTest {
 
         final Patient p = Patient.getByName( "patient" );
         if ( p != null ) {
-            while ( ObstetricsRecord.getByPatient( "patient" ) != null ) {
-                ObstetricsRecord.getByPatient( "patient" ).delete();
+            while ( !ObstetricsRecord.getByPatient( "patient" ).isEmpty() ) {
+                ObstetricsRecord.getByPatient( "patient" ).get( 0 ).delete();
             }
             for ( final Pregnancy prg : Pregnancy.getByPatient( "patient" ) ) {
                 prg.delete();
@@ -412,13 +411,15 @@ public class APIObstetricsRecordTest {
         mvc.perform( post( "/api/v1/obstetricsrecord/patient" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( obsForm ) ) ).andExpect( status().isOk() );
 
-        // Check values of flags that can be set using basic user info
-        assertTrue( ObstetricsRecord.getByPatient( "patient" ).hasAdvancedMaternalAge() );
-        assertFalse( ObstetricsRecord.getByPatient( "patient" ).isRHNegative() );
-        assertTrue( ObstetricsRecord.getByPatient( "patient" ).hasMiscarriagePotential() );
+        ObstetricsRecord orec = ObstetricsRecord.getByPatient( "patient" ).get( 0 );
 
-        assertFalse( ObstetricsRecord.getByPatient( "patient" ).hasHighBloodPressure() );
-        assertFalse( ObstetricsRecord.getByPatient( "patient" ).hasAbnormalFetalHeartRate() );
+        // Check values of flags that can be set using basic user info
+        assertTrue( orec.hasAdvancedMaternalAge() );
+        assertFalse( orec.isRHNegative() );
+        assertTrue( orec.hasMiscarriagePotential() );
+
+        assertFalse( orec.hasHighBloodPressure() );
+        assertFalse( orec.hasAbnormalFetalHeartRate() );
 
         // Now create + save an obstetrics office visit for the patient
         final ObstetricsVisitForm obForm = new ObstetricsVisitForm();
@@ -441,9 +442,11 @@ public class APIObstetricsRecordTest {
 
         assertTrue( !ObstetricsOfficeVisit.getForPatient( "patient" ).isEmpty() );
 
-        assertTrue( ObstetricsRecord.getByPatient( "patient" ).hasHighBloodPressure() );
-        assertTrue( ObstetricsRecord.getByPatient( "patient" ).hasAbnormalFetalHeartRate() );
-        System.out.println( ObstetricsRecord.getByPatient( "patient" ).getRecommendedWeightGain() );
+        orec = ObstetricsRecord.getByPatient( "patient" ).get( 0 );
+
+        assertTrue( orec.hasHighBloodPressure() );
+        assertTrue( orec.hasAbnormalFetalHeartRate() );
+        System.out.println( orec.getRecommendedWeightGain() );
 
     }
 }

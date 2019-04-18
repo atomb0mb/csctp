@@ -45,7 +45,8 @@ public class APIObstetricsRecordController extends APIController {
     public ResponseEntity createObstetricsRecord ( @PathVariable final String patient,
             @RequestBody final ObstetricsRecordForm obsForm ) {
         try {
-            final ObstetricsRecord obr = new ObstetricsRecord( patient, obsForm );
+            final ObstetricsRecord obr = new ObstetricsRecord( obsForm );
+            obr.setPatient( patient );
             obr.save();
 
             LoggerUtil.log( TransactionType.OBGYN_CREATE_OBS_RECORD, LoggerUtil.currentUser() );
@@ -69,13 +70,12 @@ public class APIObstetricsRecordController extends APIController {
     @DeleteMapping ( BASE_PATH + "/obstetricsrecord/{patient}" )
     @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
     public ResponseEntity deleteObstetricsRecord ( @PathVariable final String patient ) {
-        final ObstetricsRecord orec = ObstetricsRecord.getByPatient( patient );
-        if ( orec == null ) {
+        if ( ObstetricsRecord.getByPatient( patient ).isEmpty() ) {
             return new ResponseEntity( errorResponse( "No Obstetrics Records found for " + patient ),
                     HttpStatus.NOT_FOUND );
         }
         try {
-            orec.delete();
+            ObstetricsRecord.getByPatient( patient ).get( 0 ).delete();
             return new ResponseEntity( patient, HttpStatus.OK );
         }
         catch ( final Exception e ) {
@@ -116,7 +116,7 @@ public class APIObstetricsRecordController extends APIController {
      * into iTrust2
      *
      * @param patient
-     *            - username of patient
+     *            - username of patient to retrieve records for
      *
      * @return ResponseEntity with the ObstetricsRecord for the patient, or an
      *         error message if cannot be found
@@ -128,6 +128,9 @@ public class APIObstetricsRecordController extends APIController {
             return new ResponseEntity( errorResponse( "No patients found with username " + patient ),
                     HttpStatus.NOT_FOUND );
         }
+
+        // Before returning the obstetrics record, update the pregnancy flags
+        ObstetricsRecord.getByPatient( patient ).get( 0 ).updateFlags();
         LoggerUtil.log( TransactionType.HCP_VIEW_OBS_RECORD, User.getByName( LoggerUtil.currentUser() ),
                 User.getByName( patient ) );
         return new ResponseEntity( ObstetricsRecord.getByPatient( patient ), HttpStatus.OK );
@@ -157,7 +160,7 @@ public class APIObstetricsRecordController extends APIController {
      * from this HCP
      *
      * @param patient
-     *            - username of patient
+     *            - username of patient to retrieve records for
      *
      * @return List of pregnancies for the patient
      */

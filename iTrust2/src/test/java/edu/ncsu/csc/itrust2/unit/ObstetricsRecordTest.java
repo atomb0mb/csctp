@@ -72,7 +72,8 @@ public class ObstetricsRecordTest {
         final ObstetricsRecordForm obsForm = new ObstetricsRecordForm();
         obsForm.setLastMenstrualPeriod( "2016-10-17" );
 
-        final ObstetricsRecord obs = new ObstetricsRecord( "patient", obsForm );
+        final ObstetricsRecord obs = new ObstetricsRecord( obsForm );
+        obs.setPatient( "patient" );
 
         assertEquals( testDate, obs.getLastMenstrualPeriod() );
         assertEquals( testDate.plusDays( 280 ), obs.getEstimatedDueDate() );
@@ -85,13 +86,6 @@ public class ObstetricsRecordTest {
         assertEquals( obs.getEstimatedDueDate(), copy.getEstimatedDueDate() );
         assertEquals( obs.getId(), copy.getId() );
         assertTrue( obs.getPatient().equals( copy.getPatient() ) );
-
-        final ObstetricsRecord copy2 = ObstetricsRecord.getByPatient( "patient" );
-
-        assertEquals( obs.getLastMenstrualPeriod(), copy2.getLastMenstrualPeriod() );
-        assertEquals( obs.getEstimatedDueDate(), copy2.getEstimatedDueDate() );
-        assertEquals( obs.getId(), copy2.getId() );
-        assertTrue( obs.getPatient().equals( copy2.getPatient() ) );
 
     }
 

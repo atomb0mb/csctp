@@ -85,7 +85,7 @@ public class APIObstetricsControllerTest {
      * @throws Exception
      */
     @Test
-    @WithMockUser ( username = "OGBYN", roles = { "OBGYN" } )
+    @WithMockUser ( username = "OBGYN", roles = { "OBGYN" } )
     public void testGetNonExistentOBGYNOfficeVisit () throws Exception {
         mvc.perform( get( "/api/v1/ObstetricsVisit/-1" ) ).andExpect( status().isNotFound() );
     }
@@ -97,7 +97,7 @@ public class APIObstetricsControllerTest {
      * @throws Exception
      */
     @Test
-    @WithMockUser ( username = "OGBYN", roles = { "OBGYN" } )
+    @WithMockUser ( username = "OBGYN", roles = { "OBGYN" } )
     public void testDeleteNonExistentOBGYNOfficeVisit () throws Exception {
         mvc.perform( delete( "/api/v1/ObstetricsVisit/-1" ) ).andExpect( status().isNotFound() );
     }
@@ -109,7 +109,7 @@ public class APIObstetricsControllerTest {
      * @throws Exception
      */
     @Test
-    @WithMockUser ( username = "OGBYN", roles = { "OBGYN", "PATIENT" } )
+    @WithMockUser ( username = "OBGYN", roles = { "OBGYN", "PATIENT" } )
     public void testPreScheduledObstetricsVisit () throws Exception {
         final UserForm hcp = new UserForm( "hcp", "123456", Role.ROLE_HCP, 1 );
         mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
