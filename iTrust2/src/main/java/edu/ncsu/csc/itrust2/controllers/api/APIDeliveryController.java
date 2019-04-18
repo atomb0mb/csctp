@@ -59,7 +59,6 @@ public class APIDeliveryController extends APIController {
                     final User babyuser = new User( report.getFirstname() + report.getLastname(),
                             "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
                     babyuser.save();
-                    first.addRepresentative( Patient.getByName( report.getPatient() ) );
                     first.setSelf( babyuser );
                     first.setDateOfBirth( report.getDeliveryDate().toLocalDate() );
                     first.setMother( User.getByName( report.getPatient() ) );
@@ -75,7 +74,6 @@ public class APIDeliveryController extends APIController {
                             "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
                     twin.save();
                     second.setSelf( twin );
-                    second.addRepresentative( Patient.getByName( report.getPatient() ) );
                     second.setDateOfBirth( report.getDeliveryDate().toLocalDate() );
                     second.setMother( User.getByName( report.getPatient() ) );
                     second.save();
@@ -85,6 +83,7 @@ public class APIDeliveryController extends APIController {
                 }
             }
             catch ( final Exception e ) {
+                System.out.println( e.getMessage() );
                 return new ResponseEntity( errorResponse( "Could not create users because of " + e.getMessage() ),
                         HttpStatus.BAD_REQUEST );
             }
@@ -173,5 +172,16 @@ public class APIDeliveryController extends APIController {
     @PreAuthorize ( "hasRole('ROLE_HCP') or hasRole('ROLE_OD') or hasRole('ROLE_OPH') or hasRole('ROLE_OBGYN')" )
     public List<LaborDeliveryReport> getLaborReports () {
         return LaborDeliveryReport.getAllReports();
+    }
+
+    /**
+     * Returns all the labor and delivery reports for a patient
+     *
+     * @return a list of labor and delivery reports
+     */
+    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
+    @GetMapping ( BASE_PATH + "/LaborDeliveryPatient" )
+    public ResponseEntity getEntriesPatient () {
+        return new ResponseEntity( LaborDeliveryReport.getByPatient( LoggerUtil.currentUser() ), HttpStatus.OK );
     }
 }

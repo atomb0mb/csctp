@@ -66,6 +66,11 @@ public class LaborDeliveryForm {
     private DeliveryMethod deliverymethod;
 
     /**
+     * The twins delivery method
+     */
+    private DeliveryMethod deliverymethodTwin;
+
+    /**
      * The first name of a twin
      */
     private String         firstnameTwin;
@@ -132,6 +137,7 @@ public class LaborDeliveryForm {
         setHeartRateTwin( report.getHeartRateTwin() );
         setSystolicTwin( report.getSystolicTwin() );
         setDiastolicTwin( report.getDiastolicTwin() );
+        setDeliverymethodTwin( report.getDeliverymethodTwin() );
     }
 
     /**
@@ -474,6 +480,25 @@ public class LaborDeliveryForm {
      */
     public void setDiastolicTwin ( final int diastolicTwin ) {
         this.diastolicTwin = diastolicTwin;
+    }
+
+    /**
+     * Returns the delivery method of the twin
+     *
+     * @return the deliverymethodTwin
+     */
+    public DeliveryMethod getDeliverymethodTwin () {
+        return deliverymethodTwin;
+    }
+
+    /**
+     * Sets the delivery method of the twin
+     *
+     * @param deliverymethodTwin
+     *            the deliverymethodTwin to set
+     */
+    public void setDeliverymethodTwin ( final DeliveryMethod deliverymethodTwin ) {
+        this.deliverymethodTwin = deliverymethodTwin;
     }
 
 }
