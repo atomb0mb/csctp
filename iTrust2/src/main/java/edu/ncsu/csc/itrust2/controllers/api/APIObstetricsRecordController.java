@@ -73,8 +73,8 @@ public class APIObstetricsRecordController extends APIController {
     public ResponseEntity createPregnancy ( @PathVariable final String patient,
             @RequestBody final PregnancyForm pForm ) {
         try {
-            final Pregnancy pregnancy = new Pregnancy( pForm );
-            pregnancy.setPatient( patient );
+            final Pregnancy pregnancy = new Pregnancy( patient, pForm );
+            // pregnancy.setPatient( patient );
             pregnancy.save();
 
             return new ResponseEntity( pregnancy, HttpStatus.OK );

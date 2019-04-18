@@ -119,7 +119,8 @@ public class Pregnancy extends DomainObject<Pregnancy> implements Serializable {
      * @param pForm
      *            - the form to read
      */
-    public Pregnancy ( final PregnancyForm pForm ) {
+    public Pregnancy ( final String patient, final PregnancyForm pForm ) {
+        setPatient( patient );
         setConceptionYear( pForm.getConceptionYear() );
         setNumWeeksPregnant( pForm.getNumWeeksPregnant() );
         setNumHoursLabor( pForm.getNumHoursInLabor() );
@@ -134,6 +135,10 @@ public class Pregnancy extends DomainObject<Pregnancy> implements Serializable {
      *            - year the pregnancy was conceived
      */
     public void setConceptionYear ( final Integer year ) {
+        final int birthdayYear = Patient.getByName( patient ).getDateOfBirth().getYear();
+        if ( year <= birthdayYear ) {
+            throw new IllegalArgumentException( "The patient must have existed in order to give birth." );
+        }
         if ( year > LocalDate.now().getYear() ) {
             throw new IllegalArgumentException( "Year must be on or before current year" );
         }
@@ -173,6 +178,9 @@ public class Pregnancy extends DomainObject<Pregnancy> implements Serializable {
      *            - one of three from the DeliveryMethod enumeration
      */
     public void setDeliverMethod ( final DeliveryMethod dm ) {
+        if ( dm == null ) {
+            throw new IllegalArgumentException( "You must select a delivery method" );
+        }
         deliveryMethod = dm;
     }
 
@@ -276,7 +284,7 @@ public class Pregnancy extends DomainObject<Pregnancy> implements Serializable {
      * @param po
      * @return -1 if this comes before po, 1 if it comes after, 0 if same year
      */
-    public int compare ( Pregnancy po ) {
+    public int compare ( final Pregnancy po ) {
         if ( getConceptionYear() < po.getConceptionYear() ) {
             return 1;
         }
