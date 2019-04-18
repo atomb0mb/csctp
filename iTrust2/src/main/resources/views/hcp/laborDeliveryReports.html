@@ -26,6 +26,7 @@
 						diastolic : 0,
 						deliverymethod : '',
 						//firstnameTwin : '',
+						deliverymethodTwin : '',
 						lastnameTwin : '',
 						weightTwin : 0,
 						lengthTwin : 0,
@@ -43,6 +44,8 @@
 		
 					$scope.deliveryMethods = [ 'Vaginal Delivery',
 							'Caesarean Section', 'Miscarriage' ];
+					$scope.deliveryMethods2 = [ 'Vaginal Delivery ',
+						'Caesarean Section ', 'Miscarriage1' ];
 					$scope.twinOptions = [ 'Yes', 'No' ];
 		
 					// documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
@@ -195,7 +198,8 @@
 										$scope.laborAndDeliveryReport[i].newDtime = dltime;								
 									
 										// To not display those 0 values
-										var type = response.data[i].deliverymethod;
+										var type1 = response.data[i].deliverymethod;
+										var type2 = response.data[i].deliverymethodTwin;
 									
 										if(type == 'Miscarriage') {
 											$scope.laborAndDeliveryReport[i].weight = "";
@@ -203,6 +207,11 @@
 											$scope.laborAndDeliveryReport[i].heartRate = "";
 											$scope.laborAndDeliveryReport[i].systolic = "";
 											$scope.laborAndDeliveryReport[i].diastolic = "";
+									
+										}
+										
+										if(type2 == 'Miscarriage ') {
+	
 											$scope.laborAndDeliveryReport[i].weightTwin = "";
 											$scope.laborAndDeliveryReport[i].lengthTwin = "";
 											$scope.laborAndDeliveryReport[i].heartRateTwin = "";
@@ -487,7 +496,8 @@
 								}
 
 								//$scope.deliveryString = document.getElementById("deliveryMethod");
-								$scope.isMiscarriage = function() {
+								
+/* 								$scope.isMiscarriage = function() {
 									//Clear any error messages
 									$scope.errorMsg = "";
 									if ($scope.form.deliverymethod != 'Miscarriage') {
@@ -501,7 +511,7 @@
 											.replace(/^0+/, '')) == false) {
 										$scope.errorMsg += "Second Newborn's Diastolic blood pressure can be up to a 3-digit positive number\n"
 									}
-								}
+								} */
 							}
 							
 							// Post the record to the REST API endpoint, and handle success/error
@@ -524,18 +534,30 @@
 					}
 		
 					//$scope.deliveryString = document.getElementById("deliveryMethod");
-					$scope.isMiscarriage = function() {
+					$scope.isMiscarriage1 = function() {
 						//Clear any error messages
 						$scope.errorMsg = "";
 						if ($scope.form.deliverymethod != 'Miscarriage') {
-							$scope.showForm = true;
+							$scope.showForm1 = true;
 						} else {
-							$scope.showForm = false;
+							$scope.showForm1 = false;
+						}
+					}
+					
+					$scope.isMiscarriage2 = function() {
+						//Clear any error messages
+						$scope.errorMsg = "";
+						console.log($scope.form.deliverymethodTwin);
+						if ($scope.form.deliverymethodTwin != 'Miscarriage1') {
+							$scope.showForm2 = true;
+						} else {
+							$scope.showForm2 = false;
 						}
 					}
 		
 					$scope.checkTwin = function() {
 						//Clear any error messages
+						$scope.showInfant = true;
 						$scope.errorMsg = "";
 						if ($scope.entry.twinOption == 'Yes') {
 							$scope.showTwinForm = true;
@@ -572,94 +594,109 @@
 
 			<div
 				style="float: left; width: 100%; border-left: 1px solid #bbb; padding-left: 3%; height: 75%; overflow-y: auto">
-			<div class="panel panel-primary" ng-if ="!displayCreateLD">		
-			<div class="panel-heading">
-				<h3>Labor and Delivery Report{{ selectedPatient ? ' for ' + selectedPatient
-							: '' }}</h3>
-			</div>				
-				<div ng-if="!selectedPatient">
-					<br><br>
-						Please select a patient for which to view labor and delivery report.
-					</br></br>
-				</div>
-			
-				<div
-					ng-if="selectedPatient && currentPregnancy.length > 0 && !displayCreateLD">
-					<b>Current Pregnancy Information: </b> <br> Last Menstrual
-					Period: {{currentPregnancy[0].lastMenstrualPeriod}} <br>
-					Estimated Due Date: {{currentPregnancy[0].estDueDate}} <br>
-					Weeks Pregnant: {{currentPregnancy[0].numWeeksPregnant}}
-				</div>
+				<div class="panel panel-primary" ng-if="!displayCreateLD">
+					<div class="panel-heading">
+						<h3>Labor and Delivery Report{{ selectedPatient ? ' for ' +
+							selectedPatient : '' }}</h3>
+					</div>
+					<div ng-if="!selectedPatient">
+						<br> <br> Please select a patient for which to view
+						labor and delivery report. </br> </br>
+					</div>
 
-				<div class="form-group"
-					ng-if="selectedPatient && currentPregnancy.length > 0 && !displayCreateLD">
-					<button type="submit" class="btn btn-primary"
-						ng-click=displayCreateForm() name="displayCreateForm"
-						id=displayCreateForm>Create Labor and Delivery Report</button>
-				</div>
+					<div
+						ng-if="selectedPatient && currentPregnancy.length > 0 && !displayCreateLD">
+						<b>Current Pregnancy Information: </b> <br> Last Menstrual
+						Period: {{currentPregnancy[0].lastMenstrualPeriod}} <br>
+						Estimated Due Date: {{currentPregnancy[0].estDueDate}} <br>
+						Weeks Pregnant: {{currentPregnancy[0].numWeeksPregnant}}
+					</div>
 
-				<div ng-if= "selectedPatient && laborAndDeliveryReport.length == 0 && !displayCreateLD" >
-					<br>There is no current labor and delivery report for this patient.
+					<div class="form-group"
+						ng-if="selectedPatient && currentPregnancy.length > 0 && !displayCreateLD">
+						<button type="submit" class="btn btn-primary"
+							ng-click=displayCreateForm() name="displayCreateForm"
+							id=displayCreateForm>Create Labor and Delivery Report</button>
+					</div>
+
+					<div
+						ng-if="selectedPatient && laborAndDeliveryReport.length == 0 && !displayCreateLD">
+						<br>There is no current labor and delivery report for this
+						patient.
+					</div>
+
+					<div ng-if="selectedPatient">
+						<div
+							ng-if="laborAndDeliveryReport || laborAndDeliveryReport.length > 0">
+							<table class="table table-bordered"
+								ng-if="!displayCreateLD && selectedPatient && laborAndDeliveryReport.length > 0">
+								<thead>
+									<tr>
+										<th>Labor Date</th>
+										<th>Labor Time</th>
+										<th>Delivery Date</th>
+										<th>Delivery Time</th>
+										<th>Delivery Method</th>
+										<th>First Name</th>
+										<th>Last Name</th>
+										<th>Weight</th>
+										<th>Height/Length</th>
+										<th>Heart Rate</th>
+										<th>Systolic Blood Pressure</th>
+										<th>Diastolic Blood Pressure</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
+										<td id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
+										<td id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
+										<td id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
+										<td id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
+										<td id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
+
+										<td id="firstname-{{$index}}">{{laborNdelivery.firstname}}</td>
+										<td id="lastname-{{$index}}">{{laborNdelivery.lastname}}</td>
+										<td id="weight-{{$index}}">{{laborNdelivery.weight}}</td>
+										<td id="length-{{$index}}">{{laborNdelivery.length}}</td>
+										<td id="heartRate-{{$index}}">{{laborNdelivery.heartRate}}</td>
+										<td id="systolic-{{$index}}">{{laborNdelivery.systolic}}</td>
+										<td id="diastolic-{{$index}}">{{laborNdelivery.diastolic}}</td>
+									</tr>
+								</tbody>
+
+								<tbody>
+									<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
+										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+											id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
+										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+											id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
+										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+											id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
+										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+											id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
+										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+											id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
+
+										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+											id="firstnameTwin-{{$index}}">{{laborNdelivery.firstnameTwin}}</td>
+										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+											id="lastnameTwin-{{$index}}">{{laborNdelivery.lastnameTwin}}</td>
+										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+											id="weightTwin-{{$index}}">{{laborNdelivery.weightTwin}}</td>
+										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+											id="lengthTwin-{{$index}}">{{laborNdelivery.lengthTwin}}</td>
+										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+											id="heartRateTwin-{{$index}}">{{laborNdelivery.heartRateTwin}}</td>
+										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+											id="systolicTwin-{{$index}}">{{laborNdelivery.systolicTwin}}</td>
+										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+											id="diastolicTwin-{{$index}}">{{laborNdelivery.diastolicTwin}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
 				</div>
-		
-		<div ng-if="selectedPatient">	
-			<div ng-if="laborAndDeliveryReport || laborAndDeliveryReport.length > 0">	
-				<table class="table table-bordered" ng-if="!displayCreateLD && selectedPatient && laborAndDeliveryReport.length > 0">
-					<thead>
-						<tr>
-							<th>Labor Date</th>
-							<th>Labor Time</th>
-							<th>Delivery Date</th>
-							<th>Delivery Time</th>
-							<th>Delivery Method</th>
-							<th>First Name</th>
-							<th>Last Name</th>
-							<th>Weight</th>
-							<th>Height/Length</th>
-							<th>Heart Rate</th>
-							<th>Systolic Blood Pressure</th>
-							<th>Diastolic Blood Pressure</th>
-						</tr>
-					</thead>
-						<tbody>
-							<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
-								<td id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
-								<td id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
-								<td id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
-								<td id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
-								<td id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
-								
-								<td id="firstname-{{$index}}">{{laborNdelivery.firstname}}</td>
-								<td id="lastname-{{$index}}">{{laborNdelivery.lastname}}</td>
-								<td id="weight-{{$index}}">{{laborNdelivery.weight}}</td>
-								<td id="length-{{$index}}">{{laborNdelivery.length}}</td>
-								<td id="heartRate-{{$index}}">{{laborNdelivery.heartRate}}</td>
-								<td id="systolic-{{$index}}">{{laborNdelivery.systolic}}</td>
-								<td id="diastolic-{{$index}}">{{laborNdelivery.diastolic}}</td>
-							</tr>
-						</tbody>
-					
-						<tbody>
-							<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
-								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
-								
-								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="firstnameTwin-{{$index}}">{{laborNdelivery.firstnameTwin}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="lastnameTwin-{{$index}}">{{laborNdelivery.lastnameTwin}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="weightTwin-{{$index}}">{{laborNdelivery.weightTwin}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="lengthTwin-{{$index}}">{{laborNdelivery.lengthTwin}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="heartRateTwin-{{$index}}">{{laborNdelivery.heartRateTwin}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="systolicTwin-{{$index}}">{{laborNdelivery.systolicTwin}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="diastolicTwin-{{$index}}">{{laborNdelivery.diastolicTwin}}</td>
-							</tr>
-						</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
 
 				<div ng-if="displayCreateLD">
 
@@ -704,27 +741,7 @@
 								</div>
 							</div>
 
-
 							<div class="form-group col-md-4">
-								<label>Delivery Method:</label>
-
-								<div class="panel panel-default">
-									<div class="panel-body">
-										<div class="form-check">
-											<ul style="overflow: auto; list-style: none;">
-												<li ng-repeat="deliverymethod in deliveryMethods"><label>
-														<input type="radio" ng-model="form.deliverymethod"
-														name="{{deliverymethod}}" value="{{deliverymethod}}"
-														required="true" ng-click="isMiscarriage()" />
-														{{deliverymethod}}
-												</label></li>
-											</ul>
-										</div>
-									</div>
-								</div>
-							</div>
-
-							<div ng-if="showForm" class="form-group col-md-4">
 								<label>Twins?:</label>
 
 								<div class="panel panel-default">
@@ -744,13 +761,52 @@
 
 							</div>
 
+							<div class="form-group col-md-4" ng-if="showInfant">
+								<label>First Infant's Delivery Method:</label>
+
+								<div class="panel panel-default">
+									<div class="panel-body">
+										<div class="form-check">
+											<ul style="overflow: auto; list-style: none;">
+												<li ng-repeat="deliverymethod in deliveryMethods"><label>
+														<input type="radio" ng-model="form.deliverymethod"
+														name="{{deliverymethod}}" value="{{deliverymethod}}"
+														required="true" ng-click="isMiscarriage1()" />
+														{{deliverymethod}}
+												</label></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group col-md-4" ng-if="showTwinForm">
+								<label>Twin Delivery Method:</label>
+
+								<div class="panel panel-default">
+									<div class="panel-body">
+										<div class="form-check">
+											<ul style="overflow: auto; list-style: none;">
+												<li ng-repeat="deliverymethodTwin in deliveryMethods2"><label>
+														<input type="radio" ng-model="form.deliverymethodTwin"
+														name="{{deliverymethodTwin}}"
+														value="{{deliverymethodTwin}}" required="true"
+														ng-click="isMiscarriage2()" /> {{deliverymethodTwin}}
+												</label></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+
+
 
 
 
 							<!-- IF NOT A MISCARRIAGE SHOW REST OF FIELDS -->
 							<!-- Single Infant's Information Panel -->
-							<div class="col-md-4" ng-if="showForm">
-								<div class="panel panel-info">
+							<div class="col-md-4" ng-if="showForm1">
+								<div class="panelpanel-info">
 
 									<div class="panel-heading">
 										<h4>First NewBorn's Information</h4>
@@ -778,6 +834,7 @@
 											</div>
 										</div>
 
+
 										<div class="form-group row">
 											<div class="col-xs-6">
 												<label>Weight:</label>
@@ -785,7 +842,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="weight"
 													ng-model="form.weight" required="true" type="text">
-													<div class="input-group-addon">lbs</div>
+												<div class="input-group-addon">lbs</div>
 											</div>
 										</div>
 
@@ -796,7 +853,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="length"
 													ng-model="form.length" required="true" type="text">
-													<div class="input-group-addon">in</div>
+												<div class="input-group-addon">in</div>
 											</div>
 										</div>
 
@@ -807,7 +864,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="heartrate"
 													ng-model="form.heartRate" required="true" type="text">
-													<div class="input-group-addon">BPM</div>
+												<div class="input-group-addon">BPM</div>
 											</div>
 										</div>
 
@@ -818,7 +875,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="systolic"
 													ng-model="form.systolic" required="true" type="text">
-													<div class="input-group-addon">mmHg</div>
+												<div class="input-group-addon">mmHg</div>
 											</div>
 										</div>
 
@@ -829,17 +886,18 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="diastolic"
 													ng-model="form.diastolic" required="true" type="text">
-													<div class="input-group-addon">mmHg</div>
+												<div class="input-group-addon">mmHg</div>
 											</div>
 										</div>
 
 
 									</div>
 								</div>
+
 							</div>
 
 							<!-- Twin Information Panel -->
-							<div class="col-md-4" ng-if="showTwinForm && showForm">
+							<div class="col-md-4" ng-if="showTwinForm && showForm2">
 								<div class="panel panel-info">
 
 									<div class="panel-heading">
@@ -876,7 +934,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="weightTwin"
 													ng-model="form.weightTwin" required="true" type="text">
-													<div class="input-group-addon">lbs</div>
+												<div class="input-group-addon">lbs</div>
 											</div>
 										</div>
 
@@ -887,7 +945,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="lengthTwin"
 													ng-model="form.lengthTwin" required="true" type="text">
-													<div class="input-group-addon">in</div>
+												<div class="input-group-addon">in</div>
 											</div>
 										</div>
 
@@ -898,7 +956,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="heartrateTwin"
 													ng-model="form.heartRateTwin" required="true" type="text">
-													<div class="input-group-addon">BPM</div>
+												<div class="input-group-addon">BPM</div>
 											</div>
 										</div>
 
@@ -909,7 +967,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="systolicTwin"
 													ng-model="form.systolicTwin" required="true" type="text">
-													<div class="input-group-addon">mmHg</div>
+												<div class="input-group-addon">mmHg</div>
 											</div>
 										</div>
 
@@ -920,7 +978,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="diastolicTwin"
 													ng-model="form.diastolicTwin" required="true" type="text">
-													<div class="input-group-addon">mmHg</div>
+												<div class="input-group-addon">mmHg</div>
 											</div>
 										</div>
 
@@ -933,42 +991,35 @@
 							<!--closes ngif twin -->
 
 
-
 						</div>
-						<!--closes ngif notMiscarriage -->
 
+
+
+
+
+					</div>
+					<!--closes the ENTIRE thing -->
+
+					<div class="form-group">
+						<div name="success" class="text-success" style="white-space: pre;">{{message}}</div>
+						<div name="errorMsg" class="text-danger" style="white-space: pre;">{{errorMsg}}</div>
+					</div>
+
+					<div class="panel-footer text-right"
+						ng-if="selectedPatient && displayCreateLD">
+						<button type="submit" class="btn btn-primary btn-lg"
+							ng-click=submitLD() name="submitLD" id="submitLD">Submit
+							Labor and Delivery Report</button>
 					</div>
 
 
 
-
-
 				</div>
-
-
-
-				<div class="panel-footer text-right"
-					ng-if="selectedPatient && displayCreateLD">
-					<button type="submit" class="btn btn-primary btn-lg"
-						ng-click=submitLD() name="submitLD" id="submitLD">Submit
-						Labor and Delivery Report</button>
-				</div>
-
-				<div class="form-group">
-						<div name="success" class="text-success" style="white-space: pre;">{{message}}</div>
-						<div name="errorMsg" class="text-danger" style="white-space: pre;">{{errorMsg}}</div>
-				</div>
-
+				<!-- CLOSES LABOR AND DELIVERY REPORT CREATE FORM -->
 
 
 			</div>
 		</div>
-		<!-- CLOSES LABOR AND DELIVERY REPORT CREATE FORM -->
-
-
-	</div>
-	</div>
-	</div>
 	</div>
 </body>
 </html>
