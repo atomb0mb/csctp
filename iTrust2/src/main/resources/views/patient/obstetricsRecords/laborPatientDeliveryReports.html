@@ -10,41 +10,20 @@
 			/* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
 			/*<![CDATA[*/
 			var app = angular.module('myApp', []);
-			app.controller('HCPLaborDeliveryReports', function ($scope, $http) {
-					// Display users' names
-					$scope.displayName = function(p) {
-		
-						return p.firstName + " " + p.lastName
-								+ " (" + p.self.username + ")";
-					}
-
-					// documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
-					$scope.searchFilter = "";
-					$scope.filterPatients = function(patient) {
-						return ($scope.displayName(patient)).toLowerCase().match($scope.searchFilter.toLowerCase());
-					}
-
-					//Get info for the patients
-					// **Shouldn't this only be for females with pregnancies initialized?
-					$http.get("/iTrust2/api/v1/patients/female")
-							.then(function(response) {
-								$scope.patients = response.data; //get only female patients
-							}, function(rejection) {
-								$scope.patient = null;
-							});
+			app.controller('laborDeliveryReports',
+				function($scope, $http) {
+					$scope.laborAndDeliveryReport = [];
 		
 					$scope.selectPatient = function(patient) {
 						$scope.motherlastName = patient.lastName;
 						$scope.displayCreateLD = false;
 						$scope.boolMiscarriage = false;
-						$scope.showTwinForm = false;
-			
+						$scope.showTwinForm = false;				
+						$scope.form.patient = patient.self.username;			
 		
 						// Get past pregnancy info for patient
-						$http.get("/iTrust2/api/v1/LaborDelivery/patients/" + $scope.selectedPatient)
+						$http.get("/iTrust2/api/v1/LaborDelivery/patients/" + $scope.patient)
 								.then(function(response) { // on success
-									console.log("Past pregnancy info");
-									console.log(response);
 									$scope.laborAndDeliveryReport = response.data || [];
 									
 									var size = $scope.laborAndDeliveryReport.length;
@@ -96,7 +75,6 @@
 										
 										$scope.laborAndDeliveryReport[i].newLdate = finalldate;
 										$scope.laborAndDeliveryReport[i].newLtime = lbtime;
-										
 										
 										// Delivery date
 										var dldate = new Date(response.data[i].deliveryDate);
@@ -168,67 +146,32 @@
 								});
 						// Get current pregnancy info for patient
 						$http.get("/iTrust2/api/v1/obstetricsrecord/" + $scope.selectedPatient)
-								.then(
-										function(response) { // on success
-											console.log("Current pregnancy info");
-											console.log(response);
-											$scope.currentPregnancy = response.data
-													|| {};
-											$scope.lmpInputDate = new Date();
-											$scope.lmp = response.data.lastMenstrualPeriod;
-											$scope.estDueDate = response.data.estDueDate;
-											$scope.numWeeksPregnant = response.data.numWeeksPregnant;
-											$scope.message = "";
-		
-										}, //if it failed
-										function(rejection) {
-											$scope.currentPregnancy = {};
-											$scope.message = "Could not display current pregnancy.";
-										});
-		
-						// Get current pregnancy info for patient                        	
-		
+							.then(
+								function(response) { // on success
+									console.log("Current pregnancy info");
+									console.log(response);
+									$scope.currentPregnancy = response.data
+											|| {};
+									$scope.lmpInputDate = new Date();
+									$scope.lmp = response.data.lastMenstrualPeriod;
+									$scope.estDueDate = response.data.estDueDate;
+									$scope.numWeeksPregnant = response.data.numWeeksPregnant;
+									$scope.message = "";
+	
+								}, //if it failed
+								function(rejection) {
+									$scope.currentPregnancy = {};
+									$scope.message = "Could not display current pregnancy.";
+								});
 					};
 				});
 			/*]]>*/
 		</script>
 
-		<div ng-app="myApp" ng-controller="HCPLaborDeliveryReports" class="row">
-			<div class="col-md-3">
-				<h2>Patients:</h2>
-				<!-- info on filtering taken from here: https://www.w3schools.com/angular/angular_filters.asp
-                    and https://docs.angularjs.org/api/ng/filter/filter -->
-				<h4>
-					Search: <input type="text" name="search" ng-model="searchFilter" />
-				</h4>
-				<!-- Info on scrolling taken from here: https://www.w3schools.com/cssref/pr_pos_overflow.asp -->
-				<!-- and here: https://stackoverflow.com/questions/9560330/how-to-hide-a-vertical-scroll-bar-when-not-needed -->
-				<div>
-					<div class="radio"
-						ng-repeat="patient in patients | filter:filterPatients">
-						<label> <input type="radio" id="{{patient.self.username}}"
-							ng-model="$parent.selectedPatient" name="patient"
-							value="{{patient.self.username}}"
-							ng-click='$parent.selectPatient(patient)' />
-							&nbsp;{{$parent.displayName(patient)}}
-						</label>
-					</div>
-				</div>
-			</div>
-
+		<div ng-app="myApp" ng-controller="laborDeliveryReports" class="row">
 			<div
 				style="float: left; width: 100%; border-left: 1px solid #bbb; padding-left: 3%; height: 75%; overflow-y: auto">
 			<div class="panel panel-primary" ng-if ="!displayCreateLD">		
-			<div class="panel-heading">
-				<h3>Labor and Delivery Report{{ selectedPatient ? ' for ' + selectedPatient
-							: '' }}</h3>
-			</div>				
-				<div ng-if="!selectedPatient">
-					<br><br>
-						Please select a patient for which to view labor and delivery report.
-					</br></br>
-				</div>
-			
 				<div
 					ng-if="selectedPatient && currentPregnancy.length > 0 && !displayCreateLD">
 					<b>Current Pregnancy Information: </b> <br> Last Menstrual
@@ -299,7 +242,7 @@
 			</div>
 		</div>
 	</div>
-			</div>
-		</div>
+</div>
+</div>
 </body>
 </html>

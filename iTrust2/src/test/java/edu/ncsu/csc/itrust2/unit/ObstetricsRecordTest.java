@@ -87,13 +87,6 @@ public class ObstetricsRecordTest {
         assertEquals( obs.getId(), copy.getId() );
         assertTrue( obs.getPatient().equals( copy.getPatient() ) );
 
-        final ObstetricsRecord copy2 = ObstetricsRecord.getByPatient( "patient" ).get( 0 );
-
-        assertEquals( obs.getLastMenstrualPeriod(), copy2.getLastMenstrualPeriod() );
-        assertEquals( obs.getEstimatedDueDate(), copy2.getEstimatedDueDate() );
-        assertEquals( obs.getId(), copy2.getId() );
-        assertTrue( obs.getPatient().equals( copy2.getPatient() ) );
-
     }
 
     /**

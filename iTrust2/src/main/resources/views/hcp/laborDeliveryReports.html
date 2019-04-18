@@ -4,325 +4,377 @@
 </head>
 <body th:include="layout :: body" th:with="content=~{::content}">
 	<div th:fragment="content">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		<script th:inline="javascript">
 			"use strict";
 
 			/* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
 			/*<![CDATA[*/
 			var app = angular.module('myApp', []);
-			app
-					.controller(
-							'laborDeliveryReports',
-							function($scope, $http) {
-								$scope.laborAndDeliveryReport = [];
-								$scope.form = {
- 									laborDate : '',
-									deliveryDate : '',
-									patient : '',
-									lastname : '',
-									weight : 0,
-									length : 0,
-									heartRate : 0,
-									systolic : 0,
-									diastolic : 0,
-									deliverymethod : '',
-									//firstnameTwin : '',
-									lastnameTwin : '',
-									weightTwin : 0,
-									lengthTwin : 0,
-									heartRateTwin : 0,
-									systolicTwin : 0,
-									diastolicTwin : 0 
-								};
-
-								// Display users' names
-								$scope.displayName = function(p) {
-
-									return p.firstName + " " + p.lastName
-											+ " (" + p.self.username + ")";
-								}
-
-								$scope.deliveryMethods = [ 'Vaginal Delivery',
-										'Caesarean Section', 'Miscarriage' ];
-								$scope.twinOptions = [ 'Yes', 'No' ];
-
-								// documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
-								$scope.searchFilter = "";
-								$scope.filterPatients = function(patient) {
-									return ($scope.displayName(patient))
-											.toLowerCase().match(
-													$scope.searchFilter
-															.toLowerCase());
-								}
-
-
-								// Stuff for submitting new record 
-								$scope.failAddldReport = function() {
-									$scope.errorMsg += "Could not add labor and delivery report.\n";
+			app.controller(
+				'laborDeliveryReports',
+				function($scope, $http) {
+					$scope.laborAndDeliveryReport = [];
+					$scope.form = {
+							laborDate : '',
+						deliveryDate : '',
+						patient : '',
+						lastname : '',
+						weight : 0,
+						length : 0,
+						heartRate : 0,
+						systolic : 0,
+						diastolic : 0,
+						deliverymethod : '',
+						//firstnameTwin : '',
+						lastnameTwin : '',
+						weightTwin : 0,
+						lengthTwin : 0,
+						heartRateTwin : 0,
+						systolicTwin : 0,
+						diastolicTwin : 0 
+					};
+		
+					// Display users' names
+					$scope.displayName = function(p) {
+		
+						return p.firstName + " " + p.lastName
+								+ " (" + p.self.username + ")";
+					}
+		
+					$scope.deliveryMethods = [ 'Vaginal Delivery',
+							'Caesarean Section', 'Miscarriage' ];
+					$scope.twinOptions = [ 'Yes', 'No' ];
+		
+					// documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
+					$scope.searchFilter = "";
+					$scope.filterPatients = function(patient) {
+						return ($scope.displayName(patient))
+								.toLowerCase().match(
+										$scope.searchFilter
+												.toLowerCase());
+					}
+		
+		
+					// Stuff for submitting new record 
+					$scope.failAddldReport = function() {
+						$scope.errorMsg += "Could not add labor and delivery report.\n";
+						$scope.message = "";
+					}
+		
+					$scope.entry = {
+						twinOption : '',
+						inputlabordate : new Date(),
+						inputlabortime : new Date(0, 0, 0, 0, 0,
+								null, null),
+						inputdeliverydate : new Date(),
+						inputdeliverytime : new Date(0, 0, 0, 0, 0,
+								null, null)
+					}
+		
+					//Get info for the patients
+					// **Shouldn't this only be for females with pregnancies initialized?
+					$http.get("/iTrust2/api/v1/patients/female")
+							.then(function(response) {
+								$scope.patients = response.data; //get only female patients
+							}, function(rejection) {
+								$scope.patient = null;
+							});
+		
+					$scope.selectPatient = function(patient) {
+						$scope.motherlastName = patient.lastName;
+						$scope.displayCreateLD = false;
+						$scope.boolMiscarriage = false;
+						$scope.showTwinForm = false;				
+						$scope.form.patient = patient.self.username;
+			
+		
+						// Get past pregnancy info for patient
+						$http.get(
+								"/iTrust2/api/v1/LaborDelivery/patients/"
+										+ $scope.selectedPatient)
+								.then(function(response) { // on success
+									console.log("Past pregnancy info");
+									console.log(response);
+									$scope.laborAndDeliveryReport = response.data || [];
+									
+									var size = $scope.laborAndDeliveryReport.length;
+									// Labor date
+									for( var i = 0; i < size; i++) {
+									
+										var lbdate = new Date(response.data[i].laborDate);
+										
+			    						var dd = lbdate.getDate();
+										var mm = lbdate.getMonth()+1; 
+										var yyyy = lbdate.getFullYear();
+										if(dd < 10) {
+										   dd = '0' + dd;
+										} 
+										
+										if(mm < 10) {
+										   mm = '0' + mm;
+										} 
+										
+										var minutes = lbdate.getMinutes();
+										
+										if( minutes < 10) {
+											minutes = '0' + minutes;
+										}
+										
+										var hours = lbdate.getHours();
+										
+										if ( hours == 0) {
+											hours = '12';
+											minutes = minutes + ' ' + 'AM';
+										} else if( hours < 10) {
+											hours = '0' + hours;
+											minutes = minutes + ' ' + 'AM';
+										} else if ( hours > 12 ) {
+											hours = hours - 12;
+											minutes = minutes + ' ' + 'PM';
+										} else if( hours == 11) {
+											minutes = minutes + ' ' + 'AM'
+										} else if( hours == 12) {
+											minutes = minutes + ' ' + 'PM'
+										} else {
+											minutes = minutes + ' ' + 'AM'
+										}
+										
+										//Final labor Date to present
+										var finalldate = mm + '/' + dd + '/' + yyyy;
+										//Final labor Time to present
+										var lbtime = hours + ':' + minutes;
+										
+										$scope.laborAndDeliveryReport[i].newLdate = finalldate;
+										$scope.laborAndDeliveryReport[i].newLtime = lbtime;
+										
+										
+										// Delivery date
+										var dldate = new Date(response.data[i].deliveryDate);
+										
+										dd = dldate.getDate();
+										mm = dldate.getMonth()+1; 
+										yyyy = dldate.getFullYear();
+										if(dd < 10) {
+										   dd = '0' + dd;
+										} 
+										
+										if(mm < 10) {
+										   mm = '0' + mm;
+										} 
+										
+										minutes = dldate.getMinutes();
+										
+										if( minutes < 10) {
+											minutes = '0' + minutes;
+										}
+										
+										hours = dldate.getHours();
+										
+										if ( hours == 0) {
+											hours = '12';
+											minutes = minutes + ' ' + 'AM';
+										} else if( hours < 10) {
+											hours = '0' + hours;
+											minutes = minutes + ' ' + 'AM';
+										} else if ( hours > 12 ) {
+											hours = hours - 12;
+											minutes = minutes + ' ' + 'PM';
+										} else if( hours == 11) {
+											minutes = minutes + ' ' + 'AM'
+										} else if( hours == 12) {
+											minutes = minutes + ' ' + 'PM'
+										} else {
+											minutes = minutes + ' ' + 'AM'
+										}
+										// final delivery date to present
+										var finaldldate = mm + '/' + dd + '/' + yyyy;
+										//final delivery time to present
+										var dltime = hours + ':' + minutes;
+										
+										$scope.laborAndDeliveryReport[i].newDdate = finaldldate;
+										$scope.laborAndDeliveryReport[i].newDtime = dltime;								
+									
+										// To not display those 0 values
+										var type = response.data[i].deliverymethod;
+									
+										if(type == 'Miscarriage') {
+											$scope.laborAndDeliveryReport[i].weight = "";
+											$scope.laborAndDeliveryReport[i].length = "";
+											$scope.laborAndDeliveryReport[i].heartRate = "";
+											$scope.laborAndDeliveryReport[i].systolic = "";
+											$scope.laborAndDeliveryReport[i].diastolic = "";
+											$scope.laborAndDeliveryReport[i].weightTwin = "";
+											$scope.laborAndDeliveryReport[i].lengthTwin = "";
+											$scope.laborAndDeliveryReport[i].heartRateTwin = "";
+											$scope.laborAndDeliveryReport[i].systolicTwin = "";
+											$scope.laborAndDeliveryReport[i].diastolicTwin = "";
+										}
+									}																
 									$scope.message = "";
-								}
-
-								$scope.entry = {
-									twinOption : '',
-									inputlabordate : new Date(),
-									inputlabortime : new Date(0, 0, 0, 0, 0,
-											null, null),
-									inputdeliverydate : new Date(),
-									inputdeliverytime : new Date(0, 0, 0, 0, 0,
-											null, null)
-								}
-
-								//Get info for the patients
-								$http.get("/iTrust2/api/v1/patients/female")
-										.then(function(response) {
-											$scope.patients = response.data; //get only female patients
-										}, function(rejection) {
-											$scope.patient = null;
+								}, //if it failed
+								function(rejection) {
+									$scope.laborAndDeliveryReport = [];
+		                               $scope.message = "Could not display labor and delivery report.";
+								});
+						// Get current pregnancy info for patient
+						$http
+								.get("/iTrust2/api/v1/obstetricsrecord/" + $scope.selectedPatient)
+								.then(
+										function(response) { // on success
+											console.log("Current pregnancy info");
+											console.log(response);
+											$scope.currentPregnancy = response.data
+													|| {};
+											$scope.lmpInputDate = new Date();
+											$scope.lmp = response.data.lastMenstrualPeriod;
+											$scope.estDueDate = response.data.estDueDate;
+											$scope.numWeeksPregnant = response.data.numWeeksPregnant;
+											$scope.message = "";
+		
+										}, //if it failed
+										function(rejection) {
+											$scope.currentPregnancy = {};
+											$scope.message = "Could not display current pregnancy.";
 										});
-
-								$scope.selectPatient = function(patient) {
-									$scope.motherlastName = patient.lastName;
-									$scope.displayCreateLD = false;
-									$scope.boolMiscarriage = false;
-									$scope.showTwinForm = false;				
-									$scope.form.patient = patient.self.username;
-						
-
-									// Get past pregnancy info for patient
-									$http.get(
-											"/iTrust2/api/v1/LaborDelivery/patients/"
-													+ $scope.selectedPatient)
-											.then(function(response) { // on success
-												$scope.laborAndDeliveryReport = response.data || [];
-												
-												var size = $scope.laborAndDeliveryReport.length;
-												// Labor date
-												for( var i = 0; i < size; i++) {
-												
-													var lbdate = new Date(response.data[i].laborDate);
-													
-						    						var dd = lbdate.getDate();
-													var mm = lbdate.getMonth()+1; 
-													var yyyy = lbdate.getFullYear();
-													if(dd < 10) {
-													   dd = '0' + dd;
-													} 
-													
-													if(mm < 10) {
-													   mm = '0' + mm;
-													} 
-													
-													var minutes = lbdate.getMinutes();
-													
-													if( minutes < 10) {
-														minutes = '0' + minutes;
-													}
-													
-													var hours = lbdate.getHours();
-													
-													if( hours < 10) {
-														hours = '0' + hours;
-														minutes = minutes + ' ' + 'AM';
-													} else if ( hours > 12 ) {
-														hours = hours - 12;
-														minutes = minutes + ' ' + 'PM';
-													} else if( hours == 11) {
-														minutes = minutes + ' ' + 'AM'
-													} else if( hours == 12) {
-														minutes = minutes + ' ' + 'PM'
-													} else {
-														minutes = minutes + ' ' + 'AM'
-													}
-													
-													//Final labor Date to present
-													var finalldate = mm + '/' + dd + '/' + yyyy;
-													//Final labor Time to present
-													var lbtime = hours + ':' + minutes;
-													
-													$scope.laborAndDeliveryReport[i].newLdate = finalldate;
-													$scope.laborAndDeliveryReport[i].newLtime = lbtime;
-													
-													
-													// Delivery date
-													var dldate = new Date(response.data[i].deliveryDate);
-													
-													dd = dldate.getDate();
-													mm = dldate.getMonth()+1; 
-													yyyy = dldate.getFullYear();
-													if(dd < 10) {
-													   dd = '0' + dd;
-													} 
-													
-													if(mm < 10) {
-													   mm = '0' + mm;
-													} 
-													
-													minutes = dldate.getMinutes();
-													
-													if( minutes < 10) {
-														minutes = '0' + minutes;
-													}
-													
-													hours = dldate.getHours();
-													
-													if( hours < 10) {
-														hours = '0' + hours;
-														minutes = minutes + ' ' + 'AM';
-													} else if ( hours > 12 ) {
-														hours = hours - 12;
-														minutes = minutes + ' ' + 'PM';
-													} else if( hours == 11) {
-														minutes = minutes + ' ' + 'AM'
-													} else if( hours == 12) {
-														minutes = minutes + ' ' + 'PM'
-													} else {
-														minutes = minutes + ' ' + 'AM'
-													}
-													// final delivery date to present
-													var finaldldate = mm + '/' + dd + '/' + yyyy;
-													//final delivery time to present
-													var dltime = hours + ':' + minutes;
-													
-													$scope.laborAndDeliveryReport[i].newDdate = finaldldate;
-													$scope.laborAndDeliveryReport[i].newDtime = dltime;
-												
-											
-												
-													// To not display those 0 values
-													var type = response.data[i].deliverymethod;
-												
-													if(type == 'Miscarriage') {
-														$scope.laborAndDeliveryReport[i].weight = "";
-														$scope.laborAndDeliveryReport[i].length = "";
-														$scope.laborAndDeliveryReport[i].heartRate = "";
-														$scope.laborAndDeliveryReport[i].systolic = "";
-														$scope.laborAndDeliveryReport[i].diastolic = "";
-														$scope.laborAndDeliveryReport[i].weightTwin = "";
-														$scope.laborAndDeliveryReport[i].lengthTwin = "";
-														$scope.laborAndDeliveryReport[i].heartRateTwin = "";
-														$scope.laborAndDeliveryReport[i].systolicTwin = "";
-														$scope.laborAndDeliveryReport[i].diastolicTwin = "";
-													}
-												}
-												
-												// check for twins
-												var text = response.data[0].lastnameTwin;
-												
-												// if text not equal to empty
-												if(text != '') {
-												 	$scope.notwins = false;
-												} else {
-													$scope.notwins = true;
-												}
-												 
-											
-												$scope.message = "";
-											}, //if it failed
-											function(rejection) {
-												$scope.laborAndDeliveryReport = [];
-				                                $scope.message = "Could not display labor and delivery report.";
+		
+						// Get current pregnancy info for patient                        	
+		
+					};
+		
+					$scope.displayCreateLD = false;
+		
+					$scope.displayCreateForm = function() {
+						$scope.displayCreateLD = true;
+					}
+		
+					$scope.submitLD = function() {
+						$scope.errorMsg = "";
+						// Validate date and time of labor
+						var checkLaborDate = new Date(
+								$scope.entry.inputlabordate);
+		
+						var now = new Date(); // make sure it's not a future date
+						if (!(checkLaborDate instanceof Date)
+								|| isNaN(checkLaborDate)
+								|| now - checkLaborDate < 0) {
+							$scope.errorMsg += "Please input a valid labor date.\n";
+						}
+		
+						const ltime = new Date(
+								$scope.entry.inputlabortime);
+						checkLaborDate.setHours(ltime.getHours());
+						checkLaborDate.setMinutes(ltime
+								.getMinutes());
+		
+						// Check valid date and time combination
+						if (!(checkLaborDate instanceof Date)
+								|| isNaN(checkLaborDate)
+								|| now - checkLaborDate < 0) {
+							$scope.errorMsg += "Please input a valid labor date.\n";
+						} else {
+							$scope.form.laborDate = checkLaborDate
+									.toISOString();
+						}
+		
+						// Validate date and time of delivery
+						var checkDelieveryDate = new Date(
+								$scope.entry.inputdeliverydate);
+		
+						//var next = new Date(); // make sure it's not a future date
+						if (!(checkDelieveryDate instanceof Date)
+								|| isNaN(checkDelieveryDate)
+								|| checkDelieveryDate - checkLaborDate < 0) {
+							$scope.errorMsg += "Please input a valid delivery date.\n";
+						}
+		
+						const dtime = new Date(
+								$scope.entry.inputdeliverytime);
+						checkDelieveryDate.setHours(dtime
+								.getHours());
+						checkDelieveryDate.setMinutes(dtime
+								.getMinutes());
+		
+						// Check valid date and time combination
+						if (!(checkDelieveryDate instanceof Date)
+								|| isNaN(checkDelieveryDate)
+								|| checkDelieveryDate - checkLaborDate < 0) {
+							$scope.errorMsg += "Please input a valid delivery date.\n";
+						} else {
+							$scope.form.deliveryDate = checkDelieveryDate
+									.toISOString();
+						}
+		
+						// delivery method must be check
+						if (!$scope.form.deliverymethod) {
+							$scope.errorMsg += "A delivery method must be selected.\n";
+						} else if ($scope.form.deliverymethod == 'Miscarriage') {
+							if($scope.errorMsg == "") {
+								$http .post("/iTrust2/api/v1/LaborDelivery/", $scope.form)
+									.then(
+											function success(response) {
+												$scope.message = "Labor and delivery report has been added successfully."
+												$scope.errorMsg = "";
+												document.location.href = '/iTrust2/hcp/laborDeliveryReports.html';
+											},
+											function failure(rejection) {
+												$scope.failAddldReport();
 											});
-									// Get current pregnancy info for patient
-									$http
-											.get(
-													"/iTrust2/api/v1/obstetricsrecord/"
-															+ $scope.selectedPatient)
-											.then(
-													function(response) { // on success
-														$scope.currentPregnancy = response.data
-																|| {};
-														$scope.lmpInputDate = new Date();
-														$scope.lmp = response.data.lastMenstrualPeriod;
-														$scope.estDueDate = response.data.estDueDate;
-														$scope.numWeeksPregnant = response.data.numWeeksPregnant;
-														$scope.message = "";
-
-													}, //if it failed
-													function(rejection) {
-														$scope.currentPregnancy = {};
-														$scope.message = "Could not display current pregnancy.";
-													});
-
-									// Get current pregnancy info for patient                        	
-
-								};
-
-								$scope.displayCreateLD = false;
-
-								$scope.displayCreateForm = function() {
-									$scope.displayCreateLD = true;
+							}
+						} else {
+							// Check if twin option is chosen.
+							if (!$scope.entry.twinOption
+									|| !($scope.entry.twinOption == 'Yes' || $scope.entry.twinOption == 'No')) {
+								$scope.errorMsg += "You must enter whether the pregnancy was of twins or not.\n";
+							} else {
+								// Check first name 
+								if (!$scope.form.firstname) {
+									$scope.errorMsg += "First newborn's first name cannot be empty.\n";
 								}
-
-								$scope.submitLD = function() {
-									$scope.errorMsg = "";
-									// Validate date and time of labor
-									var checkLaborDate = new Date(
-											$scope.entry.inputlabordate);
-
-									var now = new Date(); // make sure it's not a future date
-									if (!(checkLaborDate instanceof Date)
-											|| isNaN(checkLaborDate)
-											|| now - checkLaborDate < 0) {
-										$scope.errorMsg += "Please input a valid labor date.\n";
+								//If no last name, default to mother's last name
+								if ( $scope.form.lastname == '' || $scope.form.lastname == 0) {
+									$scope.form.lastname = $scope.motherlastName;
+								}
+								// Check weight
+								if (/^[0-9]{1,4}(\.[0-9]?)?$/
+										.test(String($scope.form.weight)
+												.replace(/^0+/, '')) == false) {
+									$scope.errorMsg += "First newborn's Weight can be up to a 4-digit positive number and potentially one digit of decimal precision\n"
+								}
+								// Check height
+								if (/^[0-9]{1,3}(\.[0-9]?)?$/
+										.test(String($scope.form.length)
+												.replace(/^0+/, '')) == false) {
+									$scope.errorMsg += "First newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision\n"
+								}
+								// Check systolic
+								if (/^[0-9]{1,3}$/.test(String(
+										$scope.form.systolic).replace(
+										/^0+/, '')) == false) {
+									$scope.errorMsg += "First newborn's Systolic blood pressure can be up to a 3-digit positive number\n"
+								}
+								// Check diatolic
+								if (/^[0-9]{1,3}$/.test(String(
+										$scope.form.diastolic).replace(
+										/^0+/, '')) == false) {
+									$scope.errorMsg += "First newborn's Diastolic blood pressure can be up to a 3-digit positive number\n"
+								}
+		
+								if ($scope.entry.twinOption == 'Yes') {
+									if (!$scope.form.firstnameTwin) {
+										$scope.errorMsg += "Second Newborn's first name cannot be empty.\n";
 									}
-
-									const ltime = new Date(
-											$scope.entry.inputlabortime);
-									checkLaborDate.setHours(ltime.getHours());
-									checkLaborDate.setMinutes(ltime
-											.getMinutes());
-
-									// Check valid date and time combination
-									if (!(checkLaborDate instanceof Date)
-											|| isNaN(checkLaborDate)
-											|| now - checkLaborDate < 0) {
-										$scope.errorMsg += "Please input a valid labor date.\n";
-									} else {
-										$scope.form.laborDate = checkLaborDate
-												.toISOString();
+									//If no last name, default to mother's last name
+									if ($scope.form.lastnameTwin == '' || $scope.form.lastnameTwin.length == 0) {
+										$scope.form.lastnameTwin = $scope.motherlastName;
+		
 									}
-
-									// Validate date and time of delivery
-									var checkDelieveryDate = new Date(
-											$scope.entry.inputdeliverydate);
-
-									//var next = new Date(); // make sure it's not a future date
-									if (!(checkDelieveryDate instanceof Date)
-											|| isNaN(checkDelieveryDate)
-											|| checkDelieveryDate - checkLaborDate < 0) {
-										$scope.errorMsg += "Please input a valid delivery date.\n";
+									// Check weight
+									if (/^[0-9]{1,4}(\.[0-9]?)?$/.test(String($scope.form.weightTwin).replace(/^0+/, '')) == false) {
+										$scope.errorMsg += "Second Newborn's Weight can be up to a 4-digit positive number and potentially one digit of decimal precision\n"
 									}
-
-									const dtime = new Date(
-											$scope.entry.inputdeliverytime);
-									checkDelieveryDate.setHours(dtime
-											.getHours());
-									checkDelieveryDate.setMinutes(dtime
-											.getMinutes());
-
-									// Check valid date and time combination
-									if (!(checkDelieveryDate instanceof Date)
-											|| isNaN(checkDelieveryDate)
-											|| checkDelieveryDate - checkLaborDate < 0) {
-										$scope.errorMsg += "Please input a valid delivery date.\n";
-									} else {
-										$scope.form.deliveryDate = checkDelieveryDate
-												.toISOString();
+									// Check height
+									if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.form.lengthTwin).replace(/^0+/, '')) == false) {
+										$scope.errorMsg += "Second Newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision\n"
 									}
 
 									// delivery method must be check
@@ -330,22 +382,22 @@
 										$scope.errorMsg += "A delivery method must be selected.\n";
 									} else if ($scope.form.deliverymethod == 'Miscarriage') {
 										if($scope.errorMsg == "") {
-											$http .post(
-														"/iTrust2/api/v1/LaborDelivery/",
-														$scope.form)
+											$http .post("/iTrust2/api/v1/LaborDelivery/", $scope.form)
 												.then(
 														function success(
 																response) {
-
 																$scope.message = "Labor and delivery report has been added successfully."
 																$scope.errorMsg = "";
+																$http.delete("/iTrust2/api/v1/obstetricsrecord/"+ $scope.form.patient)
+										                        .then(function (response) {
+										                        	console.log("remove sucess")
+										                        	deferred.resolve(response.data);
+										                        });
 																document.location.href = '/iTrust2/hcp/laborDeliveryReports.html';
-															
 														},
 														function failure(
 																rejection) {
-															$scope
-																	.failAddldReport();
+															$scope.failAddldReport();
 														});
 										}	
 									} else {
@@ -373,18 +425,6 @@
 													.test(String($scope.form.length)
 															.replace(/^0+/, '')) == false) {
 												$scope.errorMsg += "First newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision\n"
-											}
-											// Check systolic
-											if (/^[0-9]{1,3}$/.test(String(
-													$scope.form.systolic).replace(
-													/^0+/, '')) == false) {
-												$scope.errorMsg += "First newborn's Systolic blood pressure can be up to a 3-digit positive number\n"
-											}
-											// Check diatolic
-											if (/^[0-9]{1,3}$/.test(String(
-													$scope.form.diastolic).replace(
-													/^0+/, '')) == false) {
-												$scope.errorMsg += "First newborn's Diastolic blood pressure can be up to a 3-digit positive number\n"
 											}
 
 											if ($scope.entry.twinOption == 'Yes') {
@@ -419,10 +459,7 @@
 										
 										// Post the record to the REST API endpoint, and handle success/error
 										if($scope.errorMsg == "") {
-											$http
-												.post(
-														"/iTrust2/api/v1/LaborDelivery/",
-														$scope.form)
+											$http.post("/iTrust2/api/v1/LaborDelivery/", $scope.form)
 												.then(
 														function success(
 																response) {
@@ -436,10 +473,17 @@
 															$scope
 																	.failAddldReport();
 														});
+											$http.delete("/iTrust2/api/v1/obstetricsrecord/"+ $scope.form.patient)
+					                        .then(
+												function success(response) {
+													console.log("remove sucess");
+						                        	deferred.resolve(response.data);
+												},
+												function failure(rejection) {
+													console.log("Failed to delete pregnancy");
+												});
 										}
 									}// end of delivery else
-
-
 								}
 
 								//$scope.deliveryString = document.getElementById("deliveryMethod");
@@ -451,42 +495,57 @@
 									} else {
 										$scope.showForm = false;
 									}
-								}
-
-								$scope.checkTwin = function() {
-									//Clear any error messages
-									$scope.errorMsg = "";
-									if ($scope.entry.twinOption == 'Yes') {
-										$scope.showTwinForm = true;
-									} else {
-										$scope.showTwinForm = false;
+									// Check diatolic
+									if (/^[0-9]{1,3}$/.test(String(
+											$scope.form.diastolicTwin)
+											.replace(/^0+/, '')) == false) {
+										$scope.errorMsg += "Second Newborn's Diastolic blood pressure can be up to a 3-digit positive number\n"
 									}
 								}
-
-							});
+							}
+							
+							// Post the record to the REST API endpoint, and handle success/error
+							if($scope.errorMsg == "") {
+								$http
+									.post("/iTrust2/api/v1/LaborDelivery/", $scope.form)
+									.then(
+											function success(
+													response) {
+													$scope.message = "Labor and delivery report has been added successfully";
+													$scope.errorMsg = "";
+													document.location.href = '/iTrust2/hcp/laborDeliveryReports.html';
+											},
+											function failure(
+													rejection) {
+												$scope.failAddldReport();
+											});
+							}
+						}// end of delivery else
+					}
+		
+					//$scope.deliveryString = document.getElementById("deliveryMethod");
+					$scope.isMiscarriage = function() {
+						//Clear any error messages
+						$scope.errorMsg = "";
+						if ($scope.form.deliverymethod != 'Miscarriage') {
+							$scope.showForm = true;
+						} else {
+							$scope.showForm = false;
+						}
+					}
+		
+					$scope.checkTwin = function() {
+						//Clear any error messages
+						$scope.errorMsg = "";
+						if ($scope.entry.twinOption == 'Yes') {
+							$scope.showTwinForm = true;
+						} else {
+							$scope.showTwinForm = false;
+						}
+					}
+				});
 			/*]]>*/
 		</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 		<div ng-app="myApp" ng-controller="laborDeliveryReports" class="row">
 			<div class="col-md-3">
@@ -522,8 +581,7 @@
 					<br><br>
 						Please select a patient for which to view labor and delivery report.
 					</br></br>
-				</div>				
-			
+				</div>
 			
 				<div
 					ng-if="selectedPatient && currentPregnancy.length > 0 && !displayCreateLD">
@@ -533,23 +591,20 @@
 					Weeks Pregnant: {{currentPregnancy[0].numWeeksPregnant}}
 				</div>
 
-
 				<div class="form-group"
 					ng-if="selectedPatient && currentPregnancy.length > 0 && !displayCreateLD">
 					<button type="submit" class="btn btn-primary"
 						ng-click=displayCreateForm() name="displayCreateForm"
 						id=displayCreateForm>Create Labor and Delivery Report</button>
 				</div>
-			
-			
-							
+
 				<div ng-if= "selectedPatient && laborAndDeliveryReport.length == 0 && !displayCreateLD" >
 					<br>There is no current labor and delivery report for this patient.
 				</div>
 		
-		<div ng-if="!notwins && selectedPatient">	
+		<div ng-if="selectedPatient">	
 			<div ng-if="laborAndDeliveryReport || laborAndDeliveryReport.length > 0">	
-				<table class="table table-bordered" ng-if="!displayCreateLD && selectedPatient">
+				<table class="table table-bordered" ng-if="!displayCreateLD && selectedPatient && laborAndDeliveryReport.length > 0">
 					<thead>
 						<tr>
 							<th>Labor Date</th>
@@ -566,98 +621,45 @@
 							<th>Diastolic Blood Pressure</th>
 						</tr>
 					</thead>
-
-							<tbody>
-								<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
-									<td id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
-									<td id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
-									<td id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
-									<td id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
-									<td id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
-									
-									<td id="firstname-{{$index}}">{{laborNdelivery.firstname}}</td>
-									<td id="lastname-{{$index}}">{{laborNdelivery.lastname}}</td>
-									<td id="weight-{{$index}}">{{laborNdelivery.weight}}</td>
-									<td id="length-{{$index}}">{{laborNdelivery.length}}</td>
-									<td id="heartRate-{{$index}}">{{laborNdelivery.heartRate}}</td>
-									<td id="systolic-{{$index}}">{{laborNdelivery.systolic}}</td>
-									<td id="diastolic-{{$index}}">{{laborNdelivery.diastolic}}</td>
-									
-								</tr>
-							</tbody>
-							
-						
-							<tbody>
-								<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
-									<td id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
-									<td id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
-									<td id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
-									<td id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
-									<td id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
-									
-									<td id="firstnameTwin-{{$index}}">{{laborNdelivery.firstnameTwin}}</td>
-									<td id="lastnameTwin-{{$index}}">{{laborNdelivery.lastnameTwin}}</td>
-									<td id="weightTwin-{{$index}}">{{laborNdelivery.weightTwin}}</td>
-									<td id="lengthTwin-{{$index}}">{{laborNdelivery.lengthTwin}}</td>
-									<td id="heartRateTwin-{{$index}}">{{laborNdelivery.heartRateTwin}}</td>
-									<td id="systolicTwin-{{$index}}">{{laborNdelivery.systolicTwin}}</td>
-									<td id="diastolicTwin-{{$index}}">{{laborNdelivery.diastolicTwin}}</td>
-									
-								</tr>
-							</tbody>
-						
+						<tbody>
+							<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
+								<td id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
+								<td id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
+								<td id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
+								<td id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
+								<td id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
+								
+								<td id="firstname-{{$index}}">{{laborNdelivery.firstname}}</td>
+								<td id="lastname-{{$index}}">{{laborNdelivery.lastname}}</td>
+								<td id="weight-{{$index}}">{{laborNdelivery.weight}}</td>
+								<td id="length-{{$index}}">{{laborNdelivery.length}}</td>
+								<td id="heartRate-{{$index}}">{{laborNdelivery.heartRate}}</td>
+								<td id="systolic-{{$index}}">{{laborNdelivery.systolic}}</td>
+								<td id="diastolic-{{$index}}">{{laborNdelivery.diastolic}}</td>
+							</tr>
+						</tbody>
+					
+						<tbody>
+							<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
+								
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="firstnameTwin-{{$index}}">{{laborNdelivery.firstnameTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="lastnameTwin-{{$index}}">{{laborNdelivery.lastnameTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="weightTwin-{{$index}}">{{laborNdelivery.weightTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="lengthTwin-{{$index}}">{{laborNdelivery.lengthTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="heartRateTwin-{{$index}}">{{laborNdelivery.heartRateTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="systolicTwin-{{$index}}">{{laborNdelivery.systolicTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="diastolicTwin-{{$index}}">{{laborNdelivery.diastolicTwin}}</td>
+							</tr>
+						</tbody>
 				</table>
 			</div>
 		</div>
-		
-	
-	
-	
-	<!-- if no twins -->
-	<div ng-if="notwins && selectedPatient">	
-			<div ng-if="laborAndDeliveryReport || laborAndDeliveryReport.length > 0">	
-				<table class="table table-bordered" ng-if="!displayCreateLD && selectedPatient">
-					<thead>
-						<tr>
-							<th>Labor Date</th>
-							<th>Labor Time</th>
-							<th>Delivery Date</th>
-							<th>Delivery Time</th>
-							<th>Delivery Method</th>
-							<th>First Name</th>
-							<th>Last Name</th>
-							<th>Weight</th>
-							<th>Height/Length</th>
-							<th>Heart Rate</th>
-							<th>Systolic Blood Pressure</th>
-							<th>Diastolic Blood Pressure</th>
-						</tr>
-					</thead>
-
-							<tbody>
-								<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
-									<td id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
-									<td id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
-									<td id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
-									<td id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
-									<td id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
-									
-									<td id="firstname-{{$index}}">{{laborNdelivery.firstname}}</td>
-									<td id="lastname-{{$index}}">{{laborNdelivery.lastname}}</td>
-									<td id="weight-{{$index}}">{{laborNdelivery.weight}}</td>
-									<td id="length-{{$index}}">{{laborNdelivery.length}}</td>
-									<td id="heartRate-{{$index}}">{{laborNdelivery.heartRate}}</td>
-									<td id="systolic-{{$index}}">{{laborNdelivery.systolic}}</td>
-									<td id="diastolic-{{$index}}">{{laborNdelivery.diastolic}}</td>
-									
-								</tr>
-							</tbody>
-				</table>
-			</div>
-		</div>
-	</div>	
-	
-	
+	</div>
 
 				<div ng-if="displayCreateLD">
 
@@ -755,7 +757,6 @@
 									</div>
 									<div class="panel-body">
 
-
 										<div class="form-group row">
 											<div class="col-xs-6">
 												<label>First Name:</label>
@@ -784,6 +785,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="weight"
 													ng-model="form.weight" required="true" type="text">
+													<div class="input-group-addon">lbs</div>
 											</div>
 										</div>
 
@@ -794,6 +796,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="length"
 													ng-model="form.length" required="true" type="text">
+													<div class="input-group-addon">in</div>
 											</div>
 										</div>
 
@@ -804,6 +807,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="heartrate"
 													ng-model="form.heartRate" required="true" type="text">
+													<div class="input-group-addon">BPM</div>
 											</div>
 										</div>
 
@@ -814,6 +818,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="systolic"
 													ng-model="form.systolic" required="true" type="text">
+													<div class="input-group-addon">mmHg</div>
 											</div>
 										</div>
 
@@ -824,6 +829,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="diastolic"
 													ng-model="form.diastolic" required="true" type="text">
+													<div class="input-group-addon">mmHg</div>
 											</div>
 										</div>
 
@@ -870,6 +876,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="weightTwin"
 													ng-model="form.weightTwin" required="true" type="text">
+													<div class="input-group-addon">lbs</div>
 											</div>
 										</div>
 
@@ -880,6 +887,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="lengthTwin"
 													ng-model="form.lengthTwin" required="true" type="text">
+													<div class="input-group-addon">in</div>
 											</div>
 										</div>
 
@@ -890,6 +898,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="heartrateTwin"
 													ng-model="form.heartRateTwin" required="true" type="text">
+													<div class="input-group-addon">BPM</div>
 											</div>
 										</div>
 
@@ -900,6 +909,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="systolicTwin"
 													ng-model="form.systolicTwin" required="true" type="text">
+													<div class="input-group-addon">mmHg</div>
 											</div>
 										</div>
 
@@ -910,6 +920,7 @@
 											<div class="col-xs-6">
 												<input class="form-control" name="diastolicTwin"
 													ng-model="form.diastolicTwin" required="true" type="text">
+													<div class="input-group-addon">mmHg</div>
 											</div>
 										</div>
 
