@@ -45,9 +45,12 @@ public class ObstetricsRecordStepDefs extends CucumberTest {
      *            of user id
      * @param passwrd
      *            of password
+     * @throws InterruptedException
+     *             has the thread sleep
      */
     @Given ( "^Logging in system as an HCPOBGYN or HCP or Patient user id (.+) password (.+)$" )
-    public void logAsOBGYN ( final String id, final String passwrd ) {
+    public void logAsOBGYN ( final String id, final String passwrd ) throws InterruptedException {
+        Thread.sleep( 1000 );
         attemptLogout();
 
         driver.get( baseUrl );
@@ -60,7 +63,7 @@ public class ObstetricsRecordStepDefs extends CucumberTest {
         final WebElement submit = driver.findElement( By.className( "btn" ) );
         submit.click();
 
-        if ( id.equals( "OGBYN" ) || id.equals( "hcp" ) ) {
+        if ( id.equals( "OBGYN" ) || id.equals( "hcp" ) ) {
             assertEquals( "iTrust2: HCP Home", driver.getTitle() );
         }
         else {
@@ -73,6 +76,7 @@ public class ObstetricsRecordStepDefs extends CucumberTest {
      */
     @Then ( "^HCPOBGYN navigates to the view Obstetrics Records.$" )
     public void navigateToView () {
+        waitForAngular();
         ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('HCPObstetricsRecords').click();" );
 
         assertEquals( "iTrust2: View Patient Obstetrics Records", driver.getTitle() );

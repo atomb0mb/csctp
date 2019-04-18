@@ -124,7 +124,7 @@
 										var hours = lbdate.getHours();
 										
 										if ( hours == 0) {
-											hours = '0' + hours;
+											hours = '12';
 											minutes = minutes + ' ' + 'AM';
 										}
 										if( hours < 10) {
@@ -212,22 +212,21 @@
 										}
 									}
 									
+									var text;
 									// check for twins
-									var text = response.data[0].lastnameTwin;
+									if (response.data[0] != null) {
+										text = response.data[0].lastnameTwin; //shouldn't be null if a twin exists									
+									} else {
+										text = '';
+									}
+									
 									console.log("Last name") //**maybe check first name, since last name is allowed to be null?
-									console.log(response.data[0].lastnameTwin);
+									console.log(text);
 									
 									// if text not equal to empty
-									$scope.notwins = (text != '');
+									$scope.notwins = (text == '');
 									console.log($scope.notwins);
-									if(text != '') {
-									 	$scope.notwins = false;
-									} else {
-										$scope.notwins = true;
-									}
-									console.log($scope.notwins);
-									 
-								
+																	
 									$scope.message = "";
 								}, //if it failed
 								function(rejection) {
@@ -396,9 +395,132 @@
 									if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.form.lengthTwin).replace(/^0+/, '')) == false) {
 										$scope.errorMsg += "Second Newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision\n"
 									}
-									// Check systolic
-									if (/^[0-9]{1,3}$/.test(String($scope.form.systolicTwin).replace(/^0+/, '')) == false) {
-										$scope.errorMsg += "Second Newborn's Systolic blood pressure can be up to a 3-digit positive number\n"
+
+									// delivery method must be check
+									if (!$scope.form.deliverymethod) {
+										$scope.errorMsg += "A delivery method must be selected.\n";
+									} else if ($scope.form.deliverymethod == 'Miscarriage') {
+										if($scope.errorMsg == "") {
+											$http .post(
+														"/iTrust2/api/v1/LaborDelivery/",
+														$scope.form)
+												.then(
+														function success(
+																response) {
+
+																$scope.message = "Labor and delivery report has been added successfully."
+																$scope.errorMsg = "";
+																$http.delete("/iTrust2/api/v1/obstetricsrecord/"+ $scope.form.patient)
+										                        .then(function (response) {
+										                        	console.log("remove sucess")
+										                        	deferred.resolve(response.data);
+										                        });
+																
+																
+																document.location.href = '/iTrust2/hcp/laborDeliveryReports.html';
+															
+														},
+														function failure(
+																rejection) {
+															$scope
+																	.failAddldReport();
+														});
+										}	
+									} else {
+										// Check if twin option is chosen.
+										if (!$scope.entry.twinOption
+												|| !($scope.entry.twinOption == 'Yes' || $scope.entry.twinOption == 'No')) {
+											$scope.errorMsg += "You must enter whether the pregnancy was of twins or not.\n";
+										} else {
+											// Check first name 
+											if (!$scope.form.firstname) {
+												$scope.errorMsg += "First newborn's first name cannot be empty.\n";
+											}
+											//If no last name, default to mother's last name
+											if ( $scope.form.lastname == '' || $scope.form.lastname == 0) {
+												$scope.form.lastname = $scope.motherlastName;
+											}
+											// Check weight
+											if (/^[0-9]{1,4}(\.[0-9]?)?$/
+													.test(String($scope.form.weight)
+															.replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "First newborn's Weight can be up to a 4-digit positive number and potentially one digit of decimal precision\n"
+											}
+											// Check height
+											if (/^[0-9]{1,3}(\.[0-9]?)?$/
+													.test(String($scope.form.length)
+															.replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "First newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision\n"
+											}
+
+											if ($scope.entry.twinOption == 'Yes') {
+												if (!$scope.form.firstnameTwin) {
+													$scope.errorMsg += "Second Newborn's first name cannot be empty.\n";
+												}
+												//If no last name, default to mother's last name
+												if ($scope.form.lastnameTwin == '' || $scope.form.lastnameTwin.length == 0) {
+													$scope.form.lastnameTwin = $scope.motherlastName;
+	
+												}
+												// Check weight
+												if (/^[0-9]{1,4}(\.[0-9]?)?$/.test(String($scope.form.weightTwin).replace(/^0+/, '')) == false) {
+													$scope.errorMsg += "Second Newborn's Weight can be up to a 4-digit positive number and potentially one digit of decimal precision\n"
+												}
+												// Check height
+												if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.form.lengthTwin).replace(/^0+/, '')) == false) {
+													$scope.errorMsg += "Second Newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision\n"
+												}
+												// Check systolic
+												if (/^[0-9]{1,3}$/.test(String($scope.form.systolicTwin).replace(/^0+/, '')) == false) {
+													$scope.errorMsg += "Second Newborn's Systolic blood pressure can be up to a 3-digit positive number\n"
+												}
+												// Check diatolic
+												if (/^[0-9]{1,3}$/.test(String(
+														$scope.form.diastolicTwin)
+														.replace(/^0+/, '')) == false) {
+													$scope.errorMsg += "Second Newborn's Diastolic blood pressure can be up to a 3-digit positive number\n"
+												}
+											}
+										}
+										
+										// Post the record to the REST API endpoint, and handle success/error
+										if($scope.errorMsg == "") {
+											$http
+												.post(
+														"/iTrust2/api/v1/LaborDelivery/",
+														$scope.form)
+												.then(
+														function success(
+																response) {
+																$scope.message = "Labor and delivery report has been added successfully";
+																$scope.errorMsg = "";
+																$http.delete("/iTrust2/api/v1/obstetricsrecord/"+ $scope.form.patient)
+										                        .then(function (response) {
+										                        	console.log("remove sucess")
+										                        	deferred.resolve(response.data);
+										                        });
+																document.location.href = '/iTrust2/hcp/laborDeliveryReports.html';
+
+														},
+														function failure(
+																rejection) {
+															$scope
+																	.failAddldReport();
+														});
+										}
+									}// end of delivery else
+
+
+								}
+
+								//$scope.deliveryString = document.getElementById("deliveryMethod");
+								$scope.isMiscarriage = function() {
+									//Clear any error messages
+									$scope.errorMsg = "";
+									if ($scope.form.deliverymethod != 'Miscarriage') {
+										$scope.showForm = true;
+									} else {
+										$scope.showForm = false;
 									}
 									// Check diatolic
 									if (/^[0-9]{1,3}$/.test(String(
@@ -516,12 +638,12 @@
 					<br>There is no current labor and delivery report for this patient.
 				</div>
 		
-		<div ng-if="!notwins && selectedPatient">	
+		<div ng-if="selectedPatient">	
 			<div ng-if="laborAndDeliveryReport || laborAndDeliveryReport.length > 0">	
 				<table class="table table-bordered" ng-if="!displayCreateLD && selectedPatient && laborAndDeliveryReport.length > 0">
 					<thead>
 						<tr>
-							<th>Labor Date Hellooooo</th>
+							<th>Labor Date This One!</th>
 							<th>Labor Time</th>
 							<th>Delivery Date</th>
 							<th>Delivery Time</th>
@@ -535,107 +657,53 @@
 							<th>Diastolic Blood Pressure</th>
 						</tr>
 					</thead>
-
-							<tbody>
-								<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
-									<td id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
-									<td id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
-									<td id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
-									<td id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
-									<td id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
-									
-									<td id="firstname-{{$index}}">{{laborNdelivery.firstname}}</td>
-									<td id="lastname-{{$index}}">{{laborNdelivery.lastname}}</td>
-									<td id="weight-{{$index}}">{{laborNdelivery.weight}}</td>
-									<td id="length-{{$index}}">{{laborNdelivery.length}}</td>
-									<td id="heartRate-{{$index}}">{{laborNdelivery.heartRate}}</td>
-									<td id="systolic-{{$index}}">{{laborNdelivery.systolic}}</td>
-									<td id="diastolic-{{$index}}">{{laborNdelivery.diastolic}}</td>
-									
-									
-										<td id="firstnameTwin-{{$index}}">{{laborNdelivery.firstnameTwin}}</td>
-										<td id="lastnameTwin-{{$index}}">{{laborNdelivery.lastnameTwin}}</td>
-										<td id="weightTwin-{{$index}}">{{laborNdelivery.weightTwin}}</td>
-										<td id="lengthTwin-{{$index}}">{{laborNdelivery.lengthTwin}}</td>
-										<td id="heartRateTwin-{{$index}}">{{laborNdelivery.heartRateTwin}}</td>
-										<td id="systolicTwin-{{$index}}">{{laborNdelivery.systolicTwin}}</td>
-										<td id="diastolicTwin-{{$index}}">{{laborNdelivery.diastolicTwin}}</td>
-									
-								</tr>
-							</tbody>
-							
-						
-							<tbody>
-								<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
-									<td id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
-									<td id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
-									<td id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
-									<td id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
-									<td id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
-									
-									<td id="firstnameTwin-{{$index}}">{{laborNdelivery.firstnameTwin}}</td>
-									<td id="lastnameTwin-{{$index}}">{{laborNdelivery.lastnameTwin}}</td>
-									<td id="weightTwin-{{$index}}">{{laborNdelivery.weightTwin}}</td>
-									<td id="lengthTwin-{{$index}}">{{laborNdelivery.lengthTwin}}</td>
-									<td id="heartRateTwin-{{$index}}">{{laborNdelivery.heartRateTwin}}</td>
-									<td id="systolicTwin-{{$index}}">{{laborNdelivery.systolicTwin}}</td>
-									<td id="diastolicTwin-{{$index}}">{{laborNdelivery.diastolicTwin}}</td>
-									
-								</tr>
-							</tbody>
-						
+						<tbody>
+							<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
+								<td id="laborDate-{{$index}}">AB {{laborNdelivery.newLdate}}</td>
+								<td id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
+								<td id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
+								<td id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
+								<td id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
+								
+								<td id="firstname-{{$index}}">AC {{laborNdelivery.firstname}}</td>
+								<td id="lastname-{{$index}}">{{laborNdelivery.lastname}}</td>
+								<td id="weight-{{$index}}">{{laborNdelivery.weight}}</td>
+								<td id="length-{{$index}}">{{laborNdelivery.length}}</td>
+								<td id="heartRate-{{$index}}">{{laborNdelivery.heartRate}}</td>
+								<td id="systolic-{{$index}}">{{laborNdelivery.systolic}}</td>
+								<td id="diastolic-{{$index}}">{{laborNdelivery.diastolic}}</td>
+								<tr><!-- ng-if="laborNdelivery.firstnameTwin"  -->
+								<td id="firstnameTwin-{{$index}}">{{laborNdelivery.firstnameTwin}}</td>
+								<td id="lastnameTwin-{{$index}}">{{laborNdelivery.lastnameTwin}}</td>
+								<td id="weightTwin-{{$index}}">{{laborNdelivery.weightTwin}}</td>
+								<td id="lengthTwin-{{$index}}">{{laborNdelivery.lengthTwin}}</td>
+								<td id="heartRateTwin-{{$index}}">{{laborNdelivery.heartRateTwin}}</td>
+								<td id="systolicTwin-{{$index}}">{{laborNdelivery.systolicTwin}}</td>
+								<td id="diastolicTwin-{{$index}}">{{laborNdelivery.diastolicTwin}}</td>
+							</tr>
+						</tbody>
+					
+						<!-- <tbody>
+							<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
+								<td ng-if="laborNdelivery.firstnameTwin != ''" id="laborDate-{{$index}}"> B {{laborNdelivery.newLdate}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin != ''" id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin != ''" id="deliveryDate-{{$index}}">{{laborNdelivey.newDdate}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin != ''" id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin != ''" id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
+								
+								<td ng-if="laborNdelivery.firstnameTwin != ''" id="firstnameTwin-{{$index}}">BC {{laborNdelivery.firstnameTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin != ''" id="lastnameTwin-{{$index}}">{{laborNdelivery.lastnameTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin != ''" id="weightTwin-{{$index}}">{{laborNdelivery.weightTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin != ''" id="lengthTwin-{{$index}}">{{laborNdelivery.lengthTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin != ''" id="heartRateTwin-{{$index}}">{{laborNdelivery.heartRateTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin != ''" id="systolicTwin-{{$index}}">{{laborNdelivery.systolicTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin != ''" id="diastolicTwin-{{$index}}">{{laborNdelivery.diastolicTwin}}</td>
+							</tr>
+						</tbody>-->
 				</table>
 			</div>
 		</div>
-		
-	
-	
-	
-	<!-- if no twins -->
-	<div ng-if="notwins && selectedPatient">	
-			<div ng-if="laborAndDeliveryReport || laborAndDeliveryReport.length > 0">	
-				<table class="table table-bordered" ng-if="!displayCreateLD && selectedPatient">
-					<thead>
-						<tr>
-							<th>Labor Date</th>
-							<th>Labor Time</th>
-							<th>Delivery Date</th>
-							<th>Delivery Time</th>
-							<th>Delivery Method</th>
-							<th>First Name</th>
-							<th>Last Name</th>
-							<th>Weight</th>
-							<th>Height/Length</th>
-							<th>Heart Rate</th>
-							<th>Systolic Blood Pressure</th>
-							<th>Diastolic Blood Pressure</th>
-						</tr>
-					</thead>
-
-							<tbody>
-								<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
-									<td id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
-									<td id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
-									<td id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
-									<td id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
-									<td id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
-									
-									<td id="firstname-{{$index}}">{{laborNdelivery.firstname}}</td>
-									<td id="lastname-{{$index}}">{{laborNdelivery.lastname}}</td>
-									<td id="weight-{{$index}}">{{laborNdelivery.weight}}</td>
-									<td id="length-{{$index}}">{{laborNdelivery.length}}</td>
-									<td id="heartRate-{{$index}}">{{laborNdelivery.heartRate}}</td>
-									<td id="systolic-{{$index}}">{{laborNdelivery.systolic}}</td>
-									<td id="diastolic-{{$index}}">{{laborNdelivery.diastolic}}</td>
-									
-								</tr>
-							</tbody>
-				</table>
-			</div>
-		</div>
-	</div>	
-	
-	
+	</div>
 
 				<div ng-if="displayCreateLD">
 

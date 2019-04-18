@@ -209,7 +209,7 @@ public class HibernateDataGenerator {
         robort.save();
 
         /** Test user for OBGYN */
-        final User testOBGYN = new User( "OGBYN", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+        final User testOBGYN = new User( "OBGYN", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
                 Role.ROLE_OBGYN, 1 );
         testOBGYN.save();
 
@@ -273,7 +273,6 @@ public class HibernateDataGenerator {
         obs.setLastMenstrualPeriod( testDate );
         obs.setPatient( "rebecca" );
         rebecca.save();
-
         final Patient zara = new Patient();
         zara.setFirstName( "Zara" );
         final User zaraUser = new User( "ZaraZi", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
@@ -287,6 +286,7 @@ public class HibernateDataGenerator {
         zara.save();
 
         obs.save();
+
         final Hospital hosp = new Hospital( "General Hospital", "123 Main St", "12345", "NC" );
         hosp.save();
 

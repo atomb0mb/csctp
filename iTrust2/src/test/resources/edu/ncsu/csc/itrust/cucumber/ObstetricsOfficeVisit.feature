@@ -9,6 +9,7 @@ Feature: Document Obstetrics Office Visit
 
 Scenario Outline: OB/GYN documents a valid obstetrics office visit
 	Given There exists a patient in the system
+	Then the patient has an obstetrics record already
 	Then The OBGYN logs in and goes to document an office visit
 	When The HCP enters the date <date>, time <time>, patient <patient>, type of visit <type>, hospital <hospital>
     And Adds obstetric values <weeks> <HR> <height>
@@ -21,6 +22,7 @@ Examples:
 
 Scenario Outline: OB/GYN documents an invalid obstetrics office visit
 	Given There exists a patient in the system
+	Then the patient has an obstetrics record already
 	Then The OBGYN logs in and goes to document an office visit
 	When The HCP enters the date <date>, time <time>, patient <patient>, type of visit <type>, hospital <hospital>
     And Adds obstetric values <weeks> <HR> <height>
@@ -35,6 +37,7 @@ Examples:
 	
 Scenario Outline: OB/GYN HCP correctly edits an obstetrics office visit
 	Given There exists a patient in the system
+	Then the patient has an obstetrics record already
 	Then The OBGYN logs in and goes to document an office visit
 	When The HCP enters the date <date>, time <time>, patient <patient>, type of visit <type>, hospital <hospital>
     And Adds obstetric values <weeks> <HR> <height>
@@ -52,6 +55,7 @@ Examples:
 
 Scenario Outline: OB/GYN HCP incorrectly edits an obstetrics office visit
 	Given There exists a patient in the system
+	Then the patient has an obstetrics record already
 	Then The OBGYN logs in and goes to document an office visit
 	When The HCP enters the date <date>, time <time>, patient <patient>, type of visit <type>, hospital <hospital>
     And Adds obstetric values <weeks> <HR> <height>

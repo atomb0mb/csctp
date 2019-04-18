@@ -28,6 +28,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import edu.ncsu.csc.itrust2.config.RootConfiguration;
 import edu.ncsu.csc.itrust2.forms.admin.UserForm;
+import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsRecordForm;
 import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsVisitForm;
 import edu.ncsu.csc.itrust2.forms.hcp_patient.PatientForm;
 import edu.ncsu.csc.itrust2.forms.patient.AppointmentRequestForm;
@@ -85,7 +86,7 @@ public class APIObstetricsControllerTest {
      * @throws Exception
      */
     @Test
-    @WithMockUser ( username = "OGBYN", roles = { "OBGYN" } )
+    @WithMockUser ( username = "OBGYN", roles = { "OBGYN" } )
     public void testGetNonExistentOBGYNOfficeVisit () throws Exception {
         mvc.perform( get( "/api/v1/ObstetricsVisit/-1" ) ).andExpect( status().isNotFound() );
     }
@@ -97,7 +98,7 @@ public class APIObstetricsControllerTest {
      * @throws Exception
      */
     @Test
-    @WithMockUser ( username = "OGBYN", roles = { "OBGYN" } )
+    @WithMockUser ( username = "OBGYN", roles = { "OBGYN" } )
     public void testDeleteNonExistentOBGYNOfficeVisit () throws Exception {
         mvc.perform( delete( "/api/v1/ObstetricsVisit/-1" ) ).andExpect( status().isNotFound() );
     }
@@ -109,7 +110,7 @@ public class APIObstetricsControllerTest {
      * @throws Exception
      */
     @Test
-    @WithMockUser ( username = "OGBYN", roles = { "OBGYN", "PATIENT" } )
+    @WithMockUser ( username = "OBGYN", roles = { "OBGYN", "PATIENT" } )
     public void testPreScheduledObstetricsVisit () throws Exception {
         final UserForm hcp = new UserForm( "hcp", "123456", Role.ROLE_HCP, 1 );
         mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
@@ -150,7 +151,7 @@ public class APIObstetricsControllerTest {
     }
 
     /**
-     * Tests Obstetric office visit
+     * Obstetric office visit
      *
      * @throws Exception
      */
@@ -188,6 +189,11 @@ public class APIObstetricsControllerTest {
         visit.setNumOfWeeksPreg( 3 );
         visit.setTwins( false );
         visit.setLowLyingPlacenta( false );
+
+        final ObstetricsRecordForm obsform = new ObstetricsRecordForm();
+        obsform.setLastMenstrualPeriod( "2019-01-15" );
+        mvc.perform( post( "/api/v1/obstetricsrecord/patient" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( obsform ) ) ).andExpect( status().isOk() );
 
         /* Create the Office Visit */
         mvc.perform( post( "/api/v1/ObstetricsVisit" ).contentType( MediaType.APPLICATION_JSON )

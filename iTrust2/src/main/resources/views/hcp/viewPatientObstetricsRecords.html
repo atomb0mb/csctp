@@ -17,7 +17,6 @@
                     $scope.priorPregnancies = [];
                     $scope.currentPregnancy = {lastMenstrualPeriod:'', estDueDate:'', numWeeksPregnant:0};
                     $scope.entry = {lmpInputDate: new Date()};
-                    //$scope.lmpInputDate = new Date();
                     
     				$scope.deliveryMethods = ['Vaginal Delivery', 'Caesarean Section', 'Miscarriage'];
     				$scope.twinOptions = ['Yes', 'No'];
@@ -47,17 +46,19 @@
                     //Get data associated with selected patient
                     $scope.selectPatient = function (patient) {
                     	// Get past pregnancy info for patient
+                    	$scope.birthYear = parseInt(patient.dateOfBirth); // convert the year
+                    	//dateOfBirth
                         $http.get("/iTrust2/api/v1/pregnancy/" + $scope.selectedPatient)
                         	.then(
                             function (response) { // on success
                             	$scope.priorPregnancies = response.data || [];
                                 $scope.message = "";
                 				$scope.pregnancyEntry = {
-               						conceptionYear: 0,
-									numWeeksPregnant: 0,
-									numHoursInLabor: 0,
+               						conceptionYear: '',
+									numWeeksPregnant: '',
+									numHoursInLabor: '',
 									deliveryMethod: '',
-									isTwins: false,
+									isTwins: '',
 									twinsYes:'' //for the yes/no submission
                					};
                             
@@ -99,8 +100,8 @@
                      		
 							//Check conception year
 							var currentYear = 2019;
-							if (isNaN($scope.pregnancyEntry.conceptionYear) || $scope.pregnancyEntry.conceptionYear > currentYear || $scope.pregnancyEntry.conceptionYear < 0) {
-								$scope.errorMsg += "The year of conception must be a previous or current year.\n";
+							if (isNaN($scope.pregnancyEntry.conceptionYear) || $scope.pregnancyEntry.conceptionYear > currentYear || $scope.pregnancyEntry.conceptionYear <= $scope.birthYear) {
+								$scope.errorMsg += "The year of conception must be a previous or current year that is after the patient's birth year.\n";
 							}
 							
 							if (isNaN($scope.pregnancyEntry.numWeeksPregnant) || $scope.pregnancyEntry.numWeeksPregnant < 0) {
@@ -121,16 +122,18 @@
 
 							$scope.pregnancyEntry.isTwins = ($scope.pregnancyEntry.twinsYes == 'Yes'); //save as boolean
 							
-                     		$http.post("/iTrust2/api/v1/pregnancy/" + $scope.selectedPatient, $scope.pregnancyEntry)
-							.then(
-								function success(response) {
-									$scope.message = "Pregnancy record has been added successfully."
-									$scope.errorMsg = "";
-									document.location.href = '/iTrust2/hcp/viewPatientObstetricsRecords.html';
-							},
-							function failure(rejection) {
-								$scope.failAddPregEntry();
-							});
+							if (!$scope.errorMsg) { 
+	                     		$http.post("/iTrust2/api/v1/pregnancy/" + $scope.selectedPatient, $scope.pregnancyEntry)
+								.then(
+									function success(response) {
+										$scope.message = "Pregnancy record has been added successfully."
+										$scope.errorMsg = "";
+										document.location.href = '/iTrust2/hcp/viewPatientObstetricsRecords.html';
+								},
+								function failure(rejection) {
+									$scope.failAddPregEntry();
+								});
+	                     	}
                      	}
                      	
 						$scope.failAddPregEntry = function() {
