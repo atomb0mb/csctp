@@ -15,6 +15,7 @@
 							'editLaborDeliveryReports',
 							function($scope, $http) {
 								
+								
 								$scope.edit = { id:0
 								};
 							
@@ -50,6 +51,40 @@
 									
 									return p.patient + ' (' + finalldate + ') to (' + finalddate + ')';
 								}
+								// Reset button for first born
+								$scope.resetLD = function() {
+									$scope.edit.deliverymethod = "";
+									$scope.edit.firstname = "";
+									$scope.edit.lastname = "";
+									$scope.edit.weight = 0;
+									$scope.edit.length = 0;
+									$scope.edit.heartRate = 0;
+									$scope.edit.systolic = 0;
+									$scope.edit.diastolic = 0;
+									$scope.edit.laborDate = new Date($scope.edit.laborDate);
+									$scope.edit.deliveryDate = new Date($scope.edit.deliveryDate);
+									
+								}
+								
+								// Reset button for second born
+								$scope.resetLDTwin = function() {
+									$scope.edit.deliverymethodTwin = "";
+									$scope.edit.firstnameTwin = "";
+									$scope.edit.lastnameTwin = "";
+									$scope.edit.weightTwin = 0;
+									$scope.edit.lengthTwin = 0;
+									$scope.edit.heartRateTwin = 0;
+									$scope.edit.systolicTwin = 0;
+									$scope.edit.diastolicTwin = 0;
+									$scope.edit.laborDate = new Date($scope.edit.laborDate);
+									$scope.edit.deliveryDate = new Date($scope.edit.deliveryDate);
+								}
+								// Back button
+								$scope.backLD = function() {
+									$scope.errorMsg = "";
+									$scope.edit.laborDate = new Date($scope.edit.laborDate);
+									$scope.edit.deliveryDate = new Date($scope.edit.deliveryDate);
+								}
 
 								$scope.deliveryMethods = [ 'Vaginal Delivery',
 										'Caesarean Section', 'Miscarriage' ];
@@ -65,7 +100,7 @@
 								
 
 
-								
+								// error display
 								$scope.failUpdate = function() {
 									$scope.errorMsg += "Could not update labor and delivery report.\n";
 									$scope.message = "";
@@ -88,7 +123,6 @@
 													+ patient.id)
 											.then(function(response) { // on success
 												$scope.edit = response.data || {};
-												
 												$scope.edit.laborDate = new Date($scope.edit.laborDate);
 												$scope.edit.deliveryDate = new Date($scope.edit.deliveryDate);
 												
@@ -135,41 +169,73 @@
 									}
 
 									// Validate date and time of delivery
-									var checkDelieveryDate = new Date(
+									var checkDeliveryDate = new Date(
 											$scope.edit.deliveryDate);
 
 									//var next = new Date(); // make sure it's not a future date
-									if (!(checkDelieveryDate instanceof Date)
-											|| isNaN(checkDelieveryDate)
-											|| checkDelieveryDate - checkLaborDate < 0) {
+									if (!(checkDeliveryDate instanceof Date)
+											|| isNaN(checkDeliveryDate)
+											|| checkDeliveryDate - checkLaborDate < 0) {
 										$scope.errorMsg += "Please input a valid delivery date.\n";
 									}
 
 									const dtime = new Date(
 											$scope.edit.deliveryDate);
-									checkDelieveryDate.setHours(dtime
+									checkDeliveryDate.setHours(dtime
 											.getHours());
-									checkDelieveryDate.setMinutes(dtime
+									checkDeliveryDate.setMinutes(dtime
 											.getMinutes());
 
 									// Check valid date and time combination
-									if (!(checkDelieveryDate instanceof Date)
-											|| isNaN(checkDelieveryDate)
-											|| checkDelieveryDate - checkLaborDate < 0) {
+									if (!(checkDeliveryDate instanceof Date)
+											|| isNaN(checkDeliveryDate)
+											|| checkDeliveryDate - checkLaborDate < 0 || now - checkDeliveryDate < 0) {
 										$scope.errorMsg += "Please input a valid delivery date.\n";
 									} else {
-										$scope.edit.deliveryDate = checkDelieveryDate
+										$scope.edit.deliveryDate = checkDeliveryDate
 												.toISOString();
 									}
-
-									// delivery method must be check
-									if (!$scope.edit.deliverymethod) {
-										$scope.errorMsg += "A delivery method must be selected.\n";
-									} else if ($scope.edit.deliverymethod == 'Miscarriage') {
-										if($scope.errorMsg == "") {
+									
+									// If both deliverymethod are selected
+									if( $scope.edit.deliverymethod  && $scope.edit.deliverymethodTwin) {
+										if(!($scope.edit.deliverymethod == 'Miscarriage')) {
 											
-											// If Miscarriage is chosen set all children to empty string or 0
+											if ($scope.edit.firstname == '' || !$scope.edit.firstname ) {
+												$scope.errorMsg += "First newborn's first name cannot be empty.\n";
+												
+											}
+											// Check weight
+											if (/^[0-9]{1,4}(\.[0-9]?)?$/
+													.test(String($scope.edit.weight)
+															.replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "First newborn's Weight can be up to a 4-digit positive number and potentially one digit of decimal precision.\n"
+													console.log("Checked here too");
+											}
+											// Check height
+											if (/^[0-9]{1,3}(\.[0-9]?)?$/
+													.test(String($scope.edit.length)
+															.replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "First newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision.\n"
+											}
 											
+											// Check heartRate
+											if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.heartRate).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "First Newborn's heart Rate can be up to a 3-digit positive number and potentially one digit of decimal precision.\n"
+											}
+											
+											// Check systolic
+											if (/^[0-9]{1,3}$/.test(String(
+													$scope.edit.systolic).replace(
+													/^0+/, '')) == false) {
+												$scope.errorMsg += "First newborn's Systolic blood pressure can be up to a 3-digit positive number.\n"
+											}
+											// Check diatolic
+											if (/^[0-9]{1,3}$/.test(String(
+													$scope.edit.diastolic).replace(
+													/^0+/, '')) == false) {
+												$scope.errorMsg += "First newborn's Diastolic blood pressure can be up to a 3-digit positive number.\n"
+											}	
+										} else {
 											$scope.edit.firstname = "";
 											$scope.edit.lastname = "";
 											$scope.edit.weight = 0;
@@ -178,6 +244,36 @@
 											$scope.edit.systolic = 0;
 											$scope.edit.diastolic = 0;
 											
+										}
+										
+										
+										if(!($scope.edit.deliverymethodTwin == 'Miscarriage')) {
+											if ($scope.edit.firstnameTwin == '' || !$scope.edit.firstnameTwin) {
+												$scope.errorMsg += "Second Newborn's first name cannot be empty.\n";
+											}
+
+											// Check weight
+											if (/^[0-9]{1,4}(\.[0-9]?)?$/.test(String($scope.edit.weightTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's Weight can be up to a 4-digit positive number and potentially one digit of decimal precision.\n"
+											}
+											// Check height
+											if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.lengthTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision.\n"
+											}
+											// Check heartRate
+											if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.heartRateTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's heart Rate can be up to a 3-digit positive number and potentially one digit of decimal precision.\n"
+											}
+											
+											// Check systolic
+											if (/^[0-9]{1,3}$/.test(String($scope.edit.systolicTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's Systolic blood pressure can be up to a 3-digit positive number.\n"
+											}
+											// Check diatolic
+											if (/^[0-9]{1,3}$/.test(String($scope.edit.diastolicTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's Diastolic blood pressure can be up to a 3-digit positive number.\n"
+											}
+										} else {
 											$scope.edit.firstnameTwin = "";
 											$scope.edit.lastnameTwin = "";
 											$scope.edit.weightTwin = 0;
@@ -185,89 +281,34 @@
 											$scope.edit.heartRateTwin = 0;
 											$scope.edit.systolicTwin = 0;
 											$scope.edit.diastolicTwin = 0;
-											
-											$http .put(
-														"/iTrust2/api/v1/LaborDelivery/" + $scope.edit.id,
-														$scope.edit)
-												.then(
-														function success(
-																response) {
+										}
+										
+										
+										// Post the record to the REST API endpoint, and handle success/error
+										if($scope.errorMsg == "") {
+												$http
+													.put(
+															"/iTrust2/api/v1/LaborDelivery/" +$scope.edit.id,
+															$scope.edit)
+													.then(
+															function success(
+																	response) {
+																	$scope.message = "Labor and delivery report has been updated successfully";
+																	$scope.errorMsg = "";
+																	document.location.href = '/iTrust2/hcp/editLaborDeliveryReport.html';
 
-																$scope.message = "Labor and delivery report has been update successfully."
-																$scope.errorMsg = "";
-																document.location.href = '/iTrust2/hcp/editLaborDeliveryReport.html';
-															
-														},
-														function failure(
-																rejection) {
-															$scope
-																	.failUpdate();
-														});
-										}	
-									} else {
-											// Check first name 
-											if (!$scope.edit.firstname) {
-												$scope.errorMsg += "First newborn's first name cannot be empty.\n";
-											}
-											// Check weight
-											if (/^[0-9]{1,4}(\.[0-9]?)?$/
-													.test(String($scope.edit.weight)
-															.replace(/^0+/, '')) == false) {
-												$scope.errorMsg += "First newborn's Weight can be up to a 4-digit positive number and potentially one digit of decimal precision\n"
-											}
-											// Check height
-											if (/^[0-9]{1,3}(\.[0-9]?)?$/
-													.test(String($scope.edit.length)
-															.replace(/^0+/, '')) == false) {
-												$scope.errorMsg += "First newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision\n"
-											}
-											
-											// Check heartRate
-											if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.heartRate).replace(/^0+/, '')) == false || $scope.edit.heartRate < 0) {
-												$scope.errorMsg += "First Newborn's heart Rate can be up to a 3-digit positive number and potentially one digit of decimal precision\n"
-											}
-											
-											// Check systolic
-											if (/^[0-9]{1,3}$/.test(String(
-													$scope.edit.systolic).replace(
-													/^0+/, '')) == false) {
-												$scope.errorMsg += "First newborn's Systolic blood pressure can be up to a 3-digit positive number\n"
-											}
-											// Check diatolic
-											if (/^[0-9]{1,3}$/.test(String(
-													$scope.edit.diastolic).replace(
-													/^0+/, '')) == false) {
-												$scope.errorMsg += "First newborn's Diastolic blood pressure can be up to a 3-digit positive number\n"
-											}
-											
-											// If user has decided to add another twins
-											if ($scope.edit.firstnameTwin) {
-												if ($scope.edit.firstnameTwin == '') {
-													$scope.errorMsg += "Second Newborn's first name cannot be empty.\n";
-												}
-
-												// Check weight
-												if (/^[0-9]{1,4}(\.[0-9]?)?$/.test(String($scope.edit.weightTwin).replace(/^0+/, '')) == false) {
-													$scope.errorMsg += "Second Newborn's Weight can be up to a 4-digit positive number and potentially one digit of decimal precision\n"
-												}
-												// Check height
-												if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.lengthTwin).replace(/^0+/, '')) == false) {
-													$scope.errorMsg += "Second Newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision\n"
-												}
-												// Check heartRate
-												if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.heartRateTwin).replace(/^0+/, '')) == false) {
-													$scope.errorMsg += "Second Newborn's heart Rate can be up to a 3-digit positive number and potentially one digit of decimal precision\n"
-												}
+															},
+															function failure(
+																	rejection) {
+																$scope
+																		.failUpdate();
+															});
+										}
+										
+										
+									} else if ($scope.edit.deliverymethod && !$scope.edit.deliverymethodTwin) {
 												
-												// Check systolic
-												if (/^[0-9]{1,3}$/.test(String($scope.edit.systolicTwin).replace(/^0+/, '')) == false) {
-													$scope.errorMsg += "Second Newborn's Systolic blood pressure can be up to a 3-digit positive number\n"
-												}
-												// Check diatolic
-												if (/^[0-9]{1,3}$/.test(String($scope.edit.diastolicTwin).replace(/^0+/, '')) == false) {
-													$scope.errorMsg += "Second Newborn's Diastolic blood pressure can be up to a 3-digit positive number\n"
-												}
-											} else {
+											// If the twin record is actually undefined then set all to empty or 0
 												$scope.edit.firstnameTwin = "";
 												$scope.edit.lastnameTwin = "";
 												$scope.edit.weightTwin = 0;
@@ -275,51 +316,181 @@
 												$scope.edit.heartRateTwin = 0;
 												$scope.edit.systolicTwin = 0;
 												$scope.edit.diastolicTwin = 0;
+											
+											if(!($scope.edit.deliverymethod == 'Miscarriage')) {
+													if (!$scope.edit.firstname || $scope.edit.firstname == '') {
+														$scope.errorMsg += "First newborn's first name cannot be empty.\n";
+													}
+													// Check weight
+													if (/^[0-9]{1,4}(\.[0-9]?)?$/
+															.test(String($scope.edit.weight)
+																	.replace(/^0+/, '')) == false) {
+														$scope.errorMsg += "First newborn's Weight can be up to a 4-digit positive number and potentially one digit of decimal precision.\n"
+													}
+													// Check height
+													if (/^[0-9]{1,3}(\.[0-9]?)?$/
+															.test(String($scope.edit.length)
+																	.replace(/^0+/, '')) == false) {
+														$scope.errorMsg += "First newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision.\n"
+													}
+													
+													// Check heartRate
+													if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.heartRate).replace(/^0+/, '')) == false) {
+														$scope.errorMsg += "First Newborn's heart Rate can be up to a 3-digit positive number and potentially one digit of decimal precision.\n"
+													}
+													
+													// Check systolic
+													if (/^[0-9]{1,3}$/.test(String(
+															$scope.edit.systolic).replace(
+															/^0+/, '')) == false) {
+														$scope.errorMsg += "First newborn's Systolic blood pressure can be up to a 3-digit positive number.\n"
+													}
+													// Check diatolic
+													if (/^[0-9]{1,3}$/.test(String(
+															$scope.edit.diastolic).replace(
+															/^0+/, '')) == false) {
+														$scope.errorMsg += "First newborn's Diastolic blood pressure can be up to a 3-digit positive number.\n"
+													}	
+											} else {
+												
+												$scope.edit.firstname = "";
+												$scope.edit.lastname = "";
+												$scope.edit.weight = 0;
+												$scope.edit.length = 0;
+												$scope.edit.heartRate = 0;
+												$scope.edit.systolic = 0;
+												$scope.edit.diastolic = 0;
+													
 											}
-										} // / end of delivery else
+											// Post the record to the REST API endpoint, and handle success/error
+											if($scope.errorMsg == "") {
+													$http
+														.put(
+																"/iTrust2/api/v1/LaborDelivery/" +$scope.edit.id,
+																$scope.edit)
+														.then(
+																function success(
+																		response) {
+																		$scope.message = "Labor and delivery report has been updated successfully";
+																		$scope.errorMsg = "";
+																		document.location.href = '/iTrust2/hcp/editLaborDeliveryReport.html';
+
+																},
+																function failure(
+																		rejection) {
+																	$scope
+																			.failUpdate();
+																});
+											}
+											
+											
+											
+									}
+									
+									else if (!$scope.edit.deliverymethod && $scope.edit.deliverymethodTwin) {
+										
+										// If the twin record is actually undefined then set all to empty or 0
+										
+											$scope.edit.firstname = "";
+											$scope.edit.lastname = "";
+											$scope.edit.weight = 0;
+											$scope.edit.length = 0;
+											$scope.edit.heartRate = 0;
+											$scope.edit.systolic = 0;
+											$scope.edit.diastolic = 0;
+											
+										
+										if(!($scope.edit.deliverymethodTwin == 'Miscarriage')) {
+											if ($scope.edit.firstnameTwin == '' || !$scope.edit.firstnameTwin) {
+												$scope.errorMsg += "Second Newborn's first name cannot be empty.\n";
+											}
+
+											// Check weight
+											if (/^[0-9]{1,4}(\.[0-9]?)?$/.test(String($scope.edit.weightTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's Weight can be up to a 4-digit positive number and potentially one digit of decimal precision.\n"
+											}
+											// Check height
+											if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.lengthTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision.\n"
+											}
+											// Check heartRate
+											if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.heartRateTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's heart Rate can be up to a 3-digit positive number and potentially one digit of decimal precision.\n"
+											}
+											
+											// Check systolic
+											if (/^[0-9]{1,3}$/.test(String($scope.edit.systolicTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's Systolic blood pressure can be up to a 3-digit positive number.\n"
+											}
+											// Check diatolic
+											if (/^[0-9]{1,3}$/.test(String($scope.edit.diastolicTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's Diastolic blood pressure can be up to a 3-digit positive number.\n"
+											}
+										} else {
+											
+											$scope.edit.firstnameTwin = "";
+											$scope.edit.lastnameTwin = "";
+											$scope.edit.weightTwin = 0;
+											$scope.edit.lengthTwin = 0;
+											$scope.edit.heartRateTwin = 0;
+											$scope.edit.systolicTwin = 0;
+											$scope.edit.diastolicTwin = 0;
+												
+										}
+										// Post the record to the REST API endpoint, and handle success/error
+										if($scope.errorMsg == "") {
+												$http
+													.put(
+															"/iTrust2/api/v1/LaborDelivery/" +$scope.edit.id,
+															$scope.edit)
+													.then(
+															function success(
+																	response) {
+																	$scope.message = "Labor and delivery report has been updated successfully";
+																	$scope.errorMsg = "";
+																	document.location.href = '/iTrust2/hcp/editLaborDeliveryReport.html';
+
+															},
+															function failure(
+																	rejection) {
+																$scope
+																		.failUpdate();
+															});
+										}
+									
+								} else if (!$scope.edit.deliverymethod && !$scope.edit.deliverymethodTwin) {
 										
 										// Post the record to the REST API endpoint, and handle success/error
 										if($scope.errorMsg == "") {
-											$http
-												.put(
-														"/iTrust2/api/v1/LaborDelivery/" +$scope.edit.id,
-														$scope.edit)
-												.then(
-														function success(
-																response) {
-																$scope.message = "Labor and delivery report has been updated successfully";
-																$scope.errorMsg = "";
-																document.location.href = '/iTrust2/hcp/editLaborDeliveryReport.html';
+												$http
+													.put(
+															"/iTrust2/api/v1/LaborDelivery/" +$scope.edit.id,
+															$scope.edit)
+													.then(
+															function success(
+																	response) {
+																	$scope.message = "Labor and delivery report has been updated successfully";
+																	$scope.errorMsg = "";
+																	document.location.href = '/iTrust2/hcp/editLaborDeliveryReport.html';
 
-														},
-														function failure(
-																rejection) {
-															$scope
-																	.failUpdate();
-														});
+															},
+															function failure(
+																	rejection) {
+																$scope
+																		.failUpdate();
+															});
 										}
+										
+										
+										
 								}
-
-							});
+										
+									
+								
+							}// end of function	
+					});
 			/*]]>*/
 		</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -350,7 +521,7 @@
 		<div style="float: left; width: 100%; border-left: 1px solid #bbb; padding-left: 3%; height: 75%; overflow-y: auto">
 			<div class="panel panel-primary">		
 				<div class="panel-heading">
-					<h3>Labor and Delivery Report</h3> {{selectedPatient.patient}}
+					<h3>Labor and Delivery Report</h3>
 				</div>				
 				<div ng-if="!selectedPatient">
 					<br><br>
@@ -359,7 +530,7 @@
 				</div>				
 		
 				<div ng-if="selectedPatient && edit">
-					<div class="col-md-4">
+					<div class="col-md-4" ng-if="!errorMsg">
 						<div class="panel panel-info">
 
 							<div class="panel-heading">
@@ -411,7 +582,26 @@
 											</div>
 									</div>
 													
-									<div class="form-group row">
+								
+									
+									
+								</div>
+							</div>
+							</div>
+							
+
+							<!-- Single Infant's Ineditation Panel -->
+							<div class="col-md-4" ng-if="!errorMsg">
+								<div class="panel panel-info">
+
+									<div class="panel-heading">
+										<h4>First NewBorn's Information</h4>
+									</div>
+									<div class="panel-body">
+									
+									
+									
+										<div class="form-group row">
 											<div class="col-xs-6">
 												<label>Delivery Method:</label>
 											</div>
@@ -421,23 +611,8 @@
 													<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
 												</select>
 											</div>
-									</div>
-									
-									
-								</div>
-							</div>
-							</div>
-							
-
-							<!-- Single Infant's Ineditation Panel -->
-							<div class="col-md-4">
-								<div class="panel panel-info">
-
-									<div class="panel-heading">
-										<h4>First NewBorn's Information</h4>
-									</div>
-									<div class="panel-body">
-
+										</div>
+										
 
 										<div class="form-group row">
 											<div class="col-xs-6">
@@ -509,6 +684,11 @@
 													ng-model="edit.diastolic" required="true" type="text">
 											</div>
 										</div>
+										
+										<div class="text-right">
+											<button type="submit" class="btn btn-primary btn-lg"
+											ng-click=resetLD() name="resetLD" id="resetLD">Clear</button>
+										</div>
 
 
 									</div>
@@ -516,12 +696,26 @@
 							</div>
 
 							<!-- Twin Ineditation Panel -->
-							<div class="col-md-4">
+							<div class="col-md-4" ng-if="!errorMsg">
 								<div class="panel panel-info">
 										<div class="panel-heading">
 											<h4>Second Newborn's Information</h4>
 										</div>
 									<div class="panel-body">
+									
+									
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Delivery Method:</label>
+											</div>
+											<div class="col-xs-6">
+												<select class="form-control" ng-model="edit.deliverymethodTwin" id="editdeliverymethod"
+													name="editdeliveryMethod">
+													<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
+												</select>
+											</div>
+										</div>
+										
 
 										<div class="form-group row">
 											<div class="col-xs-6">
@@ -593,30 +787,62 @@
 													ng-model="edit.diastolicTwin" required="true" type="text">
 											</div>
 										</div>
+										
+										
+										<div class="text-right">
+											<button type="submit" class="btn btn-primary btn-lg"
+											ng-click=resetLDTwin() name="resetLDTwin" id="resetLDTwin">Clear</button>
+										</div>
+										
+										
+										
+										
 
 									</div>
 								</div>
 							</div>
+							
+							
+							
+							
+							<div class="col-md-10" ng-if="errorMsg">
+								<div class="panel panel-info">
 
-				
-				
+									<div class="panel-heading">
+										<h4>Message</h4>
+									</div>
+									
+									<div class="panel-body">
+										
+										<div class="form-group">
+											<div name="errorMsg" class="text-danger" style="white-space: pre;">{{errorMsg}}</div>
+											<div class="text-center">
+												<button type="submit" class="btn btn-primary btn-lg"
+												ng-click=backLD() name="backLD" id="backLD">Back</button>
+											</div>
+										</div>	
+
+									</div>
+								</div>
+							</div>
+					
+					
 					
 					
 				</div>
 				<!--  end of form -->
+					
+				
 				</div>
 				
 					<div class="panel-footer text-right"
-						ng-if="selectedPatient && edit">
+						ng-if="selectedPatient && edit && !errorMsg">
 						<button type="submit" class="btn btn-primary btn-lg"
 							ng-click=updateLD() name="updateLD" id="updateLD">Update
 							Labor and Delivery Report</button>
 					</div>
 
-					<div class="form-group">
-							<div name="success" class="text-success" style="white-space: pre;">{{message}}</div>
-							<div name="errorMsg" class="text-danger" style="white-space: pre;">{{errorMsg}}</div>
-					</div>	
+						
 					
 					
 				</div>
