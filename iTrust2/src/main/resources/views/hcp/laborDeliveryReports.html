@@ -99,7 +99,6 @@
 									
 									var size = $scope.laborAndDeliveryReport.length;
 									// Labor date
-									//**12 is being printed as 00
 									for( var i = 0; i < size; i++) {
 									
 										var lbdate = new Date(response.data[i].laborDate);
@@ -126,8 +125,7 @@
 										if ( hours == 0) {
 											hours = '12';
 											minutes = minutes + ' ' + 'AM';
-										}
-										if( hours < 10) {
+										} else if( hours < 10) {
 											hours = '0' + hours;
 											minutes = minutes + ' ' + 'AM';
 										} else if ( hours > 12 ) {
@@ -172,7 +170,10 @@
 										
 										hours = dldate.getHours();
 										
-										if( hours < 10) {
+										if ( hours == 0) {
+											hours = '12';
+											minutes = minutes + ' ' + 'AM';
+										} else if( hours < 10) {
 											hours = '0' + hours;
 											minutes = minutes + ' ' + 'AM';
 										} else if ( hours > 12 ) {
@@ -191,9 +192,7 @@
 										var dltime = hours + ':' + minutes;
 										
 										$scope.laborAndDeliveryReport[i].newDdate = finaldldate;
-										$scope.laborAndDeliveryReport[i].newDtime = dltime;
-									
-								
+										$scope.laborAndDeliveryReport[i].newDtime = dltime;								
 									
 										// To not display those 0 values
 										var type = response.data[i].deliverymethod;
@@ -210,23 +209,7 @@
 											$scope.laborAndDeliveryReport[i].systolicTwin = "";
 											$scope.laborAndDeliveryReport[i].diastolicTwin = "";
 										}
-									}
-									
-									var text;
-									// check for twins
-									if (response.data[0] != null) {
-										text = response.data[0].lastnameTwin; //shouldn't be null if a twin exists									
-									} else {
-										text = '';
-									}
-									
-									console.log("Last name") //**maybe check first name, since last name is allowed to be null?
-									console.log(text);
-									
-									// if text not equal to empty
-									$scope.notwins = (text == '');
-									console.log($scope.notwins);
-																	
+									}																
 									$scope.message = "";
 								}, //if it failed
 								function(rejection) {
@@ -326,9 +309,7 @@
 							$scope.errorMsg += "A delivery method must be selected.\n";
 						} else if ($scope.form.deliverymethod == 'Miscarriage') {
 							if($scope.errorMsg == "") {
-								$http .post(
-											"/iTrust2/api/v1/LaborDelivery/",
-											$scope.form)
+								$http .post("/iTrust2/api/v1/LaborDelivery/", $scope.form)
 									.then(
 											function success(response) {
 												$scope.message = "Labor and delivery report has been added successfully."
@@ -401,13 +382,10 @@
 										$scope.errorMsg += "A delivery method must be selected.\n";
 									} else if ($scope.form.deliverymethod == 'Miscarriage') {
 										if($scope.errorMsg == "") {
-											$http .post(
-														"/iTrust2/api/v1/LaborDelivery/",
-														$scope.form)
+											$http .post("/iTrust2/api/v1/LaborDelivery/", $scope.form)
 												.then(
 														function success(
 																response) {
-
 																$scope.message = "Labor and delivery report has been added successfully."
 																$scope.errorMsg = "";
 																$http.delete("/iTrust2/api/v1/obstetricsrecord/"+ $scope.form.patient)
@@ -415,15 +393,11 @@
 										                        	console.log("remove sucess")
 										                        	deferred.resolve(response.data);
 										                        });
-																
-																
 																document.location.href = '/iTrust2/hcp/laborDeliveryReports.html';
-															
 														},
 														function failure(
 																rejection) {
-															$scope
-																	.failAddldReport();
+															$scope.failAddldReport();
 														});
 										}	
 									} else {
@@ -485,20 +459,12 @@
 										
 										// Post the record to the REST API endpoint, and handle success/error
 										if($scope.errorMsg == "") {
-											$http
-												.post(
-														"/iTrust2/api/v1/LaborDelivery/",
-														$scope.form)
+											$http.post("/iTrust2/api/v1/LaborDelivery/", $scope.form)
 												.then(
 														function success(
 																response) {
 																$scope.message = "Labor and delivery report has been added successfully";
 																$scope.errorMsg = "";
-																$http.delete("/iTrust2/api/v1/obstetricsrecord/"+ $scope.form.patient)
-										                        .then(function (response) {
-										                        	console.log("remove sucess")
-										                        	deferred.resolve(response.data);
-										                        });
 																document.location.href = '/iTrust2/hcp/laborDeliveryReports.html';
 
 														},
@@ -507,10 +473,17 @@
 															$scope
 																	.failAddldReport();
 														});
+											$http.delete("/iTrust2/api/v1/obstetricsrecord/"+ $scope.form.patient)
+					                        .then(
+												function success(response) {
+													console.log("remove sucess");
+						                        	deferred.resolve(response.data);
+												},
+												function failure(rejection) {
+													console.log("Failed to delete pregnancy");
+												});
 										}
 									}// end of delivery else
-
-
 								}
 
 								//$scope.deliveryString = document.getElementById("deliveryMethod");
@@ -541,17 +514,13 @@
 													$scope.message = "Labor and delivery report has been added successfully";
 													$scope.errorMsg = "";
 													document.location.href = '/iTrust2/hcp/laborDeliveryReports.html';
-		
 											},
 											function failure(
 													rejection) {
-												$scope
-														.failAddldReport();
+												$scope.failAddldReport();
 											});
 							}
 						}// end of delivery else
-		
-		
 					}
 		
 					//$scope.deliveryString = document.getElementById("deliveryMethod");
@@ -574,7 +543,6 @@
 							$scope.showTwinForm = false;
 						}
 					}
-		
 				});
 			/*]]>*/
 		</script>
@@ -613,8 +581,7 @@
 					<br><br>
 						Please select a patient for which to view labor and delivery report.
 					</br></br>
-				</div>				
-			
+				</div>
 			
 				<div
 					ng-if="selectedPatient && currentPregnancy.length > 0 && !displayCreateLD">
@@ -624,16 +591,13 @@
 					Weeks Pregnant: {{currentPregnancy[0].numWeeksPregnant}}
 				</div>
 
-
 				<div class="form-group"
 					ng-if="selectedPatient && currentPregnancy.length > 0 && !displayCreateLD">
 					<button type="submit" class="btn btn-primary"
 						ng-click=displayCreateForm() name="displayCreateForm"
 						id=displayCreateForm>Create Labor and Delivery Report</button>
 				</div>
-			
-			
-							
+
 				<div ng-if= "selectedPatient && laborAndDeliveryReport.length == 0 && !displayCreateLD" >
 					<br>There is no current labor and delivery report for this patient.
 				</div>
@@ -643,7 +607,7 @@
 				<table class="table table-bordered" ng-if="!displayCreateLD && selectedPatient && laborAndDeliveryReport.length > 0">
 					<thead>
 						<tr>
-							<th>Labor Date This One!</th>
+							<th>Labor Date</th>
 							<th>Labor Time</th>
 							<th>Delivery Date</th>
 							<th>Delivery Time</th>
@@ -659,47 +623,39 @@
 					</thead>
 						<tbody>
 							<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
-								<td id="laborDate-{{$index}}">AB {{laborNdelivery.newLdate}}</td>
+								<td id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
 								<td id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
 								<td id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
 								<td id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
 								<td id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
 								
-								<td id="firstname-{{$index}}">AC {{laborNdelivery.firstname}}</td>
+								<td id="firstname-{{$index}}">{{laborNdelivery.firstname}}</td>
 								<td id="lastname-{{$index}}">{{laborNdelivery.lastname}}</td>
 								<td id="weight-{{$index}}">{{laborNdelivery.weight}}</td>
 								<td id="length-{{$index}}">{{laborNdelivery.length}}</td>
 								<td id="heartRate-{{$index}}">{{laborNdelivery.heartRate}}</td>
 								<td id="systolic-{{$index}}">{{laborNdelivery.systolic}}</td>
 								<td id="diastolic-{{$index}}">{{laborNdelivery.diastolic}}</td>
-								<tr><!-- ng-if="laborNdelivery.firstnameTwin"  -->
-								<td id="firstnameTwin-{{$index}}">{{laborNdelivery.firstnameTwin}}</td>
-								<td id="lastnameTwin-{{$index}}">{{laborNdelivery.lastnameTwin}}</td>
-								<td id="weightTwin-{{$index}}">{{laborNdelivery.weightTwin}}</td>
-								<td id="lengthTwin-{{$index}}">{{laborNdelivery.lengthTwin}}</td>
-								<td id="heartRateTwin-{{$index}}">{{laborNdelivery.heartRateTwin}}</td>
-								<td id="systolicTwin-{{$index}}">{{laborNdelivery.systolicTwin}}</td>
-								<td id="diastolicTwin-{{$index}}">{{laborNdelivery.diastolicTwin}}</td>
 							</tr>
 						</tbody>
 					
-						<!-- <tbody>
+						<tbody>
 							<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
-								<td ng-if="laborNdelivery.firstnameTwin != ''" id="laborDate-{{$index}}"> B {{laborNdelivery.newLdate}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin != ''" id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin != ''" id="deliveryDate-{{$index}}">{{laborNdelivey.newDdate}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin != ''" id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin != ''" id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
 								
-								<td ng-if="laborNdelivery.firstnameTwin != ''" id="firstnameTwin-{{$index}}">BC {{laborNdelivery.firstnameTwin}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin != ''" id="lastnameTwin-{{$index}}">{{laborNdelivery.lastnameTwin}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin != ''" id="weightTwin-{{$index}}">{{laborNdelivery.weightTwin}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin != ''" id="lengthTwin-{{$index}}">{{laborNdelivery.lengthTwin}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin != ''" id="heartRateTwin-{{$index}}">{{laborNdelivery.heartRateTwin}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin != ''" id="systolicTwin-{{$index}}">{{laborNdelivery.systolicTwin}}</td>
-								<td ng-if="laborNdelivery.firstnameTwin != ''" id="diastolicTwin-{{$index}}">{{laborNdelivery.diastolicTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="firstnameTwin-{{$index}}">{{laborNdelivery.firstnameTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="lastnameTwin-{{$index}}">{{laborNdelivery.lastnameTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="weightTwin-{{$index}}">{{laborNdelivery.weightTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="lengthTwin-{{$index}}">{{laborNdelivery.lengthTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="heartRateTwin-{{$index}}">{{laborNdelivery.heartRateTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="systolicTwin-{{$index}}">{{laborNdelivery.systolicTwin}}</td>
+								<td ng-if="laborNdelivery.firstnameTwin.length > 0" id="diastolicTwin-{{$index}}">{{laborNdelivery.diastolicTwin}}</td>
 							</tr>
-						</tbody>-->
+						</tbody>
 				</table>
 			</div>
 		</div>
