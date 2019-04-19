@@ -128,16 +128,19 @@ public class ObstetricsRecordStepDefs extends CucumberTest {
     @Then ( "^HCPOBGYN creates a new Obstetrics Records with selected date: (.+) (.+) (.+)$" )
     public void initializeObPatient ( final String date, final String first, final String last )
             throws InterruptedException {
+        Thread.sleep( 3000 );
         waitForAngular();
         final String username = first + last;
+        Thread.sleep( 3000 );
         driver.findElement( By.cssSelector( "input[type=radio][id=" + username + "]" ) ).click();
         waitForAngular();
+        Thread.sleep( 3000 );
         final WebElement dateElement = driver.findElement( By.name( "date" ) );
         dateElement.sendKeys( date.replace( "/", "" ) );
+        Thread.sleep( 3000 );
         driver.findElement( By.id( "submitOb" ) ).click();
         Thread.sleep( 3000 );
         waitForAngular();
-
     }
 
     /**
