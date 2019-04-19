@@ -44,8 +44,8 @@
 		
 					$scope.deliveryMethods = [ 'Vaginal Delivery',
 							'Caesarean Section', 'Miscarriage' ];
-					$scope.deliveryMethods2 = [ 'Vaginal Delivery ',
-						'Caesarean Section ', 'Miscarriage1' ];
+					$scope.deliveryMethods2 = [ 'Vaginal Delivery*',
+						'Caesarean Section*', 'Miscarriage*' ];
 					$scope.twinOptions = [ 'Yes', 'No' ];
 		
 					// documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
@@ -675,7 +675,7 @@
 										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
 											id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
 										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
-											id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethod}}</td>
+											id="deliverymethodTwin-{{$index}}">{{laborNdelivery.deliverymethodTwin}}</td>
 
 										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
 											id="firstnameTwin-{{$index}}">{{laborNdelivery.firstnameTwin}}</td>

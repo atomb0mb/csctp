@@ -88,6 +88,9 @@
 
 								$scope.deliveryMethods = [ 'Vaginal Delivery',
 										'Caesarean Section', 'Miscarriage' ];
+								
+								$scope.deliveryMethodsTwin = [ 'Vaginal Delivery*',
+									'Caesarean Section*', 'Miscarriage*' ];
 
 								// documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
 								$scope.searchFilter = "";
@@ -508,7 +511,7 @@
 				
 					<div class="radio"
 						ng-repeat="patient in patients | filter:filterPatients">
-						<label> <input type="radio" id="{{patient}}"
+						<label> <input type="radio" id="{{patient.patient}}"
 							ng-model="$parent.selectedPatient" name="patient"
 							value="{{patient.id}}"
 							ng-click='$parent.selectPatient(patient)' />
@@ -544,7 +547,7 @@
 										</div>
 											<div class="col-xs-6">
 												<input class="form-control" id="ldate" type="date"
-													ng-model="edit.laborDate" name="editlabordate"
+													ng-model="edit.laborDate" name="ldate"
 													required="true" />
 											</div>
 									</div>
@@ -555,7 +558,7 @@
 										</div>
 											<div class="col-xs-6">
 												<input class="form-control" id="ltime" type="time"
-													ng-model="edit.laborDate" name="editlabortime"
+													ng-model="edit.laborDate" name="ltime"
 													required="true" />
 											</div>
 									</div>
@@ -566,7 +569,7 @@
 										</div>
 											<div class="col-xs-6">
 												<input class="form-control" id="ddate" type="date"
-													ng-model="edit.deliveryDate" name="editdeliverydate"
+													ng-model="edit.deliveryDate" name="ddate"
 													required="true" />
 											</div>
 									</div>
@@ -577,7 +580,7 @@
 										</div>
 											<div class="col-xs-6">
 												<input class="form-control" id="dtime" type="time"
-													ng-model="edit.deliveryDate" name="editdeliverytime"
+													ng-model="edit.deliveryDate" name="dtime"
 													required="true" />
 											</div>
 									</div>
@@ -709,9 +712,9 @@
 												<label>Delivery Method:</label>
 											</div>
 											<div class="col-xs-6">
-												<select class="form-control" ng-model="edit.deliverymethodTwin" id="editdeliverymethod"
-													name="editdeliveryMethod">
-													<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
+												<select class="form-control" ng-model="edit.deliverymethodTwin" id="editdeliverymethodTwin"
+													name="editdeliveryMethodTwin">
+													<option ng-repeat="deliveryMethodt in deliveryMethodsTwin">{{deliveryMethodt}}</option>
 												</select>
 											</div>
 										</div>
