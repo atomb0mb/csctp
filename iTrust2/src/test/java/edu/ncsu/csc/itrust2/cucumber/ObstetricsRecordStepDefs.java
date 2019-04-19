@@ -73,11 +73,28 @@ public class ObstetricsRecordStepDefs extends CucumberTest {
 
     /**
      * Test when HCPOBGYN navigates to the view Obstetrics Records
+     *
+     * @throws InterruptedException
+     *             when waiting
      */
     @Then ( "^HCPOBGYN navigates to the view Obstetrics Records.$" )
-    public void navigateToView () {
-        waitForAngular();
+    public void navigateToView () throws InterruptedException {
         ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('HCPObstetricsRecords').click();" );
+
+        assertEquals( "iTrust2: View Patient Obstetrics Records", driver.getTitle() );
+
+    }
+
+    /**
+     * Test when HCP navigates to the view Obstetrics Records
+     *
+     * @throws InterruptedException
+     *             when waiting
+     */
+    @Then ( "^the HCP views the restricted records.$" )
+    public void navigateToHCPView () throws InterruptedException {
+        ( (JavascriptExecutor) driver )
+                .executeScript( "document.getElementById('HCPObstetricsRecordsRestricted').click();" );
 
         assertEquals( "iTrust2: View Patient Obstetrics Records", driver.getTitle() );
 

@@ -83,6 +83,7 @@ public class APIDeliveryController extends APIController {
                 }
             }
             catch ( final Exception e ) {
+                System.out.println( e.getMessage() );
                 return new ResponseEntity( errorResponse( "Could not create users because of " + e.getMessage() ),
                         HttpStatus.BAD_REQUEST );
             }
@@ -150,8 +151,7 @@ public class APIDeliveryController extends APIController {
     public ResponseEntity editLaborDeliveryReport ( @PathVariable final Long id,
             @RequestBody final LaborDeliveryForm form ) {
         final LaborDeliveryReport report = LaborDeliveryReport.getById( id );
-
-        if ( report != null && report.getId() == id ) {
+        if ( report != null ) {
             report.updateValues( form );
             report.save();
             LoggerUtil.log( TransactionType.OBGYN_EDITS_LABOR_DELIVERY_REPORT, LoggerUtil.currentUser() );
@@ -171,5 +171,16 @@ public class APIDeliveryController extends APIController {
     @PreAuthorize ( "hasRole('ROLE_HCP') or hasRole('ROLE_OD') or hasRole('ROLE_OPH') or hasRole('ROLE_OBGYN')" )
     public List<LaborDeliveryReport> getLaborReports () {
         return LaborDeliveryReport.getAllReports();
+    }
+
+    /**
+     * Returns all the labor and delivery reports for a patient
+     *
+     * @return a list of labor and delivery reports
+     */
+    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
+    @GetMapping ( BASE_PATH + "/LaborDeliveryPatient" )
+    public ResponseEntity getEntriesPatient () {
+        return new ResponseEntity( LaborDeliveryReport.getByPatient( LoggerUtil.currentUser() ), HttpStatus.OK );
     }
 }
