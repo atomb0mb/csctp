@@ -72,8 +72,9 @@
                         $http.get("/iTrust2/api/v1/obstetricsrecord/" + $scope.selectedPatient)
                         	.then(
                             function (response) { // on success
-                            	$scope.currentPregnancy = response.data || {};
-                				$scope.lmpInputDate = today;
+                            	$scope.currentPregnancy = response.data;
+                            	console.log($scope.currentPregnancy);
+                				$scope.lmpInputDate = new Date();
                             	$scope.lmp = response.data.lastMenstrualPeriod;
                                 $scope.estDueDate = response.data.estDueDate;
                                 $scope.numWeeksPregnant = response.data.numWeeksPregnant;
@@ -243,16 +244,6 @@
 								ng-if="selectedPatient && currentPregnancy.length == 0">
 								<br>There is no current pregnancy recorded for this patient.
 							</div>
-							
-							<div
-								ng-if="selectedPatient && (!priorPregnancies || priorPregnancies.length == 0)">
-								There are no past pregnancies recorded for this patient.
-							</div>
-							
-							<div
-								ng-if="selectedPatient && (!priorPregnancies || priorPregnancies.length == 0) && !currentPregnancy[0].lastMenstrualPeriod">
-								To add a past pregnancy, initialize the patient in the system with the last menstrual period.
-							</div>
 						</div>
 
 					<div class="col-md-5" ng-if="selectedPatient && currentPregnancy.length == 0">
@@ -263,7 +254,7 @@
 								required="true" />
 						</div>
 						
-						<div class="form-group" ng-if="selectedPatient && currentPregnancy.length == 0">
+						<div class="form-group" ng-if="selectedPatient">
 							<button type="submit" class="btn btn-primary" ng-click=submitOb()
 								name="submitOb" id="submitOb">Create Pregnancy Record</button>
 						</div>
@@ -281,17 +272,12 @@
 								<br> Estimated Due Date:    {{currentPregnancy[0].estDueDate}}
 								<br> Weeks Pregnant:        {{currentPregnancy[0].numWeeksPregnant}}
 						</div>
-
-						<div>
-							Flaggy flags
-							
-							ng-if="priorPregnancies && priorPregnancies.length > 0">
-							
+						
+						<div ng-if="priorPregnancies && currentPregnancy.length == 0">
+							<br><br><br><br><br>
 						</div>
-
-						<div
-							ng-if="priorPregnancies && priorPregnancies.length > 0">
-							<br><b>Prior Pregnancies</b>
+						<div align="left" ng-if="priorPregnancies && priorPregnancies.length > 0">
+							<br><br><b>Prior Pregnancies</b>
 						</div>
 							
 						<table class="table table-bordered" ng-if="selectedPatient && priorPregnancies.length > 0">
@@ -318,9 +304,13 @@
 							</tbody>
 						</table>
 						
-						<div class="form-group" ng-if="selectedPatient && currentPregnancy[0].lastMenstrualPeriod">
+						<div align = "left" ng-if="selectedPatient && (!priorPregnancies || priorPregnancies.length == 0)">
+							<br><br><br>There are no past pregnancies recorded for this patient.
+						</div>
+						
+						<div class="form-group" ng-if="selectedPatient">
 								<button type="submit" class="btn btn-primary" ng-click=displayPregForm()
-								name="displayPregForm" id="displayPregForm">Toggle New Pregnancy Form</button>
+								name="displayPregForm" id="displayPregForm">Toggle Pregnancy Form</button>
 						</div>
 						
 						<div
