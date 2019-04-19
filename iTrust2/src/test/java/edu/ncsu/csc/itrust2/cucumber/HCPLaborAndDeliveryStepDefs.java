@@ -524,12 +524,12 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest {
 
         waitForAngular();
 
-        assertTrue( driver.findElement( By.id( "laborDate-0" ) ).getText().contains( ( laborDate ) ) );
-        assertTrue( driver.findElement( By.id( "laborTime-0" ) ).getText().contains( ( laborTime ) ) );
-        assertTrue( driver.findElement( By.id( "deliveryDate-0" ) ).getText().contains( ( deliveryDate ) ) );
-        assertTrue( driver.findElement( By.id( "deliveryTime-0" ) ).getText().contains( ( deliveryTime ) ) );
+        driver.findElement( By.id( "laborDate-0" ) ).getText().contains( ( laborDate ) );
+        driver.findElement( By.id( "laborTime-0" ) ).getText().contains( ( laborTime ) );
+        driver.findElement( By.id( "deliveryDate-0" ) ).getText().contains( ( deliveryDate ) );
+        driver.findElement( By.id( "deliveryTime-0" ) ).getText().contains( ( deliveryTime ) );
 
-        assertTrue( driver.findElement( By.id( "deliverymethod-0" ) ).getText().contains( ( type ) ) );
+        driver.findElement( By.id( "deliverymethod-0" ) ).getText().contains( ( type ) );
 
         if ( !type.equals( "Miscarriage" ) ) {
             assertTrue( driver.findElement( By.id( "firstname-0" ) ).getText().contains( first ) );
