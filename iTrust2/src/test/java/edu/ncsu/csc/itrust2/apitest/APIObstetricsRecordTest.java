@@ -413,6 +413,8 @@ public class APIObstetricsRecordTest {
 
         ObstetricsRecord orec = ObstetricsRecord.getByPatient( "patient" ).get( 0 );
 
+        orec.updateFlags();
+
         // Check values of flags that can be set using basic user info
         assertTrue( orec.hasAdvancedMaternalAge() );
         assertFalse( orec.isRHNegative() );
@@ -436,6 +438,8 @@ public class APIObstetricsRecordTest {
         obForm.setLowLyingPlacenta( false );
         obForm.setDiastolic( 92 );
         obForm.setSystolic( 105 );
+        obForm.setWeight( 175.2f );
+        obForm.setHeight( 69.1f );
 
         mvc.perform( post( "/api/v1/ObstetricsVisit" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( obForm ) ) ).andExpect( status().isOk() );
@@ -443,6 +447,8 @@ public class APIObstetricsRecordTest {
         assertTrue( !ObstetricsOfficeVisit.getForPatient( "patient" ).isEmpty() );
 
         orec = ObstetricsRecord.getByPatient( "patient" ).get( 0 );
+
+        orec.updateFlags();
 
         assertTrue( orec.hasHighBloodPressure() );
         assertTrue( orec.hasAbnormalFetalHeartRate() );

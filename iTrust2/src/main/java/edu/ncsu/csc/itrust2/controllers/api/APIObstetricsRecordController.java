@@ -130,7 +130,9 @@ public class APIObstetricsRecordController extends APIController {
         }
 
         // Before returning the obstetrics record, update the pregnancy flags
-        ObstetricsRecord.getByPatient( patient ).get( 0 ).updateFlags();
+        if ( ObstetricsRecord.getByPatient( patient ).size() > 0 ) {
+            ObstetricsRecord.getByPatient( patient ).get( 0 ).updateFlags();
+        }
         LoggerUtil.log( TransactionType.HCP_VIEW_OBS_RECORD, User.getByName( LoggerUtil.currentUser() ),
                 User.getByName( patient ) );
         return new ResponseEntity( ObstetricsRecord.getByPatient( patient ), HttpStatus.OK );
