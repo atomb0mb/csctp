@@ -31,6 +31,7 @@ import edu.ncsu.csc.itrust2.forms.admin.UserForm;
 import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsRecordForm;
 import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsVisitForm;
 import edu.ncsu.csc.itrust2.forms.hcp_patient.PatientForm;
+import edu.ncsu.csc.itrust2.forms.patient.AppointmentRequestForm;
 import edu.ncsu.csc.itrust2.models.enums.AppointmentType;
 import edu.ncsu.csc.itrust2.models.enums.BloodType;
 import edu.ncsu.csc.itrust2.models.enums.Ethnicity;
@@ -39,6 +40,7 @@ import edu.ncsu.csc.itrust2.models.enums.HouseholdSmokingStatus;
 import edu.ncsu.csc.itrust2.models.enums.PatientSmokingStatus;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.enums.State;
+import edu.ncsu.csc.itrust2.models.enums.Status;
 import edu.ncsu.csc.itrust2.models.persistent.BasicHealthMetrics;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.Hospital;
@@ -84,7 +86,7 @@ public class APIObstetricsControllerTest {
      * @throws Exception
      */
     @Test
-    @WithMockUser ( username = "OGBYN", roles = { "OBGYN" } )
+    @WithMockUser ( username = "OBGYN", roles = { "OBGYN" } )
     public void testGetNonExistentOBGYNOfficeVisit () throws Exception {
         mvc.perform( get( "/api/v1/ObstetricsVisit/-1" ) ).andExpect( status().isNotFound() );
     }
@@ -96,13 +98,60 @@ public class APIObstetricsControllerTest {
      * @throws Exception
      */
     @Test
-    @WithMockUser ( username = "OGBYN", roles = { "OBGYN" } )
+    @WithMockUser ( username = "OBGYN", roles = { "OBGYN" } )
     public void testDeleteNonExistentOBGYNOfficeVisit () throws Exception {
         mvc.perform( delete( "/api/v1/ObstetricsVisit/-1" ) ).andExpect( status().isNotFound() );
     }
 
     /**
-     * Tests Obstetric office visit
+     * Tests handling of errors when creating a visit for a pre-scheduled
+     * appointment.
+     *
+     * @throws Exception
+     */
+    @Test
+    @WithMockUser ( username = "OBGYN", roles = { "OBGYN", "PATIENT" } )
+    public void testPreScheduledObstetricsVisit () throws Exception {
+        final UserForm hcp = new UserForm( "hcp", "123456", Role.ROLE_HCP, 1 );
+        mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( hcp ) ) );
+
+        final UserForm patient = new UserForm( "patient", "123456", Role.ROLE_PATIENT, 1 );
+        mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( patient ) ) );
+
+        mvc.perform( delete( "/api/v1/appointmentrequests" ) );
+
+        final AppointmentRequestForm appointmentForm = new AppointmentRequestForm();
+        appointmentForm.setDate( "2030-11-19T04:50:00.000-05:00" ); // 2030-11-19
+                                                                    // 4:50 AM
+                                                                    // EST
+        appointmentForm.setType( AppointmentType.OBGYN_OFFICE_VISIT.toString() );
+        appointmentForm.setStatus( Status.APPROVED.toString() );
+        appointmentForm.setHcp( "hcp" );
+        appointmentForm.setPatient( "patient" );
+        appointmentForm.setComments( "Test appointment please ignore" );
+        mvc.perform( post( "/api/v1/appointmentrequests" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( appointmentForm ) ) ).andExpect( status().isOk() );
+
+        mvc.perform( delete( "/api/v1/officevisits" ) );
+        final ObstetricsVisitForm visit = new ObstetricsVisitForm();
+        visit.setPreScheduled( "yes" );
+        visit.setDate( "2030-11-19T04:50:00.000-05:00" ); // 11/19/2030 4:50 AM
+        visit.setHcp( "hcp" );
+        visit.setPatient( "patient" );
+        visit.setNotes( "Test office visit" );
+        visit.setType( AppointmentType.OBGYN_OFFICE_VISIT.toString() );
+        visit.setHospital( "iTrust Test Hospital 2" );
+
+        visit.setDate( "2031-12-20T04:50:00.000-05:00" ); // 12/20/2031 4:50 AM
+        mvc.perform( post( "/api/v1/ObstetricsVisit" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( visit ) ) ).andExpect( status().isBadRequest() );
+
+    }
+
+    /**
+     * Obstetric office visit
      *
      * @throws Exception
      */
