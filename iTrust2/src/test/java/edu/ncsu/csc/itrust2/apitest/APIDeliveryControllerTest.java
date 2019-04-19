@@ -66,13 +66,14 @@ public class APIDeliveryControllerTest {
     }
 
     /**
-     * Tests the api for retrieving a labor and delivery report
+     * Tests the api for a labor and delivery report
      *
      * @throws Exception
      */
     @Test
     @WithMockUser ( username = "OGBYN", roles = { "OBGYN" } )
-    public void testGettingLaborDeliveryReports () throws Exception {
+    public void testLaborDeliveryReports () throws Exception {
+        LaborDeliveryReport.deleteAll( LaborDeliveryReport.class );
         mvc.perform( get( "/api/v1/LaborDelivery/-1" ) ).andExpect( status().isNotFound() );
 
         /*
@@ -124,43 +125,12 @@ public class APIDeliveryControllerTest {
         mvc.perform( get( "/api/v1/LaborDelivery/patients/patient" ) ).andExpect( status().isOk() )
                 .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );
 
-        final List<LaborDeliveryReport> reports = LaborDeliveryReport.getAllReports();
+        List<LaborDeliveryReport> reports = LaborDeliveryReport.getAllReports();
 
         mvc.perform( get( "/api/v1/LaborDelivery/" + reports.get( 0 ).getId() ) ).andExpect( status().isOk() )
                 .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );
-    }
 
-    /**
-     * Tests editing a labor and delivery report
-     */
-    @Test
-    @WithMockUser ( username = "OGBYN", roles = { "OBGYN" } )
-    public void testEditingLaborAndDeliveryReport () throws Exception {
-        /*
-         * Create a HCP and a Patient to use. If they already exist, this will
-         * do nothing
-         */
-        final UserForm hcp = new UserForm( "hcp", "123456", Role.ROLE_HCP, 1 );
-        mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
-                .content( TestUtils.asJsonString( hcp ) ) );
-
-        final UserForm patient = new UserForm( "patient", "123456", Role.ROLE_PATIENT, 1 );
-        mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
-                .content( TestUtils.asJsonString( patient ) ) );
-
-        final LaborDeliveryForm form = new LaborDeliveryForm();
-        form.setDeliveryDate( "2048-04-16T09:50:00.000-04:00" );
-        form.setDeliverymethod( DeliveryMethod.CaesareanSection );
-        form.setLaborDate( "2048-04-16T09:50:00.000-04:00" );
-        form.setFirstname( "Henry" );
-
-        mvc.perform( post( "/api/v1/LaborDelivery" ).contentType( MediaType.APPLICATION_JSON )
-                .content( TestUtils.asJsonString( form ) ) ).andExpect( status().isOk() );
-
-        form.setDiastolic( 100 );
         form.setFirstname( "Joe" );
-
-        List<LaborDeliveryReport> reports = LaborDeliveryReport.getAllReports();
 
         mvc.perform( put( "/api/v1/LaborDelivery/" + reports.get( 0 ).getId() )
                 .contentType( MediaType.APPLICATION_JSON ).content( TestUtils.asJsonString( form ) ) )

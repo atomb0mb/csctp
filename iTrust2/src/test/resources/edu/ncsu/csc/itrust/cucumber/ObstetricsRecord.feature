@@ -38,11 +38,10 @@ Examples:
 	
 Scenario Outline: View Obstetrics Records as an HCP	
 	Given Logging in system as an HCPOBGYN or HCP or Patient user id <id> password <pw>
-	Then HCPOBGYN navigates to the view Obstetrics Records.
+	Then the HCP views the restricted records
 	
 Examples:
 	| id      | pw     |
-	| OGBYN   | 123456 |
 	| hcp     | 123456 |
 	
 Scenario Outline: View OB as Patient	

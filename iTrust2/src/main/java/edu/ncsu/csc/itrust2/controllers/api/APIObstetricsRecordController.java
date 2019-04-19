@@ -90,6 +90,9 @@ public class APIObstetricsRecordController extends APIController {
      * Retrieves the Obstetrics Record for a patient of the HCP currently logged
      * into iTrust2
      *
+     * @param patient
+     *            is the username of the patient
+     *
      * @return ResponseEntity with the ObstetricsRecord for the patient, or an
      *         error message if cannot be found
      */
@@ -127,6 +130,9 @@ public class APIObstetricsRecordController extends APIController {
     /**
      * Return list of past pregnancies for a patient regjstered to receive care
      * from this HCP
+     *
+     * @param patient
+     *            the username of the patient
      *
      * @return List of pregnancies for the patient
      */
