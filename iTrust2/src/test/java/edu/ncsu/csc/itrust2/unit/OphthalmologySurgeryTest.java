@@ -38,7 +38,7 @@ public class OphthalmologySurgeryTest {
 
         bhm.setDiastolic( 150 );
         bhm.setHcp( User.getByName( "bobbyOD" ) );
-        bhm.setPatient( User.getByName( "AliceThirteen" ) );
+        bhm.setPatient( User.getByName( "AliceSmith" ) );
         bhm.setHdl( 75 );
         bhm.setLdl( 75 );
         bhm.setHeight( 75f );
@@ -53,7 +53,7 @@ public class OphthalmologySurgeryTest {
         visit.setBasicHealthMetrics( bhm );
         visit.setType( AppointmentType.OPHTHALMOLOGY_SURGERY );
         visit.setHospital( hosp );
-        visit.setPatient( User.getByName( "AliceThirteen" ) );
+        visit.setPatient( User.getByName( "AliceSmith" ) );
         visit.setHcp( User.getByName( "bobbyOD" ) );
         visit.setDate( ZonedDateTime.now() );
         visit.save();
