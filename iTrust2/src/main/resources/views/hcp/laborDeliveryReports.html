@@ -341,9 +341,6 @@
 							if (!$scope.form.deliverymethodTwin) {
 								$scope.errorMsg += "A delivery method must be selected.\n";
 							} else if ($scope.form.deliverymethodTwin != 'Miscarriage*') {
-								//var len = $scope.form.deliverymethodTwin.length;
-								//$scope.form.deliverymethodTwin = $scope.form.deliverymethodTwin.substring(0, len - 1);
-								//console.log("Delivery method: " + $scope.form.deliverymethodTwin);
 								console.log("Delivery method twin: " + $scope.form.deliverymethodTwin);
 								//Check twin's name
 								if (!$scope.form.firstnameTwin) {
@@ -371,6 +368,7 @@
 								}
 							}
 						}
+						
 						// Post the record to the REST API endpoint, and handle success/error
 						$scope.submitForm();
 					}
@@ -386,6 +384,9 @@
 						//Clear any error messages
 						$scope.errorMsg = "";
 						$scope.showForm2 = !($scope.form.deliverymethodTwin == 'Miscarriage*');
+						var len = $scope.form.deliverymethodTwin.length;
+						$scope.form.deliverymethodTwin = $scope.form.deliverymethodTwin.substring(0, len - 1);
+						console.log("Delivery method: " + $scope.form.deliverymethodTwin);
 					}
 		
 					$scope.checkTwin = function() {
