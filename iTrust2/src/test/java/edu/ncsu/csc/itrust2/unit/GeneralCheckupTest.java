@@ -46,7 +46,7 @@ public class GeneralCheckupTest {
 
         bhm.setDiastolic( 150 );
         bhm.setHcp( User.getByName( "hcp" ) );
-        bhm.setPatient( User.getByName( "AliceThirteen" ) );
+        bhm.setPatient( User.getByName( "AliceSmith" ) );
         bhm.setHdl( 75 );
         bhm.setLdl( 75 );
         bhm.setHeight( 75f );
@@ -61,7 +61,7 @@ public class GeneralCheckupTest {
         visit.setBasicHealthMetrics( bhm );
         visit.setType( AppointmentType.GENERAL_CHECKUP );
         visit.setHospital( hosp );
-        visit.setPatient( User.getByName( "AliceThirteen" ) );
+        visit.setPatient( User.getByName( "AliceSmith" ) );
         visit.setHcp( User.getByName( "hcp" ) );
         visit.setDate( ZonedDateTime.now() );
         visit.save();
@@ -101,8 +101,8 @@ public class GeneralCheckupTest {
         pro.setLoinc( loinc );
         pro.setPriority( Priority.HIGH );
         pro.setStatus( LabStatus.ASSIGNED );
-        pro.setPatient( User.getByName( "AliceThirteen" ) );
-        pro.setAssignedTech( User.getByName( "AliceThirteen" ) );
+        pro.setPatient( User.getByName( "AliceSmith" ) );
+        pro.setAssignedTech( User.getByName( "AliceSmith" ) );
         pro.setComments( "Need to see if too cool to attend school :(" );
         pro.setVisit( visit );
 
@@ -124,7 +124,7 @@ public class GeneralCheckupTest {
         pres.setDrug( drug );
 
         pres.setEndDate( LocalDate.now().plusDays( 10 ) );
-        pres.setPatient( User.getByName( "AliceThirteen" ) );
+        pres.setPatient( User.getByName( "AliceSmith" ) );
         pres.setStartDate( LocalDate.now() );
         pres.setRenewals( 5 );
 
@@ -164,7 +164,7 @@ public class GeneralCheckupTest {
         visit.setPrescriptions( Collections.emptyList() );
 
         visit.save();
-        
+
         visit.delete();
     }
 

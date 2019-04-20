@@ -56,11 +56,11 @@
 									$scope.edit.deliverymethod = "";
 									$scope.edit.firstname = "";
 									$scope.edit.lastname = "";
-									$scope.edit.weight = 0;
-									$scope.edit.length = 0;
-									$scope.edit.heartRate = 0;
-									$scope.edit.systolic = 0;
-									$scope.edit.diastolic = 0;
+									$scope.edit.weight = "";
+									$scope.edit.length = "";
+									$scope.edit.heartRate = "";
+									$scope.edit.systolic = "";
+									$scope.edit.diastolic = "";
 									$scope.edit.laborDate = new Date($scope.edit.laborDate);
 									$scope.edit.deliveryDate = new Date($scope.edit.deliveryDate);
 									
@@ -71,11 +71,11 @@
 									$scope.edit.deliverymethodTwin = "";
 									$scope.edit.firstnameTwin = "";
 									$scope.edit.lastnameTwin = "";
-									$scope.edit.weightTwin = 0;
-									$scope.edit.lengthTwin = 0;
-									$scope.edit.heartRateTwin = 0;
-									$scope.edit.systolicTwin = 0;
-									$scope.edit.diastolicTwin = 0;
+									$scope.edit.weightTwin = "";
+									$scope.edit.lengthTwin = "";
+									$scope.edit.heartRateTwin = "";
+									$scope.edit.systolicTwin = "";
+									$scope.edit.diastolicTwin = "";
 									$scope.edit.laborDate = new Date($scope.edit.laborDate);
 									$scope.edit.deliveryDate = new Date($scope.edit.deliveryDate);
 								}
@@ -250,7 +250,7 @@
 										}
 										
 										
-										if(!($scope.edit.deliverymethodTwin == 'Miscarriage')) {
+										if(!($scope.edit.deliverymethodTwin == 'Miscarriage*')) {
 											if ($scope.edit.firstnameTwin == '' || !$scope.edit.firstnameTwin) {
 												$scope.errorMsg += "Second Newborn's first name cannot be empty.\n";
 											}
@@ -308,7 +308,7 @@
 															});
 										}
 										
-										
+										// if second newborn form is cleared or doest not exists
 									} else if ($scope.edit.deliverymethod && !$scope.edit.deliverymethodTwin) {
 												
 											// If the twin record is actually undefined then set all to empty or 0
@@ -389,7 +389,7 @@
 											
 											
 									}
-									
+									//  In case first newborn form is cleared or doest not exists (not possible) or user want to save info on second newborn only
 									else if (!$scope.edit.deliverymethod && $scope.edit.deliverymethodTwin) {
 										
 										// If the twin record is actually undefined then set all to empty or 0
@@ -403,7 +403,7 @@
 											$scope.edit.diastolic = 0;
 											
 										
-										if(!($scope.edit.deliverymethodTwin == 'Miscarriage')) {
+										if(!($scope.edit.deliverymethodTwin == 'Miscarriage*')) {
 											if ($scope.edit.firstnameTwin == '' || !$scope.edit.firstnameTwin) {
 												$scope.errorMsg += "Second Newborn's first name cannot be empty.\n";
 											}
@@ -462,6 +462,26 @@
 										}
 									
 								} else if (!$scope.edit.deliverymethod && !$scope.edit.deliverymethodTwin) {
+									
+									// If both forms are clear set all to empty and 0
+									// Still keep both patient object
+									$scope.edit.firstname = "";
+									$scope.edit.lastname = "";
+									$scope.edit.weight = 0;
+									$scope.edit.length = 0;
+									$scope.edit.heartRate = 0;
+									$scope.edit.systolic = 0;
+									$scope.edit.diastolic = 0;
+									
+									$scope.edit.firstnameTwin = "";
+									$scope.edit.lastnameTwin = "";
+									$scope.edit.weightTwin = 0;
+									$scope.edit.lengthTwin = 0;
+									$scope.edit.heartRateTwin = 0;
+									$scope.edit.systolicTwin = 0;
+									$scope.edit.diastolicTwin = 0;
+									
+									
 										
 										// Post the record to the REST API endpoint, and handle success/error
 										if($scope.errorMsg == "") {
@@ -537,7 +557,7 @@
 						<div class="panel panel-info">
 
 							<div class="panel-heading">
-								<h4>Labor and Delivery History</h4>
+								<h4>Labor and Delivery Date & Time</h4>
 							</div>
 								<div class="panel-body">
 								
@@ -643,8 +663,11 @@
 												<label>Weight:</label>
 											</div>
 											<div class="col-xs-6">
-												<input class="form-control" name="weight"
-													ng-model="edit.weight" required="true" type="text">
+												<div class="input-group">
+													<input class="form-control" name="weight"
+														ng-model="edit.weight" required="true" type="text">
+													<div class="input-group-addon">lbs</div>
+												</div>
 											</div>
 										</div>
 
@@ -653,8 +676,11 @@
 												<label>Height/Length:</label>
 											</div>
 											<div class="col-xs-6">
-												<input class="form-control" name="length"
-													ng-model="edit.length" required="true" type="text">
+												<div class="input-group">
+													<input class="form-control" name="length"
+														ng-model="edit.length" required="true" type="text">
+													<div class="input-group-addon">in</div>
+												</div>	
 											</div>
 										</div>
 
@@ -663,8 +689,11 @@
 												<label>Heart Rate:</label>
 											</div>
 											<div class="col-xs-6">
-												<input class="form-control" name="heartrate"
-													ng-model="edit.heartRate" required="true" type="text">
+												<div class="input-group">	
+													<input class="form-control" name="heartrate"
+														ng-model="edit.heartRate" required="true" type="text">
+													<div class="input-group-addon">BPM</div>
+												</div>	
 											</div>
 										</div>
 
@@ -673,8 +702,11 @@
 												<label>Systolic:</label>
 											</div>
 											<div class="col-xs-6">
-												<input class="form-control" name="systolic"
-													ng-model="edit.systolic" required="true" type="text">
+												<div class="input-group">
+													<input class="form-control" name="systolic"
+														ng-model="edit.systolic" required="true" type="text">
+													<div class="input-group-addon">mmHg</div>
+												</div>
 											</div>
 										</div>
 
@@ -683,8 +715,11 @@
 												<label>Diastolic:</label>
 											</div>
 											<div class="col-xs-6">
-												<input class="form-control" name="diastolic"
-													ng-model="edit.diastolic" required="true" type="text">
+												<div class="input-group">
+													<input class="form-control" name="diastolic"
+														ng-model="edit.diastolic" required="true" type="text">
+													<div class="input-group-addon">mmHg</div>
+												</div>
 											</div>
 										</div>
 										
@@ -746,8 +781,11 @@
 												<label>Weight:</label>
 											</div>
 											<div class="col-xs-6">
-												<input class="form-control" name="weightTwin"
-													ng-model="edit.weightTwin" required="true" type="text">
+												<div class="input-group">
+													<input class="form-control" name="weightTwin"
+														ng-model="edit.weightTwin" required="true" type="text">
+													<div class="input-group-addon">lbs</div>
+												</div>
 											</div>
 										</div>
 
@@ -756,8 +794,11 @@
 												<label>Height/Length:</label>
 											</div>
 											<div class="col-xs-6">
-												<input class="form-control" name="lengthTwin"
-													ng-model="edit.lengthTwin" required="true" type="text">
+												<div class="input-group">
+													<input class="form-control" name="lengthTwin"
+														ng-model="edit.lengthTwin" required="true" type="text">
+													<div class="input-group-addon">in</div>
+												</div>
 											</div>
 										</div>
 
@@ -766,8 +807,11 @@
 												<label>Heart Rate:</label>
 											</div>
 											<div class="col-xs-6">
-												<input class="form-control" name="heartrateTwin"
-													ng-model="edit.heartRateTwin" required="true" type="text">
+												<div class="input-group">
+													<input class="form-control" name="heartrateTwin"
+														ng-model="edit.heartRateTwin" required="true" type="text">
+													<div class="input-group-addon">BPM</div>
+												</div>
 											</div>
 										</div>
 
@@ -776,8 +820,11 @@
 												<label>Systolic:</label>
 											</div>
 											<div class="col-xs-6">
-												<input class="form-control" name="systolicTwin"
-													ng-model="edit.systolicTwin" required="true" type="text">
+												<div class="input-group">
+													<input class="form-control" name="systolicTwin"
+														ng-model="edit.systolicTwin" required="true" type="text">
+													<div class="input-group-addon">mmHg</div>
+												</div>
 											</div>
 										</div>
 
@@ -786,8 +833,11 @@
 												<label>Diastolic:</label>
 											</div>
 											<div class="col-xs-6">
-												<input class="form-control" name="diastolicTwin"
-													ng-model="edit.diastolicTwin" required="true" type="text">
+												<div class="input-group">
+													<input class="form-control" name="diastolicTwin"
+														ng-model="edit.diastolicTwin" required="true" type="text">
+													<div class="input-group-addon">mmHg</div>
+												</div>
 											</div>
 										</div>
 										
