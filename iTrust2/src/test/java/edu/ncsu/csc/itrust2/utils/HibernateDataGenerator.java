@@ -25,7 +25,6 @@ import edu.ncsu.csc.itrust2.models.persistent.GeneralCheckup;
 import edu.ncsu.csc.itrust2.models.persistent.Hospital;
 import edu.ncsu.csc.itrust2.models.persistent.ICDCode;
 import edu.ncsu.csc.itrust2.models.persistent.LOINC;
-import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.Personnel;
 import edu.ncsu.csc.itrust2.models.persistent.Prescription;
@@ -267,12 +266,8 @@ public class HibernateDataGenerator {
         rebecca.setGender( Gender.Female );
         rebecca.setDateOfBirth( LocalDate.now().minusYears( 30 ) ); // 30 years
                                                                     // old
-
-        final LocalDate testDate = LocalDate.of( 2016, 10, 17 );
-        final ObstetricsRecord obs = new ObstetricsRecord();
-        obs.setLastMenstrualPeriod( testDate );
-        obs.setPatient( "rebecca" );
         rebecca.save();
+
         final Patient zara = new Patient();
         zara.setFirstName( "Zara" );
         final User zaraUser = new User( "ZaraZi", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
@@ -284,8 +279,6 @@ public class HibernateDataGenerator {
         zara.setDateOfBirth( LocalDate.now().minusYears( 19 ) ); // 19 years
                                                                  // old
         zara.save();
-
-        obs.save();
 
         final Hospital hosp = new Hospital( "General Hospital", "123 Main St", "12345", "NC" );
         hosp.save();

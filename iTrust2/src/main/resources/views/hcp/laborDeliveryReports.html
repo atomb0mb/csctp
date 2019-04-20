@@ -309,7 +309,7 @@
 								$scope.errorMsg += "First newborn's first name cannot be empty.\n";
 							}
 							//If no last name, default to mother's last name
-							if ( $scope.form.lastname == '' || $scope.form.lastname == 0) {
+							if ( $scope.form.lastname == '' || !$scope.form.lastname) {
 								$scope.form.lastname = $scope.motherlastName;
 							}
 							// Check weight
@@ -350,7 +350,7 @@
 									$scope.errorMsg += "Second Newborn's first name cannot be empty.\n";
 								}
 								//If no last name, default to mother's last name
-								if ($scope.form.lastnameTwin == '' || $scope.form.lastnameTwin.length == 0) {
+								if ($scope.form.lastnameTwin == '' || !$scope.form.lastnameTwin) {
 									$scope.form.lastnameTwin = $scope.motherlastName;
 								}
 								// Check weight

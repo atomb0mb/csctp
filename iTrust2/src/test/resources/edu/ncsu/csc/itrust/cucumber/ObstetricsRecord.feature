@@ -38,16 +38,12 @@ Examples:
 	
 Scenario Outline: View Obstetrics Records as an HCP	
 	Given Logging in system as an HCPOBGYN or HCP or Patient user id <id> password <pw>
-	Then the HCP views the restricted records
+	Then the HCP views the restricted records.
 	
 Examples:
 	| id      | pw     |
-<<<<<<< HEAD
-	| OBGYN   | 123456 |
-=======
->>>>>>> 882a6b05b96350018e92eaef51ee22b739b2cf60
 	| hcp     | 123456 |
-	
+
 Scenario Outline: View OB as Patient	
 	Given Logging in system as an HCPOBGYN or HCP or Patient user id <id> password <pw>
 	Then Obstetrics patient views Obstetrics Records.
@@ -86,7 +82,7 @@ Scenario Outline: Create Invalid pregnancy Information for the patient
 
 Examples:
 	| firstname    | lastname       | year | weeks | hours | dm 				 | twins     | id    | pw     | text 													   |
-	| Zara		   | Zi				| 2020 |  40   |  12   | Vaginal Delivery    | No        | OBGYN | 123456 | The year of conception must be a previous or current year. |
+	| Zara		   | Zi				| 2020 |  40   |  12   | Vaginal Delivery    | No        | OBGYN | 123456 | Could not add pregnancy record.   |
 	| Zara		   | Zi		    	| 2018 | N/A   |  40   | Vaginal Delivery    | No        | OBGYN | 123456 |	Could not add pregnancy record.   |
 	| Zara		   | Zi		    	| 2018 |  40   |  N/A  | Vaginal Delivery    | No        | OBGYN | 123456 |	Could not add pregnancy record.   |
 	| Zara		   | Zi		    	| 2018 |  40   |  40   | N/A                 | No        | OBGYN | 123456 |	Could not add pregnancy record.   |
