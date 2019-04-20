@@ -119,7 +119,7 @@ public class LabProcedureTest {
         bhm.setDiastolic( 150 );
         bhm.setDiastolic( 100 );
         bhm.setHcp( User.getByName( "hcp" ) );
-        bhm.setPatient( User.getByName( "AliceThirteen" ) );
+        bhm.setPatient( User.getByName( "AliceSmith" ) );
         bhm.setHdl( 75 );
         bhm.setHeight( 75f );
         bhm.setHouseSmokingStatus( HouseholdSmokingStatus.NONSMOKING );
@@ -129,8 +129,8 @@ public class LabProcedureTest {
         visit.setBasicHealthMetrics( bhm );
         visit.setType( AppointmentType.GENERAL_CHECKUP );
         visit.setHospital( hosp );
-        visit.setPatient( User.getByName( "AliceThirteen" ) );
-        visit.setHcp( User.getByName( "AliceThirteen" ) );
+        visit.setPatient( User.getByName( "AliceSmith" ) );
+        visit.setHcp( User.getByName( "AliceSmith" ) );
         visit.setDate( ZonedDateTime.now() );
 
         final List<Diagnosis> diagnoses = new Vector<Diagnosis>();
@@ -163,7 +163,7 @@ public class LabProcedureTest {
         pres.setDrug( drug );
 
         pres.setEndDate( LocalDate.now().plusDays( 10 ) );
-        pres.setPatient( User.getByName( "AliceThirteen" ) );
+        pres.setPatient( User.getByName( "AliceSmith" ) );
         pres.setStartDate( LocalDate.now() );
         pres.setRenewals( 5 );
 
@@ -198,7 +198,8 @@ public class LabProcedureTest {
         patient3.save();
         assignedTech3.save();
         final GeneralCheckupForm visitForm = new GeneralCheckupForm();
-        visitForm.setDate( "2048-04-16T09:50:00.000-04:00" ); // 4/16/2048 9:50 AM
+        visitForm.setDate( "2048-04-16T09:50:00.000-04:00" ); // 4/16/2048 9:50
+                                                              // AM
         visitForm.setHcp( "hcp" );
         visitForm.setPatient( "patient" );
         visitForm.setNotes( "Test office visit" );
@@ -306,7 +307,8 @@ public class LabProcedureTest {
         patient.save();
         assignedTech.save();
         final GeneralCheckupForm visitForm = new GeneralCheckupForm();
-        visitForm.setDate( "2048-04-16T09:50:00.000-04:00" ); // 4/16/2048 9:50 AM
+        visitForm.setDate( "2048-04-16T09:50:00.000-04:00" ); // 4/16/2048 9:50
+                                                              // AM
         visitForm.setHcp( "hcp" );
         visitForm.setPatient( "patient" );
         visitForm.setNotes( "Test office visit" );

@@ -14,6 +14,7 @@ import org.openqa.selenium.support.ui.Select;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
+import edu.ncsu.csc.itrust2.cucumber2.CucumberTest2;
 import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsRecordForm;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
 import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
@@ -26,7 +27,7 @@ import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
  * @author Chee Ng (cwng)
  *
  */
-public class HCPLaborAndDeliveryStepDefs extends CucumberTest {
+public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
 
     private final String baseUrl = "http://localhost:8080/iTrust2";
 
@@ -85,6 +86,52 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest {
                     .executeScript( "document.getElementById('OBGYNLaborDeliveryReport').click();" );
 
             assertEquals( "iTrust2: Labor and Delivery Reports", driver.getTitle() );
+        }
+    }
+
+    /**
+     * Login as different user
+     *
+     * @param role
+     *            of user
+     * @param id
+     *            of user id
+     * @param pwd
+     *            of user password
+     */
+    @Given ( "^The role of user is (.+). User id is (.+) and password (.+)$" )
+    public void logAsDifferentRole ( final String role, final String id, final String pwd ) {
+        attemptLogout();
+
+        driver.get( baseUrl );
+        final WebElement username = driver.findElement( By.name( "username" ) );
+        username.clear();
+        username.sendKeys( id );
+        final WebElement password = driver.findElement( By.name( "password" ) );
+        password.clear();
+        password.sendKeys( pwd );
+        final WebElement submit = driver.findElement( By.className( "btn" ) );
+        submit.click();
+
+        if ( role.equals( "HCP" ) ) {
+            assertEquals( "iTrust2: HCP Home", driver.getTitle() );
+        }
+        else {
+            assertEquals( "iTrust2: Patient Home", driver.getTitle() );
+        }
+
+        if ( role.equals( "HCP" ) ) {
+            ( (JavascriptExecutor) driver )
+                    .executeScript( "document.getElementById('HCPLaborDeliveryReports').click();" );
+
+        }
+
+        else {
+            ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('laborDeliveryReports').click();" );
+
+            assertEquals( "iTrust2: Labor and Delivery Reports", driver.getTitle() );
+
+            // driver.get( baseUrl + "/patient/index" );
         }
     }
 

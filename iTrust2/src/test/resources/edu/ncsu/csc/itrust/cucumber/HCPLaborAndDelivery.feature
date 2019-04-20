@@ -67,6 +67,15 @@ Examples:
 	| JillBob	 | 03/04/2020  | 12/16/2018 |  Miscarriage       |   N/A    |	N/A   |  0      |    0    |  0   |  0       |    0      | N/A       | N/A      |    0       |      0     |   0    |     0        |      0         |     OBGYN  | 123456   |    N/A       | edit |
 	| JillBob	 | 03/04/2018  | 12/16/2029 |  Miscarriage       |   N/A    |	N/A   |  0      |    0    |  0   |  0       |    0      | N/A       | N/A      |    0       |      0     |   0    |     0        |      0         |     OBGYN  | 123456   |    N/A       | edit |
 	| JillBob	 | 11/12/2017  | 08/16/2018 |  Caesarean Section |   Jimmy  |	Bob   |  0      |    0    |  0   |  0       |    0      | N/A       | N/A      |    0       |      0     |   0    |     0        |      0         |     OBGYN  | 123456   |    N/A       | edit |
+	
+Scenario Outline: Different User functionality
+	Given The role of user is <role>. User id is <id> and password <pwd>
+
+Examples:
+	| role      | id         | pwd    |
+	| HCP  		| hcp        | 123456 |
+	| patient   | AliceSmith | 123456 |
+	| patient   | JillBob    | 123456 |
 
 
 
