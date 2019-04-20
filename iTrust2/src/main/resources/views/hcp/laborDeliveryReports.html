@@ -192,7 +192,7 @@
 								
 									}
 									
-									if ( type2 == 'Miscarriage') { // Not supposed to be a space?
+									if ( type2 == 'Miscarriage*') { // Not supposed to be a space?
 										$scope.laborAndDeliveryReport[i].weightTwin = "";
 										$scope.laborAndDeliveryReport[i].lengthTwin = "";
 										$scope.laborAndDeliveryReport[i].heartRateTwin = "";
@@ -341,10 +341,9 @@
 							if (!$scope.form.deliverymethodTwin) {
 								$scope.errorMsg += "A delivery method must be selected.\n";
 							} else if ($scope.form.deliverymethodTwin != 'Miscarriage*') {
-								var len = $scope.form.deliverymethodTwin.length;
-								$scope.form.deliverymethodTwin = $scope.form.deliverymethodTwin.substring(0, len - 1);
-								console.log("Delivery method: " + $scope.form.deliverymethodTwin);
-
+								//var len = $scope.form.deliverymethodTwin.length;
+								//$scope.form.deliverymethodTwin = $scope.form.deliverymethodTwin.substring(0, len - 1);
+								//console.log("Delivery method: " + $scope.form.deliverymethodTwin);
 								console.log("Delivery method twin: " + $scope.form.deliverymethodTwin);
 								//Check twin's name
 								if (!$scope.form.firstnameTwin) {
@@ -496,30 +495,30 @@
 
 								<tbody>
 									<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
-										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+										<td ng-if="laborNdelivery.deliverymethodTwin"
 											id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
-										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+										<td ng-if="laborNdelivery.deliverymethodTwin"
 											id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
-										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+										<td ng-if="laborNdelivery.deliverymethodTwin"
 											id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
-										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+										<td ng-if="laborNdelivery.deliverymethodTwin"
 											id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
-										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+										<td ng-if="laborNdelivery.deliverymethodTwin"
 											id="deliverymethodTwin-{{$index}}">{{laborNdelivery.deliverymethodTwin}}</td>
 
-										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+										<td ng-if="laborNdelivery.deliverymethodTwin"
 											id="firstnameTwin-{{$index}}">{{laborNdelivery.firstnameTwin}}</td>
-										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+										<td ng-if="laborNdelivery.deliverymethodTwin"
 											id="lastnameTwin-{{$index}}">{{laborNdelivery.lastnameTwin}}</td>
-										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+										<td ng-if="laborNdelivery.deliverymethodTwin"
 											id="weightTwin-{{$index}}">{{laborNdelivery.weightTwin}}</td>
-										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+										<td ng-if="laborNdelivery.deliverymethodTwin"
 											id="lengthTwin-{{$index}}">{{laborNdelivery.lengthTwin}}</td>
-										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+										<td ng-if="laborNdelivery.deliverymethodTwin"
 											id="heartRateTwin-{{$index}}">{{laborNdelivery.heartRateTwin}}</td>
-										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+										<td ng-if="laborNdelivery.deliverymethodTwin"
 											id="systolicTwin-{{$index}}">{{laborNdelivery.systolicTwin}}</td>
-										<td ng-if="laborNdelivery.firstnameTwin.length > 0"
+										<td ng-if="laborNdelivery.deliverymethodTwin"
 											id="diastolicTwin-{{$index}}">{{laborNdelivery.diastolicTwin}}</td>
 									</tr>
 								</tbody>
@@ -631,7 +630,7 @@
 
 							<!-- IF NOT A MISCARRIAGE SHOW REST OF FIELDS -->
 							<!-- Single Infant's Information Panel -->
-							<div class="col-md-4" ng-if="showForm1">
+							<div class="col-md-5" ng-if="showForm1">
 								<div class="panel panel-info">
 
 									<div align="left" class="panel-heading">
@@ -666,9 +665,11 @@
 												<label>Weight:</label>
 											</div>
 											<div class="col-xs-6">
+												<div class="input-group">
 												<input class="form-control" name="weight"
 													ng-model="form.weight" required="true" type="text">
 												<div class="input-group-addon">lbs</div>
+												</div>
 											</div>
 										</div>
 
@@ -677,9 +678,11 @@
 												<label>Height/Length:</label>
 											</div>
 											<div class="col-xs-6">
+												<div class="input-group">
 												<input class="form-control" name="length"
 													ng-model="form.length" required="true" type="text">
 												<div class="input-group-addon">in</div>
+												</div>
 											</div>
 										</div>
 
@@ -688,9 +691,11 @@
 												<label>Heart Rate:</label>
 											</div>
 											<div class="col-xs-6">
+												<div class="input-group">
 												<input class="form-control" name="heartrate"
 													ng-model="form.heartRate" required="true" type="text">
 												<div class="input-group-addon">BPM</div>
+												</div>
 											</div>
 										</div>
 
@@ -699,9 +704,11 @@
 												<label>Systolic:</label>
 											</div>
 											<div class="col-xs-6">
+												<div class="input-group">
 												<input class="form-control" name="systolic"
 													ng-model="form.systolic" required="true" type="text">
 												<div class="input-group-addon">mmHg</div>
+												</div>
 											</div>
 										</div>
 
@@ -710,9 +717,11 @@
 												<label>Diastolic:</label>
 											</div>
 											<div class="col-xs-6">
+												<div class="input-group">
 												<input class="form-control" name="diastolic"
 													ng-model="form.diastolic" required="true" type="text">
 												<div class="input-group-addon">mmHg</div>
+												</div>
 											</div>
 										</div>
 
@@ -722,7 +731,7 @@
 							</div>
 
 							<!-- Twin Information Panel -->
-							<div class="col-md-4" ng-if="showTwinForm && showForm2">
+							<div class="col-md-5" ng-if="showTwinForm && showForm2">
 								<div class="panel panel-info">
 
 									<div class="panel-heading">
@@ -757,9 +766,11 @@
 												<label>Weight:</label>
 											</div>
 											<div class="col-xs-6">
+												<div class="input-group">
 												<input class="form-control" name="weightTwin"
 													ng-model="form.weightTwin" required="true" type="text">
 												<div class="input-group-addon">lbs</div>
+												</div>
 											</div>
 										</div>
 
@@ -768,9 +779,11 @@
 												<label>Height/Length:</label>
 											</div>
 											<div class="col-xs-6">
+												<div class="input-group">
 												<input class="form-control" name="lengthTwin"
 													ng-model="form.lengthTwin" required="true" type="text">
 												<div class="input-group-addon">in</div>
+												</div>
 											</div>
 										</div>
 
@@ -779,9 +792,11 @@
 												<label>Heart Rate:</label>
 											</div>
 											<div class="col-xs-6">
+												<div class="input-group">
 												<input class="form-control" name="heartrateTwin"
 													ng-model="form.heartRateTwin" required="true" type="text">
 												<div class="input-group-addon">BPM</div>
+												</div>
 											</div>
 										</div>
 
@@ -790,9 +805,11 @@
 												<label>Systolic:</label>
 											</div>
 											<div class="col-xs-6">
+												<div class="input-group">
 												<input class="form-control" name="systolicTwin"
 													ng-model="form.systolicTwin" required="true" type="text">
 												<div class="input-group-addon">mmHg</div>
+												</div>
 											</div>
 										</div>
 
@@ -801,9 +818,11 @@
 												<label>Diastolic:</label>
 											</div>
 											<div class="col-xs-6">
+												<div class="input-group">
 												<input class="form-control" name="diastolicTwin"
 													ng-model="form.diastolicTwin" required="true" type="text">
 												<div class="input-group-addon">mmHg</div>
+												</div>
 											</div>
 										</div>
 
