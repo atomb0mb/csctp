@@ -48,16 +48,12 @@
 					$scope.deliveryMethods2 = [ 'Vaginal Delivery*',
 						'Caesarean Section*', 'Miscarriage*' ];
 					$scope.twinOptions = [ 'Yes', 'No' ];
-		
+
 					// documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
 					$scope.searchFilter = "";
 					$scope.filterPatients = function(patient) {
-						return ($scope.displayName(patient))
-								.toLowerCase().match(
-										$scope.searchFilter
-												.toLowerCase());
+						return ($scope.displayName(patient)).toLowerCase().match($scope.searchFilter.toLowerCase());
 					}
-		
 		
 					// Stuff for submitting new record 
 					$scope.failAddldReport = function() {
@@ -302,6 +298,7 @@
 						
 						//Check information for first child
 						if (!$scope.form.deliverymethod) {
+							console.log("No deliverymethod " + $scope.form.deliverymethod);
 							$scope.errorMsg += "A delivery method must be selected.\n";
 						} else if ($scope.form.deliverymethod != 'Miscarriage') {
 							// Check first name 
@@ -343,7 +340,11 @@
 							// delivery method must be check
 							if (!$scope.form.deliverymethodTwin) {
 								$scope.errorMsg += "A delivery method must be selected.\n";
-							} else if ($scope.form.deliverymethodTwin != 'Miscarriage') {
+							} else if ($scope.form.deliverymethodTwin != 'Miscarriage*') {
+								var len = $scope.form.deliverymethodTwin.length;
+								$scope.form.deliverymethodTwin = $scope.form.deliverymethodTwin.substring(0, len - 1);
+								console.log("Delivery method: " + $scope.form.deliverymethodTwin);
+
 								console.log("Delivery method twin: " + $scope.form.deliverymethodTwin);
 								//Check twin's name
 								if (!$scope.form.firstnameTwin) {
@@ -386,7 +387,6 @@
 						//Clear any error messages
 						$scope.errorMsg = "";
 						$scope.showForm2 = !($scope.form.deliverymethodTwin == 'Miscarriage*');
-						console.log("ShowForm2: " + $scope.showForm2);
 					}
 		
 					$scope.checkTwin = function() {
@@ -394,7 +394,6 @@
 						$scope.showInfant = true;
 						$scope.errorMsg = "";
 						$scope.showTwinForm = ($scope.entry.twinOption == 'Yes');
-						console.log("showTwinForm: " + $scope.showTwinForm);
 					}
 				});
 			/*]]>*/
