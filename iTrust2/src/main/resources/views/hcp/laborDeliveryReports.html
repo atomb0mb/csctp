@@ -15,11 +15,11 @@
 				function($scope, $http) {
 					$scope.laborAndDeliveryReport = [];
 					$scope.form = {
-						laborDate : '',
-						deliveryDate : '',
 						patient : '',
-						lastname : '',
 						//first child
+						deliveryDate : '',
+						laborDate : '',
+						lastname : '',
 						weight : 0,
 						length : 0,
 						heartRate : 0,
@@ -29,6 +29,8 @@
 						
 						//second child
 						//firstnameTwin : '',
+						laborDateTwin : '',
+						deliveryDateTwin : '',
 						lastnameTwin : '',
 						weightTwin : 0,
 						lengthTwin : 0,
@@ -42,11 +44,11 @@
 					$scope.displayName = function(p) {
 						return p.firstName + " " + p.lastName + " (" + p.self.username + ")";
 					}
-		
+
 					$scope.deliveryMethods = [ 'Vaginal Delivery',
 							'Caesarean Section', 'Miscarriage' ];
-					$scope.deliveryMethods2 = [ 'Vaginal Delivery*',
-						'Caesarean Section*', 'Miscarriage*' ];
+					$scope.deliveryMethods2 = [ 'Vaginal Delivery ',
+						'Caesarean Section ', 'Miscarriage ' ];
 					$scope.twinOptions = [ 'Yes', 'No' ];
 
 					// documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
@@ -63,12 +65,16 @@
 		
 					$scope.entry = {
 						twinOption : '',
+						//First child
 						inputlabordate : new Date(),
-						inputlabortime : new Date(0, 0, 0, 0, 0,
-								null, null),
+						inputlabortime : new Date(0, 0, 0, 0, 0,null, null),
 						inputdeliverydate : new Date(),
-						inputdeliverytime : new Date(0, 0, 0, 0, 0,
-								null, null)
+						inputdeliverytime : new Date(0, 0, 0, 0, 0, null, null),
+						//Second child
+						inputlabordateTwin : new Date(),
+						inputlabortimeTwin : new Date(0, 0, 0, 0, 0,null, null),
+						inputdeliverydateTwin : new Date(),
+						inputdeliverytimeTwin : new Date(0, 0, 0, 0, 0, null, null),
 					}
 		
 					//Get info for the patients
@@ -80,24 +86,38 @@
 							});
 		
 					$scope.submitForm = function() {
+						console.log($scope.form);
+						
+						//Check that twin hasn't been toggled after information for the twin has already been filled out
+						/*if (!$scope.showTwinForm) {
+							console.log("Here we are, dude");
+							//$scope.form.firstnameTwin  = '';
+							$scope.form.laborDateTwin  = '';
+							$scope.form.deliveryDateTwin  = '';
+							$scope.form.lastnameTwin  = '';
+							$scope.form.weightTwin = 0;
+							$scope.form.lengthTwin = 0;
+							$scope.form.heartRateTwin  = 0;
+							$scope.form.systolicTwin = 0;
+							$scope.form.diastolicTwin  = 0;
+							$scope.form.deliverymethodTwin  = '';
+						}*/
+						
 						if($scope.errorMsg == "") {
 							$http.post("/iTrust2/api/v1/LaborDelivery/", $scope.form)
 								.then(
 									function success(response) {
-										console.log("Posted here!");
 										$scope.message = "Labor and delivery report has been added successfully."
 										$scope.errorMsg = "";
 										
 										//Delete the current pregnancy since the baby was delivered
 										$http.delete("/iTrust2/api/v1/obstetricsrecord/"+ $scope.form.patient)
 				                        .then(function (response) {
-				                        	console.log("remove sucess")
 				                        	deferred.resolve(response.data);
 				                        });
 										document.location.href = '/iTrust2/hcp/laborDeliveryReports.html';
 									},
 									function failure(rejection) {
-										console.log("Failed to post here :(");
 										$scope.failAddldReport();
 									});
 						}
@@ -159,11 +179,14 @@
 								console.log("Past pregnancy info");
 								console.log(response);
 								$scope.laborAndDeliveryReport = response.data || [];
-								
+
 								var size = $scope.laborAndDeliveryReport.length;
-								var lbdate, finalldate, lbtime, dldate, type1, type2;
+								var type1, type2;
+								var lbdate, lbtime, dldate; 
+								var lbdateTwin, lbtimeTwin, dldateTwin;
 								// Format the dates
 								for( var i = 0; i < size; i++) {
+									//First child information
 									lbdate = new Date(response.data[i].laborDate);
 		    						$scope.formatDate(lbdate);
 									
@@ -179,6 +202,24 @@
 									$scope.laborAndDeliveryReport[i].newDdate = finalDate;
 									$scope.laborAndDeliveryReport[i].newDtime = time;								
 								
+									// Twin's information
+									if (response.data[i].laborDateTwin) { //make sure the twin exists
+										lbdateTwin = new Date(response.data[i].laborDateTwin);
+			    						$scope.formatDate(lbdateTwin);
+										
+										//Final labor Date to present
+										$scope.laborAndDeliveryReport[i].newLdateTwin = finalDate;
+										//Final labor Time to present
+										$scope.laborAndDeliveryReport[i].newLtimeTwin = time;
+	
+										// Delivery date
+										dldateTwin = new Date(response.data[i].deliveryDateTwin);
+										$scope.formatDate(dldateTwin);
+										
+										$scope.laborAndDeliveryReport[i].newDdateTwin = finalDate;
+										$scope.laborAndDeliveryReport[i].newDtimeTwin = time;								
+									}
+									
 									// To not display those 0 values
 									type1 = response.data[i].deliverymethod;
 									type2 = response.data[i].deliverymethodTwin;
@@ -192,7 +233,7 @@
 								
 									}
 									
-									if ( type2 == 'Miscarriage*') { // Not supposed to be a space?
+									if ( type2 == 'Miscarriage') {
 										$scope.laborAndDeliveryReport[i].weightTwin = "";
 										$scope.laborAndDeliveryReport[i].lengthTwin = "";
 										$scope.laborAndDeliveryReport[i].heartRateTwin = "";
@@ -241,6 +282,7 @@
 					$scope.checkDates = function() {
 						var validDate = false;
 						
+						//First child
 						// Validate date and time of labor
 						var checkLaborDate = new Date($scope.entry.inputlabordate);
 						
@@ -284,12 +326,62 @@
 						} else {
 							$scope.form.deliveryDate = checkDelieveryDate.toISOString();
 						}
+						
+						//Second child
+						// Validate date and time of labor
+						if ($scope.entry.inputlabordateTwin) { // only validate if twin exists
+							console.log("Twinsies!");
+							var checkLaborDateTwin = new Date($scope.entry.inputlabordateTwin);
+							console.log("checkLaborDateTwin" + checkLaborDateTwin);
+							validDate = $scope.verifyDate(checkLaborDateTwin);
+							if (!validDate) {
+								$scope.errorMsg += "Please input a valid labor date.\n";
+							}
+									
+							const ltimeTwin = new Date($scope.entry.inputlabortimeTwin);
+							checkLaborDateTwin.setHours(ltimeTwin.getHours());
+							checkLaborDateTwin.setMinutes(ltimeTwin.getMinutes());
+			
+							if (!validDate) {
+								$scope.errorMsg += "Please input a valid labor date.\n";
+							} else {
+								$scope.form.laborDateTwin = checkLaborDateTwin.toISOString();
+							}
+			
+							// Validate date and time of delivery
+							var checkDelieveryDateTwin = new Date($scope.entry.inputdeliverydateTwin);
+							
+							validDate = $scope.verifyDate(checkDelieveryDateTwin);
+							if (!validDate) {
+								$scope.errorMsg += "Please input a valid delivery date.\n";
+							}
+									
+							const dtimeTwin = new Date($scope.entry.inputdeliverytimeTwin);
+							checkDelieveryDateTwin.setHours(dtimeTwin.getHours());
+							checkDelieveryDateTwin.setMinutes(dtimeTwin.getMinutes());
+	
+							if (!validDate) {
+								$scope.errorMsg += "Please input a valid labor date.\n";
+							} else {
+								$scope.form.laborDateTwin = checkLaborDateTwin.toISOString();
+							}
+			
+							// Check valid date and time combination
+							validDate = $scope.verifyDate(checkDelieveryDateTwin);
+							if (!validDate) {
+								$scope.errorMsg += "Please input a valid delivery date.\n";
+								console.log("No bueno");
+							} else {
+								$scope.form.deliveryDateTwin = checkDelieveryDateTwin.toISOString();
+								console.log("Delivery Date Twin: " + $scope.form.deliveryDateTwin);
+							}
+						}
 					}
 					
 					$scope.submitLD = function() {
 						$scope.errorMsg = "";
 						
-						$scope.checkDates(); // Need to update with separate delivery dates
+						$scope.checkDates(); // Need valid date even if miscarriage
 						
 						// Check if twin option is chosen.
 						if (!$scope.entry.twinOption || !($scope.entry.twinOption == 'Yes' || $scope.entry.twinOption == 'No')) {
@@ -309,6 +401,7 @@
 							if ( $scope.form.lastname == '' || !$scope.form.lastname) {
 								$scope.form.lastname = $scope.motherlastName;
 							}
+							
 							// Check weight
 							if (/^[0-9]{1,4}(\.[0-9]?)?$/
 									.test(String($scope.form.weight)
@@ -340,7 +433,8 @@
 							// delivery method must be check
 							if (!$scope.form.deliverymethodTwin) {
 								$scope.errorMsg += "A delivery method must be selected.\n";
-							} else if ($scope.form.deliverymethodTwin != 'Miscarriage*') {
+							} else if ($scope.form.deliverymethodTwin != 'Miscarriage') {
+								console.log("Twin: not a miscarriage");
 								console.log("Delivery method twin: " + $scope.form.deliverymethodTwin);
 								//Check twin's name
 								if (!$scope.form.firstnameTwin) {
@@ -378,15 +472,16 @@
 						//Clear any error messages
 						$scope.errorMsg = "";
 						$scope.showForm1 = !($scope.form.deliverymethod == 'Miscarriage');
+						$scope.deliveryMethodSelected = true;
+						console.log("del selected: " + $scope.deliveryMethodSelected);
 					}
 					
 					$scope.isMiscarriage2 = function() {
 						//Clear any error messages
 						$scope.errorMsg = "";
-						$scope.showForm2 = !($scope.form.deliverymethodTwin == 'Miscarriage*');
-						var len = $scope.form.deliverymethodTwin.length;
-						$scope.form.deliverymethodTwin = $scope.form.deliverymethodTwin.substring(0, len - 1);
-						console.log("Delivery method: " + $scope.form.deliverymethodTwin);
+						$scope.showForm2 = !($scope.form.deliverymethodTwin == 'Miscarriage');
+						$scope.deliveryMethodSelectedTwin = true;
+						console.log("showForm2: " + $scope.showForm2);
 					}
 		
 					$scope.checkTwin = function() {
@@ -497,13 +592,13 @@
 								<tbody>
 									<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
 										<td ng-if="laborNdelivery.deliverymethodTwin"
-											id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
+											id="laborDate-{{$index}}">{{laborNdelivery.newLdateTwin}}</td>
 										<td ng-if="laborNdelivery.deliverymethodTwin"
-											id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
+											id="laborTime-{{$index}}">{{laborNdelivery.newLtimeTwin}}</td>
 										<td ng-if="laborNdelivery.deliverymethodTwin"
-											id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
+											id="deliveryDate-{{$index}}">{{laborNdelivery.newDdateTwin}}</td>
 										<td ng-if="laborNdelivery.deliverymethodTwin"
-											id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
+											id="deliveryTime-{{$index}}">{{laborNdelivery.newDtimeTwin}}</td>
 										<td ng-if="laborNdelivery.deliverymethodTwin"
 											id="deliverymethodTwin-{{$index}}">{{laborNdelivery.deliverymethodTwin}}</td>
 
@@ -533,44 +628,6 @@
 					<div class="row">
 						<div class="col">
 							<h2 id="header0">New Labor and Delivery Report</h2>
-
-							<div class="form-group col-md-2">
-								<label for="date">Labor Date</label>
-								<div class="input-group">
-									<input class="form-control" id="ldate" type="date"
-										ng-model="entry.inputlabordate" name="inputlabordate"
-										required="true" />
-								</div>
-							</div>
-
-							<div class="form-group col-md-2">
-								<label for="date">Labor Time</label>
-								<div class="input-group">
-									<input class="form-control" id="ltime" type="time"
-										ng-model="entry.inputlabortime" name="inputlabortime"
-										required="true" />
-								</div>
-							</div>
-
-
-							<div class="form-group col-md-2">
-								<label for="date">Delivery Date</label>
-								<div class="input-group">
-									<input class="form-control" id="ddate" type="date"
-										ng-model="entry.inputdeliverydate" name="inputdeliverydate"
-										required="true" />
-								</div>
-							</div>
-
-							<div class="form-group col-md-2">
-								<label for="date">Delivery Time</label>
-								<div class="input-group">
-									<input class="form-control" id="dtime" type="time"
-										ng-model="entry.inputdeliverytime" name="inputdeliverytime"
-										required="true" />
-								</div>
-							</div>
-
 							<div class="form-group col-md-4">
 								<label>Twins?:</label>
 
@@ -631,15 +688,15 @@
 
 							<!-- IF NOT A MISCARRIAGE SHOW REST OF FIELDS -->
 							<!-- Single Infant's Information Panel -->
-							<div class="col-md-5" ng-if="showForm1">
-								<div class="panel panel-info">
+							<div class="col-md-5">
+								<div class="panel panel-info" ng-if="deliveryMethodSelected">
 
 									<div align="left" class="panel-heading">
 										<h4>First NewBorn's Information</h4>
 									</div>
 									<div class="panel-body">
 
-										<div class="form-group row">
+										<div class="form-group row" ng-if="showForm1">
 											<div class="col-xs-6">
 												<label>First Name:</label>
 											</div>
@@ -650,7 +707,7 @@
 										</div>
 
 
-										<div class="form-group row">
+										<div class="form-group row" ng-if="showForm1">
 											<div class="col-xs-6">
 												<label>Last Name:</label>
 											</div>
@@ -660,8 +717,51 @@
 											</div>
 										</div>
 
+										<div class="form-group row" ng-if="deliveryMethodSelected">
+											<div class="col-xs-6">
+												<label for="date">Labor Date:</label>
+											</div>
+											<div class="col-xs-6">
+												<input class="form-control" id="ldate" type="date"
+													ng-model="entry.inputlabordate" name="inputlabordate"
+													required="true" />
+											</div>
+										</div>
+			
+										<div class="form-group row" ng-if="deliveryMethodSelected">
+											<div class="col-xs-6">
+												<label for="date">Labor Time:</label>
+											</div>
+											<div class="col-xs-6">
+												<input class="form-control" id="ltime" type="time"
+													ng-model="entry.inputlabortime" name="inputlabortime"
+													required="true" />
+											</div>
+										</div>
+			
+										<div class="form-group row" ng-if="deliveryMethodSelected">
+											<div class="col-xs-6">
+												<label for="date">Delivery Date:</label>
+											</div>
+											<div class="col-xs-6">
+												<input class="form-control" id="ddate" type="date"
+													ng-model="entry.inputdeliverydate" name="inputdeliverydate"
+													required="true" />
+											</div>
+										</div>
+			
+										<div class="form-group row" ng-if="deliveryMethodSelected">
+											<div class="col-xs-6">
+												<label for="date">Delivery Time:</label>
+											</div>
+											<div class="col-xs-6">
+												<input class="form-control" id="dtime" type="time"
+													ng-model="entry.inputdeliverytime" name="inputdeliverytime"
+													required="true" />
+											</div>
+										</div>
 
-										<div class="form-group row">
+										<div class="form-group row" ng-if="showForm1">
 											<div class="col-xs-6">
 												<label>Weight:</label>
 											</div>
@@ -674,7 +774,7 @@
 											</div>
 										</div>
 
-										<div class="form-group row">
+										<div class="form-group row" ng-if="showForm1">
 											<div class="col-xs-6">
 												<label>Height/Length:</label>
 											</div>
@@ -687,7 +787,7 @@
 											</div>
 										</div>
 
-										<div class="form-group row">
+										<div class="form-group row" ng-if="showForm1">
 											<div class="col-xs-6">
 												<label>Heart Rate:</label>
 											</div>
@@ -700,7 +800,7 @@
 											</div>
 										</div>
 
-										<div class="form-group row">
+										<div class="form-group row" ng-if="showForm1">
 											<div class="col-xs-6">
 												<label>Systolic:</label>
 											</div>
@@ -713,7 +813,7 @@
 											</div>
 										</div>
 
-										<div class="form-group row">
+										<div class="form-group row" ng-if="showForm1">
 											<div class="col-xs-6">
 												<label>Diastolic:</label>
 											</div>
@@ -732,16 +832,15 @@
 							</div>
 
 							<!-- Twin Information Panel -->
-							<div class="col-md-5" ng-if="showTwinForm && showForm2">
-								<div class="panel panel-info">
+							<div class="col-md-5">
+								<div class="panel panel-info" ng-if="deliveryMethodSelectedTwin">
 
-									<div class="panel-heading">
+									<div class="panel-heading" ng-if="showTwinForm">
 										<h4>Second Newborn's Information</h4>
 									</div>
 									<div class="panel-body">
 
-
-										<div class="form-group row">
+										<div class="form-group row" ng-if="showTwinForm && showForm2">
 											<div class="col-xs-6">
 												<label>First Name:</label>
 											</div>
@@ -751,8 +850,7 @@
 											</div>
 										</div>
 
-
-										<div class="form-group row">
+										<div class="form-group row" ng-if="showTwinForm && showForm2">
 											<div class="col-xs-6">
 												<label>Last Name:</label>
 											</div>
@@ -762,7 +860,51 @@
 											</div>
 										</div>
 
-										<div class="form-group row">
+										<div class="form-group row" ng-if="showTwinForm && deliveryMethodSelectedTwin">
+											<div class="col-xs-6">
+												<label for="date">Labor Date:</label>
+											</div>
+											<div class="col-xs-6">
+												<input class="form-control" id="ldateTwin" type="date"
+													ng-model="entry.inputlabordateTwin" name="inputlabordateTwin"
+													required="true" />
+											</div>
+										</div>
+			
+										<div class="form-group row" ng-if="showTwinForm && deliveryMethodSelectedTwin">
+											<div class="col-xs-6">
+												<label for="date">Labor Time:</label>
+											</div>
+											<div class="col-xs-6">
+												<input class="form-control" id="ltimeTwin" type="time"
+													ng-model="entry.inputlabortimeTwin" name="inputlabortimeTwin"
+													required="true" />
+											</div>
+										</div>
+			
+										<div class="form-group row" ng-if="showTwinForm && deliveryMethodSelectedTwin">
+											<div class="col-xs-6">
+												<label for="date">Delivery Date:</label>
+											</div>
+											<div class="col-xs-6">
+												<input class="form-control" id="ddateTwin" type="date"
+													ng-model="entry.inputdeliverydateTwin" name="inputdeliverydateTwin"
+													required="true" />
+											</div>
+										</div>
+			
+										<div class="form-group row" ng-if="showTwinForm && deliveryMethodSelectedTwin">
+											<div class="col-xs-6">
+												<label for="date">Delivery Time:</label>
+											</div>
+											<div class="col-xs-6">
+												<input class="form-control" id="dtimeTwin" type="time"
+													ng-model="entry.inputdeliverytimeTwin" name="inputdeliverytimeTwin"
+													required="true" />
+											</div>
+										</div>
+
+										<div class="form-group row" ng-if="showTwinForm && showForm2">
 											<div class="col-xs-6">
 												<label>Weight:</label>
 											</div>
@@ -775,7 +917,7 @@
 											</div>
 										</div>
 
-										<div class="form-group row">
+										<div class="form-group row" ng-if="showTwinForm && showForm2">
 											<div class="col-xs-6">
 												<label>Height/Length:</label>
 											</div>
@@ -788,7 +930,7 @@
 											</div>
 										</div>
 
-										<div class="form-group row">
+										<div class="form-group row" ng-if="showTwinForm && showForm2">
 											<div class="col-xs-6">
 												<label>Heart Rate:</label>
 											</div>
@@ -801,7 +943,7 @@
 											</div>
 										</div>
 
-										<div class="form-group row">
+										<div class="form-group row" ng-if="showTwinForm && showForm2">
 											<div class="col-xs-6">
 												<label>Systolic:</label>
 											</div>
@@ -814,7 +956,7 @@
 											</div>
 										</div>
 
-										<div class="form-group row">
+										<div class="form-group row" ng-if="showTwinForm && showForm2">
 											<div class="col-xs-6">
 												<label>Diastolic:</label>
 											</div>
