@@ -164,14 +164,9 @@ public class APIObstetricsRecordTest {
 
         createPatient();
 
-        // Create a form for a pregnancy that started January 15th, 2200
+        // Create a form for a pregnancy that started January 15th, 2019
         final ObstetricsRecordForm obsForm = new ObstetricsRecordForm();
-        obsForm.setLastMenstrualPeriod( "2200-01-15" );
-        // Try to instantialize with this invalid form, expect error
-        mvc.perform( post( "/api/v1/obstetricsrecord/patient" ).contentType( MediaType.APPLICATION_JSON )
-                .content( TestUtils.asJsonString( obsForm ) ) ).andExpect( status().isBadRequest() );
 
-        // Lets try again, but with a valid form
         obsForm.setLastMenstrualPeriod( "2019-01-15" );
         mvc.perform( post( "/api/v1/obstetricsrecord/patient" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( obsForm ) ) ).andExpect( status().isOk() );

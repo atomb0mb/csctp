@@ -97,7 +97,7 @@ public class APIDeliveryControllerTest {
         patient.setEmail( "antti@itrust.fi" );
         patient.setEthnicity( Ethnicity.Caucasian.toString() );
         patient.setFirstName( "Test" );
-        patient.setGender( Gender.Male.toString() );
+        patient.setGender( Gender.Female.toString() );
         patient.setLastName( "Patient" );
         patient.setPhone( "123-456-7890" );
         patient.setSelf( "patient" );
@@ -125,8 +125,7 @@ public class APIDeliveryControllerTest {
         mvc.perform( get( "/api/v1/LaborDelivery" ) ).andExpect( status().isOk() )
                 .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );
 
-        mvc.perform( get( "/api/v1/LaborDelivery/patients/patient" ) ).andExpect( status().isOk() )
-                .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );
+        mvc.perform( get( "/api/v1/LaborDelivery/patients/fakePatient" ) ).andExpect( status().isNotFound() );
 
         List<LaborDeliveryReport> reports = LaborDeliveryReport.getAllReports();
 
