@@ -53,7 +53,6 @@ public class APIObstetricsRecordController extends APIController {
             return new ResponseEntity( obr, HttpStatus.OK );
         }
         catch ( final Exception e ) {
-            e.printStackTrace();
             return new ResponseEntity(
                     errorResponse( "Could not create ObstetricsRecord provided due to " + e.getMessage() ),
                     HttpStatus.BAD_REQUEST );
@@ -116,11 +115,8 @@ public class APIObstetricsRecordController extends APIController {
      * into iTrust2
      *
      * @param patient
-<<<<<<< HEAD
-     *            - username of patient to retrieve records for
-=======
-     *            is the username of the patient
->>>>>>> 882a6b05b96350018e92eaef51ee22b739b2cf60
+     *            username of patient to retrieve records for
+     *
      *
      * @return ResponseEntity with the ObstetricsRecord for the patient, or an
      *         error message if cannot be found
@@ -166,11 +162,7 @@ public class APIObstetricsRecordController extends APIController {
      * from this HCP
      *
      * @param patient
-<<<<<<< HEAD
-     *            - username of patient to retrieve records for
-=======
-     *            the username of the patient
->>>>>>> 882a6b05b96350018e92eaef51ee22b739b2cf60
+     *            username of patient to retrieve records for
      *
      * @return List of pregnancies for the patient
      */
