@@ -14,7 +14,6 @@ import org.openqa.selenium.support.ui.Select;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
-import edu.ncsu.csc.itrust2.cucumber2.CucumberTest2;
 import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsRecordForm;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
 import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
@@ -27,7 +26,7 @@ import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
  * @author Chee Ng (cwng)
  *
  */
-public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
+public class HCPLaborAndDeliveryStepDefs extends CucumberTest {
 
     private final String baseUrl = "http://localhost:8080/iTrust2";
 
