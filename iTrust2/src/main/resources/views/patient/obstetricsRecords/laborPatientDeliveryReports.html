@@ -125,7 +125,7 @@
 										$scope.laborAndDeliveryReport[i].diastolic = "";
 									}
 									
-									if(typeTwin == 'Miscarriage*') {
+									if(typeTwin == 'Miscarriage') {
 										$scope.laborAndDeliveryReport[i].weightTwin = "";
 										$scope.laborAndDeliveryReport[i].lengthTwin = "";
 										$scope.laborAndDeliveryReport[i].heartRateTwin = "";
@@ -219,11 +219,11 @@
 					
 						<tbody>
 							<tr ng-repeat="laborNdelivery in laborAndDeliveryReport">
-								<td ng-if="laborNdelivery.deliverymethodTwin" id="laborDate-{{$index}}">{{laborNdelivery.newLdate}}</td>
-								<td ng-if="laborNdelivery.deliverymethodTwin" id="laborTime-{{$index}}">{{laborNdelivery.newLtime}}</td>
-								<td ng-if="laborNdelivery.deliverymethodTwin" id="deliveryDate-{{$index}}">{{laborNdelivery.newDdate}}</td>
-								<td ng-if="laborNdelivery.deliverymethodTwin" id="deliveryTime-{{$index}}">{{laborNdelivery.newDtime}}</td>
-								<td ng-if="laborNdelivery.deliverymethodTwin" id="deliverymethod-{{$index}}">{{laborNdelivery.deliverymethodTwin}}</td>
+								<td ng-if="laborNdelivery.deliverymethodTwin" id="laborDateTwin-{{$index}}">{{laborNdelivery.newLdate}}</td>
+								<td ng-if="laborNdelivery.deliverymethodTwin" id="laborTimeTwin-{{$index}}">{{laborNdelivery.newLtime}}</td>
+								<td ng-if="laborNdelivery.deliverymethodTwin" id="deliveryDateTwin-{{$index}}">{{laborNdelivery.newDdate}}</td>
+								<td ng-if="laborNdelivery.deliverymethodTwin" id="deliveryTimeTwin-{{$index}}">{{laborNdelivery.newDtime}}</td>
+								<td ng-if="laborNdelivery.deliverymethodTwin" id="deliverymethodTwin-{{$index}}">{{laborNdelivery.deliverymethodTwin}}</td>
 								
 								<td ng-if="laborNdelivery.deliverymethodTwin" id="firstnameTwin-{{$index}}">{{laborNdelivery.firstnameTwin}}</td>
 								<td ng-if="laborNdelivery.deliverymethodTwin" id="lastnameTwin-{{$index}}">{{laborNdelivery.lastnameTwin}}</td>
