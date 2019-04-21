@@ -193,7 +193,7 @@ public class HibernateDataGenerator {
         jillUser.save();
         jill.setSelf( jillUser );
         jill.setLastName( "Bob" );
-        jill.setGender( Gender.Female );
+        // jill.setGender( Gender.Female );
         jill.setDateOfBirth( LocalDate.now().minusYears( 40 ) ); // 40 years old
         jill.save();
 
@@ -288,6 +288,18 @@ public class HibernateDataGenerator {
         d.setName( "Quetiane Fumarate" );
         d.setDescription( "atypical antipsychotic and antidepressant" );
         d.save();
+
+        final Patient emily = new Patient();
+        emily.setFirstName( "Emily" );
+        final User emilyUser = new User( "EmilyZeck", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_PATIENT, 1 );
+        emilyUser.save();
+        emily.setSelf( emilyUser );
+        emily.setLastName( "Zeck" );
+        emily.setGender( Gender.Female );
+        emily.setDateOfBirth( LocalDate.now().minusYears( 22 ) ); // 22 years
+                                                                  // old
+        emily.save();
 
         // For obstetrics record cucumber test.
         // The test will fail for overlapping the same patient that causes the
