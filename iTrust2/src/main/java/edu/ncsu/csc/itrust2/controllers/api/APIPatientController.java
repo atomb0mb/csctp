@@ -20,6 +20,7 @@ import edu.ncsu.csc.itrust2.forms.hcp_patient.PatientForm;
 import edu.ncsu.csc.itrust2.models.enums.Gender;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
+import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 import edu.ncsu.csc.itrust2.utils.LoggerUtil;
@@ -69,6 +70,28 @@ public class APIPatientController extends APIController {
             p.setRepresented( null );
         }
         return femalePatients;
+    }
+
+    /**
+     * Retrieves and returns a list of all female Patients with current
+     * pregnancies
+     *
+     * @return list of patients that are pregnant
+     */
+    @GetMapping ( BASE_PATH + "/patients/pregnant" )
+    public List<Patient> getPregnantPatients () {
+        final List<Patient> patients = Patient.getPatients();
+        final List<Patient> pregPat = new ArrayList<Patient>();
+        for ( final Patient p : patients ) {
+            if ( ObstetricsRecord.getByPatient( p.getSelf().getUsername() ).size() > 0 ) {
+                pregPat.add( p );
+            }
+        }
+        for ( final Patient p : pregPat ) {
+            p.setRepresentatives( null );
+            p.setRepresented( null );
+        }
+        return pregPat;
     }
 
     /**
