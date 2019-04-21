@@ -110,6 +110,9 @@ public class APIDeliveryControllerTest {
         form.setDeliveryDate( "2048-04-16T09:50:00.000-04:00" );
         form.setDeliverymethod( DeliveryMethod.CaesareanSection );
         form.setLaborDate( "2048-04-16T09:50:00.000-04:00" );
+        form.setDeliveryDateTwin( "2048-04-16T09:50:00.000-04:00" );
+        form.setDeliverymethodTwin( DeliveryMethod.CaesareanSection );
+        form.setLaborDateTwin( "2048-04-16T09:50:00.000-04:00" );
         form.setPatient( "patient" );
         form.setFirstname( "Henry" );
         form.setFirstnameTwin( "Twin" );
