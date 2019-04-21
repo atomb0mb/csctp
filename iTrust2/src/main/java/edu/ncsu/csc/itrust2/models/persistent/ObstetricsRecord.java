@@ -42,7 +42,7 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
     /**
      * Randomly generated ID.
      */
-    private static final long serialVersionUID      = -3558282960418343804L;
+    private static final long serialVersionUID       = -3558282960418343804L;
 
     /**
      * The username of the patient for this ObstetricsRecord
@@ -84,29 +84,42 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
      * Flags Extra Credit )
      */
 
+    // Tells if patient has high blood pressure ( >90 diastolic or >140 systolic
+    @NotNull
+    private Boolean           hasHighBloodPressure   = false;
+
+    // Tells if patient has high blood pressure ( >90 diastolic or >140 systolic
+    @NotNull
+    private Boolean           hasAdvMaternalAge      = false;
+
     // Set automatically if patient has had a miscarriage before
     // Set when constructed
     @NotNull
-    private Boolean           miscarriagePotential  = false;
+    private Boolean           miscarriagePotential   = false;
+
+    // Tells if patient's baby has a heart rate outside of normal bounds
+    // (105,170)
+    @NotNull
+    private Boolean           abnormalFetalHeartRate = false;
 
     // True if mother is pregnant with twins. False if not
     // Updated when a new Obstetrics Office Visit is recorded
     @NotNull
-    private Boolean           isTwins               = false;
+    private Boolean           isTwins                = false;
 
     // Set automatically if mother has negative blood type
     // Set when constructed
     @NotNull
-    private Boolean           rhNegative            = false;
+    private Boolean           rhNegative             = false;
 
     // store the pre-pregnancy BMI of the patient
     // Updated when a new Obstetrics Office Visit is recorded
     @NotNull
-    private Double            bmi                   = -1.0;
+    private Double            bmi                    = -1.0;
 
     // String for reference of patient's recommended weight gain while pregnant
     // Updated when a new Obstetrics Office Visit is recorded
-    private String            recommendedWeightGain = null;
+    private String            recommendedWeightGain  = null;
 
     /**
      * Get a specific ObstetricsRecord by the database ID
@@ -270,6 +283,25 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
     }
 
     /**
+     * Called whenever front-end retrieves obstetrics record. Ensures all the
+     * special flags stay updated based on new information from office visits,
+     * etc.
+     *
+     */
+    public void updateFlags () {
+        setNumWeeksPregnant();
+        calculateBMI();
+        calculateHighBloodPressure();
+        setAbnormalFetalHeartRate();
+        setHasAdvancedMaternalAge();
+        setMiscarriagePotential();
+        setNumWeeksPregnant();
+        setIsTwins();
+        getRecommendedWeightGain();
+
+    }
+
+    /**
      * Calculates the Body Mass Index for the patient
      *
      */
@@ -314,11 +346,9 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
     }
 
     /**
-     * Return number of weeks patient has been pregnant
-     *
-     * @return number of weeks pregnant
+     * Calculate number of weeks patient has been pregnant
      */
-    public Integer getNumWeeksPregnant () {
+    public void setNumWeeksPregnant () {
 
         int today = LocalDate.now().getDayOfYear();
 
@@ -328,7 +358,34 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
 
         numWeeksPregnant = ( today - lastMenstrualPeriod.getDayOfYear() ) / 7;
 
+    }
+
+    /**
+     * Get number of weeks patient has been pregnant
+     *
+     * @return number of weeks patient has been pregnant
+     */
+    public Integer getNumWeeksPregnant () {
         return numWeeksPregnant;
+    }
+
+    /**
+     * Determines if patient has high blood pressure
+     *
+     */
+    public void calculateHighBloodPressure () {
+        final OfficeVisit mostRecentVisit = this.getMostRecentOfficeVisit();
+
+        if ( mostRecentVisit != null ) {
+            // Determine if the diastolic or systolic numbers were too high
+            if ( mostRecentVisit.getBasicHealthMetrics().getDiastolic() > 90
+                    || mostRecentVisit.getBasicHealthMetrics().getSystolic() > 140 ) {
+                hasHighBloodPressure = true;
+                return;
+            }
+        }
+
+        hasHighBloodPressure = false;
     }
 
     /**
@@ -337,23 +394,19 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
      * @return True if patient has high blood pressure, false if not
      */
     public Boolean hasHighBloodPressure () {
+        return hasHighBloodPressure;
+    }
 
-        final OfficeVisit mostRecentVisit = this.getMostRecentOfficeVisit();
+    /**
+     * Calculates if patient has adv maternal age ( older than 35)
+     *
+     */
+    public void setHasAdvancedMaternalAge () {
+        final LocalDate birthdayPlus36 = Patient.getByName( patient ).getDateOfBirth();
 
-        if ( mostRecentVisit == null ) {
-            return false;
-        }
+        birthdayPlus36.plusYears( 36 );
 
-        System.out.println( "Values given: Dia:" + mostRecentVisit.getBasicHealthMetrics().getDiastolic() + ", Sys:"
-                + mostRecentVisit.getBasicHealthMetrics().getSystolic() );
-
-        // Determine if the diastolic or systolic numbers were too high
-        if ( mostRecentVisit.getBasicHealthMetrics().getDiastolic() > 90
-                || mostRecentVisit.getBasicHealthMetrics().getSystolic() > 140 ) {
-            return true;
-        }
-
-        return false;
+        hasAdvMaternalAge = birthdayPlus36.isBefore( LocalDate.now() );
     }
 
     /**
@@ -362,12 +415,22 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
      * @return True if patient is > 35 years old, false if not
      */
     public Boolean hasAdvancedMaternalAge () {
+        return hasAdvMaternalAge;
+    }
 
-        final LocalDate birthdayPlus36 = Patient.getByName( patient ).getDateOfBirth();
-
-        birthdayPlus36.plusYears( 36 );
-
-        return birthdayPlus36.isBefore( LocalDate.now() );
+    /**
+     * Calculates if patient has potential for a miscarriage, based on past
+     * pregnancies
+     */
+    public void setMiscarriagePotential () {
+        final List<Pregnancy> pList = Pregnancy.getByPatient( patient );
+        for ( final Pregnancy p : pList ) {
+            if ( p.getDeliveryMethod() == DeliveryMethod.Miscarriage ) {
+                miscarriagePotential = true;
+                return;
+            }
+        }
+        miscarriagePotential = false;
     }
 
     /**
@@ -380,25 +443,46 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
     }
 
     /**
+     * Calculates if fetus's heart rate is outside of normal bounds.
+     *
+     * Sets appropriate boolean flag based on results of most recent OBGYN
+     * office visit
+     *
+     */
+    public void setAbnormalFetalHeartRate () {
+        final ObstetricsOfficeVisit mostRecentVisit = getMostRecentObstetricsOfficevisit();
+
+        if ( mostRecentVisit != null ) {
+            final int heartRate = mostRecentVisit.getFetalHeartRate();
+
+            if ( heartRate < 105 || heartRate > 170 ) {
+                abnormalFetalHeartRate = true;
+                return;
+            }
+        }
+
+        abnormalFetalHeartRate = false;
+    }
+
+    /**
      * Returns T/F on if the fetus's heart rate is < 105 or > 170
      *
      * @return True if fetus has abnormal heart rate
      */
     public Boolean hasAbnormalFetalHeartRate () {
+        return abnormalFetalHeartRate;
+    }
 
-        final ObstetricsOfficeVisit mostRecentVisit = getMostRecentObstetricsOfficevisit();
-
+    /**
+     * Sets flag for if mother is pregnant with twins
+     *
+     */
+    public void setIsTwins () {
+        final ObstetricsOfficeVisit mostRecentVisit = this.getMostRecentObstetricsOfficevisit();
         if ( mostRecentVisit == null ) {
-            return false;
+            return;
         }
-
-        final int heartRate = mostRecentVisit.getFetalHeartRate();
-
-        if ( heartRate < 105 || heartRate > 170 ) {
-            return true;
-        }
-
-        return false;
+        isTwins = mostRecentVisit.isTwins();
 
     }
 
@@ -408,14 +492,6 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
      * @return True if pregnant with twins, false if not
      */
     public Boolean isTwins () {
-
-        final ObstetricsOfficeVisit mostRecentVisit = this.getMostRecentObstetricsOfficevisit();
-        if ( mostRecentVisit == null ) {
-            return false;
-        }
-
-        isTwins = mostRecentVisit.isTwins();
-
         return isTwins;
     }
 
