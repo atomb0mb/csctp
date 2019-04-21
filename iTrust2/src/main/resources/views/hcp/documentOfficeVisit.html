@@ -81,6 +81,7 @@
                     $scope.threeAndUp = false;
                     $scope.twelveAndUp = false;
 
+                    
                     /**
                      * Validates birthdate here when patient is selected.
                      */
@@ -131,7 +132,8 @@
                     /*Getting a list of patients*/
                     $http.get("/iTrust2/api/v1/patients").then(
                         function (response) {
-                            $scope.patients = response.data;
+                            $scope.patientsAll = response.data;
+                            $scope.patients = $scope.patientsAll;
                         });
                     /*Getting a list of appointment types*/
                     $http.get("/iTrust2/api/v1/appointmenttype")
@@ -168,6 +170,17 @@
                         function (response) {
                             $scope.surgerytypes = response.data;
                         });
+                    /**
+                  //Get info for the patients
+					$http.get("/iTrust2/api/v1/patients/female")
+							.then(function(response) {
+								$scope.FemPatients = response.data; //get only female patients
+							});
+                    */
+                    $http.get("/iTrust2/api/v1/patients/pregnant")
+					.then(function(response) {
+						$scope.FemPatients = response.data; //get only list of labor and delivery
+					});
 
                     /*Getting a list of laboratory procedures*/
                     $http.get("/iTrust2/api/v1/personnel/getbyroles/ROLE_LABTECH").then(
@@ -193,6 +206,19 @@
                             $scope.loinccodes = response.data;
                         });
 
+                    /**
+                     * Changes the patient list
+                     */
+                    $scope.patientChange = function(type){
+                    	console.log(type);
+                    	
+                    	if(type == "OBGYN_OFFICE_VISIT"){
+                    		$scope.patients = $scope.FemPatients;
+                    	}
+                    	else{
+                    		$scope.patients = $scope.patientsAll;
+                    	}
+                    }
 
                     /*Checks Basic Health Metrics for correctness*/
                     function checkBasicHealthMetrics() {
@@ -446,6 +472,9 @@
                                 })
                             }
                         } else if ($scope.visit.type === 'OBGYN_OFFICE_VISIT') {
+                        	if (validateBasicHealthMetrics()) {
+                                checkBasicHealthMetrics();
+                            }
                         	checkObstetricsVisit();
                             if ($scope.errorMsg == "") {
                                 $http({
@@ -655,7 +684,9 @@
 														style="max-height: 15%; overflow: auto; list-style: none;">
 														<li ng-repeat="type in types"><label> <input
 																type="radio" ng-model="$parent.visit.type"
-																name="{{type}}" value="{{type}}" required="true" />{{type
+																name="{{type}}" value="{{type}}" required="true" 
+																ng-change='patientChange(type)'
+																/>{{type
 																| humanize}}
 														</label></li>
 													</ul>

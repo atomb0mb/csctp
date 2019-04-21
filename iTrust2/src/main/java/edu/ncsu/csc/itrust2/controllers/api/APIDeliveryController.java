@@ -151,8 +151,7 @@ public class APIDeliveryController extends APIController {
     public ResponseEntity editLaborDeliveryReport ( @PathVariable final Long id,
             @RequestBody final LaborDeliveryForm form ) {
         final LaborDeliveryReport report = LaborDeliveryReport.getById( id );
-
-        if ( report != null && report.getId() == id ) {
+        if ( report != null ) {
             report.updateValues( form );
             report.save();
             LoggerUtil.log( TransactionType.OBGYN_EDITS_LABOR_DELIVERY_REPORT, LoggerUtil.currentUser() );

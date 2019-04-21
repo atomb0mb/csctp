@@ -78,14 +78,6 @@
                             	$scope.lmp = response.data.lastMenstrualPeriod;
                                 $scope.estDueDate = response.data.estDueDate;
                                 $scope.numWeeksPregnant = response.data.numWeeksPregnant;
-
-                                // Set flags for abnormalities with pregnancy                    	
-                            	$scope.highBloodPressure = true;
-                                $scope.advancedAge = true; //Set everything to true for now for testing purposes
-                                $scope.pastMiscarriage = true;
-                                $scope.abnormalFetalHeart = true;
-                                $scope.rhFlag = true;
-                                $scope.abWeight = true;								
                                 
                                 $scope.message = "";
                             }, //if it failed
@@ -273,6 +265,30 @@
 								<br> Weeks Pregnant:        {{currentPregnancy[0].numWeeksPregnant}}
 						</div>
 						
+						<div ng-if="currentPregnancy[0].hasHighBloodPressure">
+							FLAG: High Blood Pressure
+						</div>
+						
+						<div ng-if="currentPregnancy[0].hasAdvMaternalAge">
+							FLAG: Advanced maternal age
+						</div>
+
+						<div ng-if="currentPregnancy[0].miscarriagePotential">
+							FLAG: Miscarriage Potential
+						</div>
+						
+						<div ng-if="currentPregnancy[0].abnormalFetalHeartRate">
+							FLAG: Abnormal heart rate
+						</div>
+						
+						<div ng-if="currentPregnancy[0].rhNegative">
+							FLAG: RH-
+						</div>
+						<div ng-if="currentPregnancy[0].recommendedWeightGain.length > 0">
+							FLAG: {{currentPregnancy[0].recommendedWeightGain}}
+						</div>
+						
+
 						<div ng-if="priorPregnancies && currentPregnancy.length == 0">
 							<br><br><br><br><br>
 						</div>

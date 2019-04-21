@@ -21,14 +21,17 @@ import edu.ncsu.csc.itrust2.models.persistent.User;
 
 /**
  * Tests the GeneralOphthalmology class.
- * 
+ *
  * @author Jack MacDonald
  */
 public class GeneralOphthalmologyTest {
 
     /**
      * Tests the GeneralOphthalmology office visit class fields.
-     * @throws ParseException if the form data cannot be parsed to a GeneralOphthalmology office visit.
+     *
+     * @throws ParseException
+     *             if the form data cannot be parsed to a GeneralOphthalmology
+     *             office visit.
      */
     @Test
     public void testGeneralOphthalmology () throws ParseException {
@@ -39,11 +42,11 @@ public class GeneralOphthalmologyTest {
 
         final GeneralOphthalmology visit = new GeneralOphthalmology();
 
-        BasicHealthMetrics bhm = new BasicHealthMetrics();
+        final BasicHealthMetrics bhm = new BasicHealthMetrics();
 
         bhm.setDiastolic( 150 );
         bhm.setHcp( User.getByName( "bobbyOD" ) );
-        bhm.setPatient( User.getByName( "AliceThirteen" ) );
+        bhm.setPatient( User.getByName( "AliceSmith" ) );
         bhm.setHdl( 75 );
         bhm.setLdl( 75 );
         bhm.setHeight( 75f );
@@ -58,7 +61,7 @@ public class GeneralOphthalmologyTest {
         visit.setBasicHealthMetrics( bhm );
         visit.setType( AppointmentType.GENERAL_OPHTHALMOLOGY );
         visit.setHospital( hosp );
-        visit.setPatient( User.getByName( "AliceThirteen" ) );
+        visit.setPatient( User.getByName( "AliceSmith" ) );
         visit.setHcp( User.getByName( "bobbyOD" ) );
         visit.setDate( ZonedDateTime.now() );
         visit.save();
@@ -124,8 +127,12 @@ public class GeneralOphthalmologyTest {
 
     /**
      * Tests the GeneralOphthalmology office visit form.
-     * @throws NumberFormatException if the form String can't be converted to an integer
-     * @throws ParseException if the form data cannot be parsed to a GeneralOphthalmology office visit.
+     *
+     * @throws NumberFormatException
+     *             if the form String can't be converted to an integer
+     * @throws ParseException
+     *             if the form data cannot be parsed to a GeneralOphthalmology
+     *             office visit.
      */
     @Test
     public void testGeneralOphthalmologyForm () throws NumberFormatException, ParseException {
@@ -171,7 +178,7 @@ public class GeneralOphthalmologyTest {
      * Tests optional Basic Health metrics.
      */
     @Test
-    public void testMissingBHM() {
+    public void testMissingBHM () {
         DomainObject.deleteAll( GeneralOphthalmology.class );
 
         final Hospital hosp = new Hospital( "Dr. Jenkins' Insane Asylum", "123 Main St", "12345", "NC" );
@@ -179,11 +186,11 @@ public class GeneralOphthalmologyTest {
 
         final GeneralOphthalmology visit = new GeneralOphthalmology();
 
-        BasicHealthMetrics bhm = new BasicHealthMetrics();
+        final BasicHealthMetrics bhm = new BasicHealthMetrics();
 
         bhm.setDiastolic( 150 );
         bhm.setHcp( User.getByName( "bobbyOD" ) );
-        bhm.setPatient( User.getByName( "AliceThirteen" ) );
+        bhm.setPatient( User.getByName( "AliceSmith" ) );
         bhm.setHeight( 75f );
         bhm.setWeight( 130f );
         bhm.setHouseSmokingStatus( HouseholdSmokingStatus.NONSMOKING );
@@ -193,7 +200,7 @@ public class GeneralOphthalmologyTest {
         visit.setBasicHealthMetrics( bhm );
         visit.setType( AppointmentType.GENERAL_OPHTHALMOLOGY );
         visit.setHospital( hosp );
-        visit.setPatient( User.getByName( "AliceThirteen" ) );
+        visit.setPatient( User.getByName( "AliceSmith" ) );
         visit.setHcp( User.getByName( "bobbyOD" ) );
         visit.setDate( ZonedDateTime.now() );
         visit.save();
