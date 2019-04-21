@@ -93,8 +93,8 @@
 								$scope.deliveryMethods = [ 'Vaginal Delivery',
 										'Caesarean Section', 'Miscarriage' ];
 								
-								$scope.deliveryMethodsTwin = [ 'Vaginal Delivery*',
-									'Caesarean Section*', 'Miscarriage*' ];
+								$scope.deliveryMethodsTwin = [ 'Vaginal Delivery',
+									'Caesarean Section', 'Miscarriage' ];
 
 								// documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
 								$scope.searchFilter = "";
@@ -123,6 +123,8 @@
 										});
 
 								$scope.selectPatient = function(patient) {
+									
+									$scope.edit = { id:0 }; // refresh
 
 									// Get labor delivery by id  patient
 									$http.get(
@@ -133,11 +135,28 @@
 												if($scope.edit.deliverymethod) {
 													$scope.edit.laborDate = new Date($scope.edit.laborDate);
 													$scope.edit.deliveryDate = new Date($scope.edit.deliveryDate);
+													// To not show the zero
+													if($scope.edit.deliverymethod =='Miscarriage') {
+														$scope.edit.weight = "";
+														$scope.edit.length = "";
+														$scope.edit.heartRate = "";
+														$scope.edit.systolic = "";
+														$scope.edit.diastolic = "";
+													}
 												}
 												if($scope.edit.deliverymethodTwin) {
 													$scope.edit.laborDateTwin = new Date($scope.edit.laborDateTwin);
 													$scope.edit.deliveryDateTwin = new Date($scope.edit.deliveryDateTwin);
+													if($scope.edit.deliverymethodTwin =='Miscarriage') {
+														$scope.edit.weightTwin = "";
+														$scope.edit.lengthTwin = "";
+														$scope.edit.heartRateTwin = "";
+														$scope.edit.systolicTwin = "";
+														$scope.edit.diastolicTwin = "";
+													}
 												}
+												
+												
 												
 												$scope.message = "";
 											}, //if it failed
@@ -336,7 +355,7 @@
 										}
 										
 										
-										if(!($scope.edit.deliverymethodTwin == 'Miscarriage*')) {
+										if(!($scope.edit.deliverymethodTwin == 'Miscarriage')) {
 											if ($scope.edit.firstnameTwin == '' || !$scope.edit.firstnameTwin) {
 												$scope.errorMsg += "Second Newborn's first name cannot be empty.\n";
 											}
@@ -506,7 +525,7 @@
 											$scope.edit.diastolic = 0;
 											
 										
-										if(!($scope.edit.deliverymethodTwin == 'Miscarriage*')) {
+										if(!($scope.edit.deliverymethodTwin == 'Miscarriage')) {
 											if ($scope.edit.firstnameTwin == '' || !$scope.edit.firstnameTwin) {
 												$scope.errorMsg += "Second Newborn's first name cannot be empty.\n";
 											}
