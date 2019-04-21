@@ -101,7 +101,10 @@ public class APIObstetricsRecordController extends APIController {
             final Pregnancy pregnancy = new Pregnancy( patient, pForm );
             // pregnancy.setPatient( patient );
             pregnancy.save();
-
+            // Update the flags depending on previous pregnancies
+            if ( ObstetricsRecord.getByPatient( patient ).size() > 0 ) {
+                ObstetricsRecord.getByPatient( patient ).get( 0 ).updateFlags();
+            }
             return new ResponseEntity( pregnancy, HttpStatus.OK );
         }
         catch ( final Exception e ) {
@@ -116,11 +119,7 @@ public class APIObstetricsRecordController extends APIController {
      * into iTrust2
      *
      * @param patient
-<<<<<<< HEAD
-     *            - username of patient to retrieve records for
-=======
      *            is the username of the patient
->>>>>>> 882a6b05b96350018e92eaef51ee22b739b2cf60
      *
      * @return ResponseEntity with the ObstetricsRecord for the patient, or an
      *         error message if cannot be found
@@ -136,6 +135,7 @@ public class APIObstetricsRecordController extends APIController {
         // Before returning the obstetrics record, update the pregnancy flags
         if ( ObstetricsRecord.getByPatient( patient ).size() > 0 ) {
             ObstetricsRecord.getByPatient( patient ).get( 0 ).updateFlags();
+            ObstetricsRecord.getByPatient( patient ).get( 0 ).save();
         }
         LoggerUtil.log( TransactionType.HCP_VIEW_OBS_RECORD, User.getByName( LoggerUtil.currentUser() ),
                 User.getByName( patient ) );
@@ -166,11 +166,7 @@ public class APIObstetricsRecordController extends APIController {
      * from this HCP
      *
      * @param patient
-<<<<<<< HEAD
-     *            - username of patient to retrieve records for
-=======
      *            the username of the patient
->>>>>>> 882a6b05b96350018e92eaef51ee22b739b2cf60
      *
      * @return List of pregnancies for the patient
      */
@@ -180,6 +176,10 @@ public class APIObstetricsRecordController extends APIController {
         if ( null == Patient.getByName( patient ) ) {
             return new ResponseEntity( errorResponse( "No patients found with username " + patient ),
                     HttpStatus.NOT_FOUND );
+        }
+        if ( ObstetricsRecord.getByPatient( patient ).size() > 0 ) {
+            ObstetricsRecord.getByPatient( patient ).get( 0 ).updateFlags();
+            ObstetricsRecord.getByPatient( patient ).get( 0 ).save();
         }
         return new ResponseEntity( Pregnancy.getByPatient( patient ), HttpStatus.OK );
     }

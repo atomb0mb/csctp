@@ -80,6 +80,7 @@
                                 $scope.numWeeksPregnant = response.data.numWeeksPregnant;
                                 
                                 $scope.message = "";
+                                console.log("miscarriagePotential: " + $scope.currentPregnancy[0].miscarriagePotential);
                             }, //if it failed
                             function (rejection) {
                             	$scope.currentPregnancy = {};
@@ -266,26 +267,32 @@
 						</div>
 						
 						<div ng-if="currentPregnancy[0].hasHighBloodPressure">
-							FLAG: High Blood Pressure
+							<br><span class="glyphicon glyphicon-flag" style="color:#D91414" aria-hidden="true"></span>
+							High Blood Pressure
 						</div>
 						
 						<div ng-if="currentPregnancy[0].hasAdvMaternalAge">
-							FLAG: Advanced maternal age
+							<br><span class="glyphicon glyphicon-flag" style="color:#D91414" aria-hidden="true"></span>
+							Advanced maternal age
 						</div>
 
 						<div ng-if="currentPregnancy[0].miscarriagePotential">
-							FLAG: Miscarriage Potential
+							<br><span class="glyphicon glyphicon-flag" style="color:#D91414" aria-hidden="true"></span>
+							Miscarriage Potential
 						</div>
 						
 						<div ng-if="currentPregnancy[0].abnormalFetalHeartRate">
-							FLAG: Abnormal heart rate
+							<br><span class="glyphicon glyphicon-flag" style="color:#D91414" aria-hidden="true"></span>
+							Abnormal heart rate
 						</div>
 						
 						<div ng-if="currentPregnancy[0].rhNegative">
-							FLAG: RH-
+							<br><span class="glyphicon glyphicon-flag" style="color:#D91414" aria-hidden="true"></span>
+							RH- Blood
 						</div>
 						<div ng-if="currentPregnancy[0].recommendedWeightGain.length > 0">
-							FLAG: {{currentPregnancy[0].recommendedWeightGain}}
+							<br><span class="glyphicon glyphicon-flag" style="color:#D91414" aria-hidden="true"></span>
+							{{currentPregnancy[0].recommendedWeightGain}}
 						</div>
 						
 
