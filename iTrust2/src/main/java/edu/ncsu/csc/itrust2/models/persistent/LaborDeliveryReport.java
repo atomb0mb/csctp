@@ -61,6 +61,24 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> imple
     private ZonedDateTime     deliveryDate;
 
     /**
+     * The date and time that labor started
+     */
+    @NotNull
+    @Basic
+    @Convert ( converter = ZonedDateTimeAttributeConverter.class )
+    @JsonAdapter ( ZonedDateTimeAdapter.class )
+    private ZonedDateTime     laborDateTwin;
+
+    /**
+     * The date and time the delivery happened
+     */
+    @NotNull
+    @Basic
+    @Convert ( converter = ZonedDateTimeAttributeConverter.class )
+    @JsonAdapter ( ZonedDateTimeAdapter.class )
+    private ZonedDateTime     deliveryDateTwin;
+
+    /**
      * First name of baby
      */
     private String            firstname;
@@ -163,6 +181,8 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> imple
         setPatient( form.getPatient() );
         setLaborDate( ZonedDateTime.parse( form.getLaborDate() ) );
         setDeliveryDate( ZonedDateTime.parse( form.getDeliveryDate() ) );
+        setLaborDateTwin( ZonedDateTime.parse( form.getLaborDateTwin() ) );
+        setDeliveryDateTwin( ZonedDateTime.parse( form.getDeliveryDateTwin() ) );
         setFirstname( form.getFirstname() );
         setLastname( form.getLastname() );
         setWeight( form.getWeight() );
@@ -277,6 +297,44 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> imple
      */
     public void setDeliveryDate ( final ZonedDateTime deliveryDate ) {
         this.deliveryDate = deliveryDate;
+    }
+
+    /**
+     * Returns the date of the start of labor
+     *
+     * @return the laborDateTwin
+     */
+    public ZonedDateTime getLaborDateTwin () {
+        return laborDateTwin;
+    }
+
+    /**
+     * Sets the date of the start of labor
+     *
+     * @param laborDateTwin
+     *            the laborDate to set
+     */
+    public void setLaborDateTwin ( final ZonedDateTime laborDateTwin ) {
+        this.laborDateTwin = laborDateTwin;
+    }
+
+    /**
+     * Returns the date the delivery happened
+     *
+     * @return the deliveryDate
+     */
+    public ZonedDateTime getDeliveryDateTwin () {
+        return deliveryDateTwin;
+    }
+
+    /**
+     * Sets the date the delivery happened
+     *
+     * @param deliveryDateTwin
+     *            the deliveryDate to set
+     */
+    public void setDeliveryDateTwin ( final ZonedDateTime deliveryDateTwin ) {
+        this.deliveryDateTwin = deliveryDateTwin;
     }
 
     /**
@@ -593,6 +651,8 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> imple
         setPatient( form.getPatient() );
         setLaborDate( ZonedDateTime.parse( form.getLaborDate() ) );
         setDeliveryDate( ZonedDateTime.parse( form.getDeliveryDate() ) );
+        setLaborDateTwin( ZonedDateTime.parse( form.getLaborDateTwin() ) );
+        setDeliveryDateTwin( ZonedDateTime.parse( form.getDeliveryDateTwin() ) );
         setFirstname( form.getFirstname() );
         setLastname( form.getLastname() );
         setWeight( form.getWeight() );

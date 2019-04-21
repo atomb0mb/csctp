@@ -28,16 +28,16 @@ public enum DeliveryMethod {
     /**
      * Vaginal Delivery for Twin
      */
-    @SerializedName ( "Vaginal Delivery*" )
+    @SerializedName ( "Vaginal Delivery " )
     VaginalDeliveryTwin,
     /**
      * Caesarean Section for Twin
      */
-    @SerializedName ( "Caesarean Section*" )
+    @SerializedName ( "Caesarean Section " )
     CaesareanSectionTwin,
     /**
      * Miscarriage for Twin
      */
-    @SerializedName ( "Miscarriage*" )
+    @SerializedName ( "Miscarriage " )
     MiscarriageTwin
 }

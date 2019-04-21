@@ -48,6 +48,8 @@ public class LaborDeliveryTest {
         report.setSystolic( 40 );
         report.setWeight( 20 );
 
+        report.setDeliveryDateTwin( ZonedDateTime.now() );
+        report.setLaborDateTwin( ZonedDateTime.now() );
         report.setDiastolicTwin( 121 );
         report.setFirstnameTwin( "Ham" );
         report.setHeartRateTwin( 66 );
@@ -63,6 +65,8 @@ public class LaborDeliveryTest {
         assertEquals( retrieved.getId(), report.getId() );
         assertTrue( retrieved.getLaborDate() != null );
         assertTrue( retrieved.getDeliveryDate() != null );
+        assertTrue( retrieved.getLaborDateTwin() != null );
+        assertTrue( retrieved.getDeliveryDateTwin() != null );
         assertEquals( retrieved.getDeliverymethod(), report.getDeliverymethod() );
         assertEquals( retrieved.getDiastolic(), report.getDiastolic() );
         assertEquals( retrieved.getFirstname(), report.getFirstname() );

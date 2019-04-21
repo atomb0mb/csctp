@@ -14,7 +14,7 @@ import org.openqa.selenium.support.ui.Select;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
-import edu.ncsu.csc.itrust2.cucumber2.CucumberTest2;
+import edu.ncsu.csc.itrust2.cucumber.CucumberTest;
 import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsRecordForm;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
 import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
@@ -24,10 +24,15 @@ import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
  * functionality. It includes valid and invalid input. As checks the correct
  * transaction code.
  *
+ * Flow: The OBGYN select patient with obstetrics record. Then he select the
+ * twin option, delivery method, date and time of labor and delivery report.
+ * Then selection of delivery method determines whether he should fill in
+ * newborn information of basic health metrics or not.
+ *
  * @author Chee Ng (cwng)
  *
  */
-public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
+public class HCPLaborAndDeliveryStepDefs extends CucumberTest {
 
     private final String baseUrl = "http://localhost:8080/iTrust2";
 
@@ -80,6 +85,10 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
         if ( text.equals( "edit" ) ) {
             ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('editLDReport').click();" );
 
+        }
+        else if ( text.equals( "hcpview" ) ) {
+            ( (JavascriptExecutor) driver )
+                    .executeScript( "document.getElementById('HCPLaborDeliveryReports').click();" );
         }
         else {
             ( (JavascriptExecutor) driver )
@@ -180,7 +189,15 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
      * @param deliveryDate
      *            of date
      * @param deliveryTime
-     *            of time
+     *            of twin time
+     * @param laborDateTwin
+     *            of twin date
+     * @param laborTimeTwin
+     *            of twin time
+     * @param deliveryDateTwin
+     *            of twin date
+     * @param deliveryTimeTwin
+     *            of twin time
      * @param type
      *            of delivery method
      * @param twin
@@ -218,73 +235,135 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
      * @throws InterruptedException
      *             if the time thread did not work
      */
-    @Then ( "^he submits (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+)$" )
+    @Then ( "^he submits (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+)$" )
     public void addvalidLd ( final String laborDate, final String laborTime, final String deliveryDate,
-            final String deliveryTime, final String type, final String twin, final String first, final String last,
-            final int weight, final int height, final int heartRate, final int systolic, final int diastolic,
-            final String twinFirst, final String twinLast, final int twinWeight, final int twinHeight, final int twinHR,
-            final int twinSystolic, final int twinDiastolic, final String twinType ) throws InterruptedException {
+            final String deliveryTime, final String laborDateTwin, final String laborTimeTwin,
+            final String deliveryDateTwin, final String deliveryTimeTwin, final String type, final String twin,
+            final String first, final String last, final int weight, final int height, final int heartRate,
+            final int systolic, final int diastolic, final String twinFirst, final String twinLast,
+            final int twinWeight, final int twinHeight, final int twinHR, final int twinSystolic,
+            final int twinDiastolic, final String twinType ) throws InterruptedException {
+
         Thread.sleep( 1000 );
+        // Click Create button
         driver.findElement( By.id( "displayCreateForm" ) ).click();
         waitForAngular();
 
-        // This will fill L&D date and time all at once
-        fillLaborAndDeliveryDateTime( laborDate, laborTime, deliveryDate, deliveryTime );
-
         // Select twin or not first
         driver.findElement( By.cssSelector( "input[type=radio][name=" + twin + "]" ) ).click();
-        // Select delivery type
-
-        waitForAngular();
-        Thread.sleep( 1000 );
-        driver.findElement( By.name( type ) ).click();
 
         waitForAngular();
         Thread.sleep( 1000 );
 
-        // INFO ON first INFANT
-
-        if ( !type.equals( "Miscarriage" ) ) {
-
-            driver.findElement( By.name( "firstname" ) ).clear();
-
-            driver.findElement( By.name( "firstname" ) ).sendKeys( first );
-
-            driver.findElement( By.name( "lastname" ) ).clear();
-
-            driver.findElement( By.name( "lastname" ) ).sendKeys( last );
-
-            driver.findElement( By.name( "weight" ) ).clear();
-
-            driver.findElement( By.name( "weight" ) ).sendKeys( Integer.toString( weight ) );
-
-            driver.findElement( By.name( "length" ) ).clear();
-
-            driver.findElement( By.name( "length" ) ).sendKeys( Integer.toString( height ) );
-
-            driver.findElement( By.name( "heartrate" ) ).clear();
-
-            driver.findElement( By.name( "heartrate" ) ).sendKeys( Integer.toString( heartRate ) );
-
-            driver.findElement( By.name( "systolic" ) ).clear();
-
-            driver.findElement( By.name( "systolic" ) ).sendKeys( Integer.toString( systolic ) );
-
-            driver.findElement( By.name( "diastolic" ) ).clear();
-
-            driver.findElement( By.name( "diastolic" ) ).sendKeys( Integer.toString( diastolic ) );
-
-        }
-
-        // Second newborn
-        if ( twin.equals( "Yes" ) ) {
-
-            driver.findElement( By.name( twinType ) ).click();
+        // if twin selection if no
+        if ( twin.equals( "No" ) ) {
+            // Then choose the type of delivery method
+            driver.findElement( By.name( type ) ).click();
 
             waitForAngular();
-            Thread.sleep( 2000 );
+            Thread.sleep( 1000 );
 
-            if ( !twinType.equals( "Miscarriage*" ) ) {
+            // fill L&D date and time all at once
+            fillLaborAndDeliveryDateTime( laborDate, laborTime, deliveryDate, deliveryTime, "N" );
+
+            // Information of first new born
+            if ( !type.equals( "Miscarriage" ) ) {
+
+                driver.findElement( By.name( "firstname" ) ).clear();
+
+                driver.findElement( By.name( "firstname" ) ).sendKeys( first );
+
+                driver.findElement( By.name( "lastname" ) ).clear();
+
+                driver.findElement( By.name( "lastname" ) ).sendKeys( last );
+
+                driver.findElement( By.name( "weight" ) ).clear();
+
+                driver.findElement( By.name( "weight" ) ).sendKeys( Integer.toString( weight ) );
+
+                driver.findElement( By.name( "length" ) ).clear();
+
+                driver.findElement( By.name( "length" ) ).sendKeys( Integer.toString( height ) );
+
+                driver.findElement( By.name( "heartrate" ) ).clear();
+
+                driver.findElement( By.name( "heartrate" ) ).sendKeys( Integer.toString( heartRate ) );
+
+                driver.findElement( By.name( "systolic" ) ).clear();
+
+                driver.findElement( By.name( "systolic" ) ).sendKeys( Integer.toString( systolic ) );
+
+                driver.findElement( By.name( "diastolic" ) ).clear();
+
+                driver.findElement( By.name( "diastolic" ) ).sendKeys( Integer.toString( diastolic ) );
+
+            }
+            else {
+                // Still need to fill out info for first new born
+                fillLaborAndDeliveryDateTime( laborDate, laborTime, deliveryDate, deliveryTime, "N" );
+            }
+
+        }
+        // If selection is twin
+        else if ( twin.equals( "Yes" ) ) {
+
+            driver.findElement( By.name( type ) ).click();
+
+            waitForAngular();
+            Thread.sleep( 1000 );
+
+            // fill L&D date and time all at once
+            fillLaborAndDeliveryDateTime( laborDate, laborTime, deliveryDate, deliveryTime, "N" );
+
+            // Information of first new born
+            if ( !type.equals( "Miscarriage" ) ) {
+
+                driver.findElement( By.name( "firstname" ) ).clear();
+
+                driver.findElement( By.name( "firstname" ) ).sendKeys( first );
+
+                driver.findElement( By.name( "lastname" ) ).clear();
+
+                driver.findElement( By.name( "lastname" ) ).sendKeys( last );
+
+                driver.findElement( By.name( "weight" ) ).clear();
+
+                driver.findElement( By.name( "weight" ) ).sendKeys( Integer.toString( weight ) );
+
+                driver.findElement( By.name( "length" ) ).clear();
+
+                driver.findElement( By.name( "length" ) ).sendKeys( Integer.toString( height ) );
+
+                driver.findElement( By.name( "heartrate" ) ).clear();
+
+                driver.findElement( By.name( "heartrate" ) ).sendKeys( Integer.toString( heartRate ) );
+
+                driver.findElement( By.name( "systolic" ) ).clear();
+
+                driver.findElement( By.name( "systolic" ) ).sendKeys( Integer.toString( systolic ) );
+
+                driver.findElement( By.name( "diastolic" ) ).clear();
+
+                driver.findElement( By.name( "diastolic" ) ).sendKeys( Integer.toString( diastolic ) );
+
+            }
+            else {
+                // Still need to fill out info for first new born
+                fillLaborAndDeliveryDateTime( laborDate, laborTime, deliveryDate, deliveryTime, "N" );
+            }
+
+            waitForAngular();
+            Thread.sleep( 1000 );
+
+            // Then choose the type of delivery method for twin
+            driver.findElement( By.name( twinType + " " ) ).click();
+
+            if ( !twinType.equals( "Miscarriage" ) ) {
+                Thread.sleep( 1000 );
+                // Date and time for twin
+                fillLaborAndDeliveryDateTime( laborDateTwin, laborTimeTwin, deliveryDateTwin, deliveryTimeTwin, "Y" );
+
+                Thread.sleep( 1000 );
 
                 driver.findElement( By.name( "firstnameTwin" ) ).clear();
 
@@ -315,6 +394,12 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
                 driver.findElement( By.name( "diastolicTwin" ) ).sendKeys( Integer.toString( twinDiastolic ) );
 
             }
+            else {
+                // still need to fill out date and time
+
+                fillLaborAndDeliveryDateTime( laborDateTwin, laborTimeTwin, deliveryDateTwin, deliveryTimeTwin, "Y" );
+
+            }
 
         }
 
@@ -333,12 +418,9 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
     @And ( "^Verify log history (\\d+)$" )
     public void checkTransactionHistory ( final int transaction ) throws InterruptedException {
         Thread.sleep( 1500 );
-        // if ( transaction == 2403 ) {
-        // driver.get( baseUrl + "/patient/index" );
-        // }
-        // else {
+
         driver.get( baseUrl + "/hcp/index" );
-        // }
+
         Thread.sleep( 1500 );
         waitForAngular();
         switch ( transaction ) {
@@ -357,9 +439,6 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
         }
     }
 
-    // *************************BEGIN INVALID CREATE
-    // LD*************************************
-
     /**
      * When HCP enters invalid info of first newborn and or second newborn
      *
@@ -371,6 +450,14 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
      *            of date
      * @param deliveryTime
      *            of time
+     * @param deliveryTimeTwin
+     *            of twin time
+     * @param laborDateTwin
+     *            of twin date
+     * @param laborTimeTwin
+     *            of twin time
+     * @param deliveryDateTwin
+     *            of twin date
      * @param type
      *            of delivery method
      * @param twin
@@ -408,73 +495,133 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
      * @throws InterruptedException
      *             if the time thread did not work
      */
-    @And ( "^he incorrectly enters invalid values (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+)$" )
-    public void addReportInvalid ( final String laborDate, final String laborTime, final String deliveryDate,
-            final String deliveryTime, final String type, final String twin, final String first, final String last,
-            final int weight, final int height, final int heartRate, final int systolic, final int diastolic,
-            final String twinFirst, final String twinLast, final int twinWeight, final int twinHeight, final int twinHR,
-            final int twinSystolic, final int twinDiastolic, final String twinType ) throws InterruptedException {
+    @And ( "^he incorrectly enters invalid values (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+)$" )
+    public void entersInvalidLd ( final String laborDate, final String laborTime, final String deliveryDate,
+            final String deliveryTime, final String laborDateTwin, final String laborTimeTwin,
+            final String deliveryDateTwin, final String deliveryTimeTwin, final String type, final String twin,
+            final String first, final String last, final int weight, final int height, final int heartRate,
+            final int systolic, final int diastolic, final String twinFirst, final String twinLast,
+            final int twinWeight, final int twinHeight, final int twinHR, final int twinSystolic,
+            final int twinDiastolic, final String twinType ) throws InterruptedException {
+
         Thread.sleep( 1000 );
+        // Click Create button
         driver.findElement( By.id( "displayCreateForm" ) ).click();
         waitForAngular();
 
-        // This will fill L&D date and time all at once
-        fillLaborAndDeliveryDateTime( laborDate, laborTime, deliveryDate, deliveryTime );
-
         // Select twin or not first
         driver.findElement( By.cssSelector( "input[type=radio][name=" + twin + "]" ) ).click();
-        // Select delivery type
 
         waitForAngular();
-        Thread.sleep( 1500 );
-        driver.findElement( By.name( type ) ).click();
+        Thread.sleep( 1000 );
 
-        waitForAngular();
-        Thread.sleep( 1500 );
-
-        // INFO ON first INFANT
-
-        if ( !type.equals( "Miscarriage" ) ) {
-
-            driver.findElement( By.name( "firstname" ) ).clear();
-
-            driver.findElement( By.name( "firstname" ) ).sendKeys( first );
-
-            driver.findElement( By.name( "lastname" ) ).clear();
-
-            driver.findElement( By.name( "lastname" ) ).sendKeys( last );
-
-            driver.findElement( By.name( "weight" ) ).clear();
-
-            driver.findElement( By.name( "weight" ) ).sendKeys( Integer.toString( weight ) );
-
-            driver.findElement( By.name( "length" ) ).clear();
-
-            driver.findElement( By.name( "length" ) ).sendKeys( Integer.toString( height ) );
-
-            driver.findElement( By.name( "heartrate" ) ).clear();
-
-            driver.findElement( By.name( "heartrate" ) ).sendKeys( Integer.toString( heartRate ) );
-
-            driver.findElement( By.name( "systolic" ) ).clear();
-
-            driver.findElement( By.name( "systolic" ) ).sendKeys( Integer.toString( systolic ) );
-
-            driver.findElement( By.name( "diastolic" ) ).clear();
-
-            driver.findElement( By.name( "diastolic" ) ).sendKeys( Integer.toString( diastolic ) );
-
-        }
-
-        // Second newborn
-        if ( twin.equals( "Yes" ) ) {
-
-            driver.findElement( By.name( twinType ) ).click();
+        // if twin selection if no
+        if ( twin.equals( "No" ) ) {
+            // Then choose the type of delivery method
+            driver.findElement( By.name( type ) ).click();
 
             waitForAngular();
-            Thread.sleep( 2000 );
+            Thread.sleep( 1000 );
 
-            if ( !twinType.equals( "Miscarriage*" ) ) {
+            // fill L&D date and time all at once
+            fillLaborAndDeliveryDateTime( laborDate, laborTime, deliveryDate, deliveryTime, "N" );
+
+            // Information of first new born
+            if ( !type.equals( "Miscarriage" ) ) {
+
+                driver.findElement( By.name( "firstname" ) ).clear();
+
+                driver.findElement( By.name( "firstname" ) ).sendKeys( first );
+
+                driver.findElement( By.name( "lastname" ) ).clear();
+
+                driver.findElement( By.name( "lastname" ) ).sendKeys( last );
+
+                driver.findElement( By.name( "weight" ) ).clear();
+
+                driver.findElement( By.name( "weight" ) ).sendKeys( Integer.toString( weight ) );
+
+                driver.findElement( By.name( "length" ) ).clear();
+
+                driver.findElement( By.name( "length" ) ).sendKeys( Integer.toString( height ) );
+
+                driver.findElement( By.name( "heartrate" ) ).clear();
+
+                driver.findElement( By.name( "heartrate" ) ).sendKeys( Integer.toString( heartRate ) );
+
+                driver.findElement( By.name( "systolic" ) ).clear();
+
+                driver.findElement( By.name( "systolic" ) ).sendKeys( Integer.toString( systolic ) );
+
+                driver.findElement( By.name( "diastolic" ) ).clear();
+
+                driver.findElement( By.name( "diastolic" ) ).sendKeys( Integer.toString( diastolic ) );
+
+            }
+            else {
+                // Still need to fill out info for first new born
+                fillLaborAndDeliveryDateTime( laborDate, laborTime, deliveryDate, deliveryTime, "N" );
+            }
+
+        }
+        // If selection is twin
+        else if ( twin.equals( "Yes" ) ) {
+
+            driver.findElement( By.name( type ) ).click();
+
+            waitForAngular();
+            Thread.sleep( 1000 );
+
+            // fill L&D date and time all at once
+            fillLaborAndDeliveryDateTime( laborDate, laborTime, deliveryDate, deliveryTime, "N" );
+
+            // Information of first new born
+            if ( !type.equals( "Miscarriage" ) ) {
+
+                driver.findElement( By.name( "firstname" ) ).clear();
+
+                driver.findElement( By.name( "firstname" ) ).sendKeys( first );
+
+                driver.findElement( By.name( "lastname" ) ).clear();
+
+                driver.findElement( By.name( "lastname" ) ).sendKeys( last );
+
+                driver.findElement( By.name( "weight" ) ).clear();
+
+                driver.findElement( By.name( "weight" ) ).sendKeys( Integer.toString( weight ) );
+
+                driver.findElement( By.name( "length" ) ).clear();
+
+                driver.findElement( By.name( "length" ) ).sendKeys( Integer.toString( height ) );
+
+                driver.findElement( By.name( "heartrate" ) ).clear();
+
+                driver.findElement( By.name( "heartrate" ) ).sendKeys( Integer.toString( heartRate ) );
+
+                driver.findElement( By.name( "systolic" ) ).clear();
+
+                driver.findElement( By.name( "systolic" ) ).sendKeys( Integer.toString( systolic ) );
+
+                driver.findElement( By.name( "diastolic" ) ).clear();
+
+                driver.findElement( By.name( "diastolic" ) ).sendKeys( Integer.toString( diastolic ) );
+
+            }
+            else {
+                // Still need to fill out info for first new born
+                fillLaborAndDeliveryDateTime( laborDate, laborTime, deliveryDate, deliveryTime, "N" );
+            }
+
+            // Then choose the type of delivery method for twin
+            driver.findElement( By.name( twinType + " " ) ).click();
+
+            waitForAngular();
+            Thread.sleep( 1000 );
+
+            if ( !twinType.equals( "Miscarriage" ) ) {
+
+                // Date and time for twin
+                fillLaborAndDeliveryDateTime( laborDateTwin, laborTimeTwin, deliveryDateTwin, deliveryTimeTwin, "Y" );
 
                 driver.findElement( By.name( "firstnameTwin" ) ).clear();
 
@@ -504,6 +651,10 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
 
                 driver.findElement( By.name( "diastolicTwin" ) ).sendKeys( Integer.toString( twinDiastolic ) );
 
+            }
+            else {
+                // still need to fill out date and time
+                fillLaborAndDeliveryDateTime( laborDateTwin, laborTimeTwin, deliveryDateTwin, deliveryTimeTwin, "Y" );
             }
 
         }
@@ -525,6 +676,14 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
      *            of date
      * @param deliveryTime
      *            of time
+     * @param laborDateTwin
+     *            of Twin date
+     * @param laborTimeTwin
+     *            of Twin time
+     * @param deliveryDateTwin
+     *            of Twin date
+     * @param deliveryTimeTwin
+     *            of Twin time
      * @param type
      *            of delivery method
      * @param twin
@@ -562,56 +721,58 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
      * @throws InterruptedException
      *             if the time thread did not work
      */
-    @And ( "^The labor and delivery reports display (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+)$" )
+    @And ( "^The labor and delivery reports display (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+)$" )
     public void viewReports ( final String laborDate, final String laborTime, final String deliveryDate,
-            final String deliveryTime, final String type, final String twin, final String first, final String last,
-            final int weight, final int height, final int heartRate, final int systolic, final int diastolic,
-            final String twinFirst, final String twinLast, final int twinWeight, final int twinHeight, final int twinHR,
-            final int twinSystolic, final int twinDiastolic, final String twinType ) throws InterruptedException {
+            final String deliveryTime, final String laborDateTwin, final String laborTimeTwin,
+            final String deliveryDateTwin, final String deliveryTimeTwin, final String type, final String twin,
+            final String first, final String last, final int weight, final int height, final int heartRate,
+            final int systolic, final int diastolic, final String twinFirst, final String twinLast,
+            final int twinWeight, final int twinHeight, final int twinHR, final int twinSystolic,
+            final int twinDiastolic, final String twinType ) throws InterruptedException {
 
         waitForAngular();
+        if ( !type.equals( "N/A" ) ) {
+            assertTrue( driver.findElement( By.id( "deliverymethod-0" ) ).getText().contains( ( type ) ) );
+            assertTrue( driver.findElement( By.id( "laborDate-0" ) ).getText().contains( ( laborDate ) ) );
+            assertTrue( driver.findElement( By.id( "deliveryDate-0" ) ).getText().contains( ( deliveryDate ) ) );
 
-        driver.findElement( By.id( "laborDate-0" ) ).getText().contains( ( laborDate ) );
-        driver.findElement( By.id( "laborTime-0" ) ).getText().contains( ( laborTime ) );
-        driver.findElement( By.id( "deliveryDate-0" ) ).getText().contains( ( deliveryDate ) );
-        driver.findElement( By.id( "deliveryTime-0" ) ).getText().contains( ( deliveryTime ) );
-
-        driver.findElement( By.id( "deliverymethod-0" ) ).getText().contains( ( type ) );
-
-        if ( !type.equals( "Miscarriage" ) ) {
-            assertTrue( driver.findElement( By.id( "firstname-0" ) ).getText().contains( first ) );
-            assertTrue( driver.findElement( By.id( "lastname-0" ) ).getText().contains( last ) );
-            assertTrue( driver.findElement( By.id( "weight-0" ) ).getText().contains( Integer.toString( weight ) ) );
-            assertTrue( driver.findElement( By.id( "length-0" ) ).getText().contains( Integer.toString( height ) ) );
-            assertTrue(
-                    driver.findElement( By.id( "heartRate-0" ) ).getText().contains( Integer.toString( heartRate ) ) );
-            assertTrue(
-                    driver.findElement( By.id( "systolic-0" ) ).getText().contains( Integer.toString( systolic ) ) );
-            assertTrue(
-                    driver.findElement( By.id( "diastolic-0" ) ).getText().contains( Integer.toString( diastolic ) ) );
+            assertTrue( driver.findElement( By.id( "laborTime-0" ) ).getText().contains( ( laborTime ) ) );
+            assertTrue( driver.findElement( By.id( "deliveryTime-0" ) ).getText().contains( ( deliveryTime ) ) );
         }
 
-        // if ( twin.equals( "Yes" ) ) {
-        // assertTrue( driver.findElement( By.id( "deliverymethodTwin-0" )
-        // ).getText().contains( ( twinType ) ) );
-        // assertTrue( driver.findElement( By.id( "firstnameTwin-0" )
-        // ).getText().contains( twinFirst ) );
-        // assertTrue( driver.findElement( By.id( "lastnameTwin-0" )
-        // ).getText().contains( twinLast ) );
-        // assertTrue( driver.findElement( By.id( "weightTwin-0" ) ).getText()
-        // .contains( Integer.toString( twinWeight ) ) );
-        // assertTrue( driver.findElement( By.id( "lengthTwin-0" ) ).getText()
-        // .contains( Integer.toString( twinHeight ) ) );
-        // assertTrue(
-        // driver.findElement( By.id( "heartRateTwin-0" ) ).getText().contains(
-        // Integer.toString( twinHR ) ) );
-        // assertTrue( driver.findElement( By.id( "systolicTwin-0" ) ).getText()
-        // .contains( Integer.toString( twinSystolic ) ) );
-        // assertTrue( driver.findElement( By.id( "DiastolicTwin-0" )
-        // ).getText()
-        // .contains( Integer.toString( twinDiastolic ) ) );
-        //
-        // }
+        if ( !type.equals( "Miscarriage" ) ) {
+            driver.findElement( By.id( "firstname-0" ) ).getText().contains( first );
+            driver.findElement( By.id( "lastname-0" ) ).getText().contains( last );
+            driver.findElement( By.id( "weight-0" ) ).getText().contains( Integer.toString( weight ) );
+            driver.findElement( By.id( "length-0" ) ).getText().contains( Integer.toString( height ) );
+
+            driver.findElement( By.id( "heartRate-0" ) ).getText().contains( Integer.toString( heartRate ) );
+
+            driver.findElement( By.id( "systolic-0" ) ).getText().contains( Integer.toString( systolic ) );
+
+            driver.findElement( By.id( "diastolic-0" ) ).getText().contains( Integer.toString( diastolic ) );
+        }
+
+        if ( twin.equals( "Yes" ) ) {
+            if ( !twinType.equals( "N/A" ) ) {
+                driver.findElement( By.id( "deliverymethodTwin-0" ) ).getText().contains( ( twinType ) );
+            }
+            assertTrue( driver.findElement( By.id( "laborDateTwin-0" ) ).getText().contains( ( laborDateTwin ) ) );
+            assertTrue(
+                    driver.findElement( By.id( "deliveryDateTwin-0" ) ).getText().contains( ( deliveryDateTwin ) ) );
+
+            assertTrue( driver.findElement( By.id( "laborTimeTwin-0" ) ).getText().contains( ( laborTimeTwin ) ) );
+            assertTrue(
+                    driver.findElement( By.id( "deliveryTimeTwin-0" ) ).getText().contains( ( deliveryTimeTwin ) ) );
+            driver.findElement( By.id( "firstnameTwin-0" ) ).getText().contains( twinFirst );
+            driver.findElement( By.id( "lastnameTwin-0" ) ).getText().contains( twinLast );
+            driver.findElement( By.id( "weightTwin-0" ) ).getText().contains( Integer.toString( twinWeight ) );
+            driver.findElement( By.id( "lengthTwin-0" ) ).getText().contains( Integer.toString( twinHeight ) );
+            driver.findElement( By.id( "heartRateTwin-0" ) ).getText().contains( Integer.toString( twinHR ) );
+            driver.findElement( By.id( "systolicTwin-0" ) ).getText().contains( Integer.toString( twinSystolic ) );
+            driver.findElement( By.id( "diastolicTwin-0" ) ).getText().contains( Integer.toString( twinDiastolic ) );
+
+        }
     }
 
     // *************************BEGIN EDIT LABOR AND DELIVERY
@@ -625,6 +786,11 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
      *
      * @param deliveryDate
      *            of date
+     * @param laborDateTwin
+     *            of Twin date
+     *
+     * @param deliveryDateTwin
+     *            of Twin date
      *
      * @param type
      *            of delivery method
@@ -662,95 +828,146 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
      * @throws InterruptedException
      *             if the time thread did not work
      */
-    @Then ( "^he edit pre-filled fields (.+), (.+), (.+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+)$" )
-    public void editldr ( final String laborDate, final String deliveryDate, final String type, final String first,
-            final String last, final int weight, final int height, final int heartRate, final int systolic,
-            final int diastolic, final String twinFirst, final String twinLast, final int twinWeight,
-            final int twinHeight, final int twinHR, final int twinSystolic, final int twinDiastolic,
-            final String twinType ) throws InterruptedException {
+    @Then ( "^he edit pre-filled fields (.+), (.+), (.+), (.+), (.+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+)$" )
+    public void editldr ( final String laborDate, final String deliveryDate, final String laborDateTwin,
+            final String deliveryDateTwin, final String type, final String first, final String last, final int weight,
+            final int height, final int heartRate, final int systolic, final int diastolic, final String twinFirst,
+            final String twinLast, final int twinWeight, final int twinHeight, final int twinHR, final int twinSystolic,
+            final int twinDiastolic, final String twinType ) throws InterruptedException {
 
         waitForAngular();
-        Thread.sleep( 5000 );
+        Thread.sleep( 1000 );
 
-        // This will fill L&D date only
-        fillInDate( "ldate", laborDate );
-        fillInDate( "ddate", deliveryDate );
+        // We want to see if twin exists or not
+        if ( driver.findElement( By.name( "editdeliveryMethodTwin" ) ).isDisplayed() && !twinType.equals( "N/A" ) ) {
 
-        // Select delivery type
+            final Select dropdown = new Select( driver.findElement( By.name( "editdeliveryMethod" ) ) );
+            dropdown.selectByVisibleText( type );
 
-        Thread.sleep( 500 );
+            Thread.sleep( 500 );
 
-        final Select dropdown = new Select( driver.findElement( By.name( "editdeliveryMethod" ) ) );
-        dropdown.selectByVisibleText( type );
+            // This will fill L&D date only
+            fillInDate( "ldate", laborDate );
+            fillInDate( "ddate", deliveryDate );
 
-        Thread.sleep( 500 );
-        if ( !type.equals( "Miscarriage" ) ) {
-            // INFO ON first INFANT
+            Thread.sleep( 500 );
+            if ( !type.equals( "Miscarriage" ) ) {
+                // INFO ON first INFANT
 
-            driver.findElement( By.name( "firstname" ) ).clear();
+                driver.findElement( By.name( "firstname" ) ).clear();
 
-            driver.findElement( By.name( "firstname" ) ).sendKeys( first );
+                driver.findElement( By.name( "firstname" ) ).sendKeys( first );
 
-            driver.findElement( By.name( "lastname" ) ).clear();
+                driver.findElement( By.name( "lastname" ) ).clear();
 
-            driver.findElement( By.name( "lastname" ) ).sendKeys( last );
+                driver.findElement( By.name( "lastname" ) ).sendKeys( last );
 
-            driver.findElement( By.name( "weight" ) ).clear();
+                driver.findElement( By.name( "weight" ) ).clear();
 
-            driver.findElement( By.name( "weight" ) ).sendKeys( Integer.toString( weight ) );
+                driver.findElement( By.name( "weight" ) ).sendKeys( Integer.toString( weight ) );
 
-            driver.findElement( By.name( "length" ) ).clear();
+                driver.findElement( By.name( "length" ) ).clear();
 
-            driver.findElement( By.name( "length" ) ).sendKeys( Integer.toString( height ) );
+                driver.findElement( By.name( "length" ) ).sendKeys( Integer.toString( height ) );
 
-            driver.findElement( By.name( "heartrate" ) ).clear();
+                driver.findElement( By.name( "heartrate" ) ).clear();
 
-            driver.findElement( By.name( "heartrate" ) ).sendKeys( Integer.toString( heartRate ) );
+                driver.findElement( By.name( "heartrate" ) ).sendKeys( Integer.toString( heartRate ) );
 
-            driver.findElement( By.name( "systolic" ) ).clear();
+                driver.findElement( By.name( "systolic" ) ).clear();
 
-            driver.findElement( By.name( "systolic" ) ).sendKeys( Integer.toString( systolic ) );
+                driver.findElement( By.name( "systolic" ) ).sendKeys( Integer.toString( systolic ) );
 
-            driver.findElement( By.name( "diastolic" ) ).clear();
+                driver.findElement( By.name( "diastolic" ) ).clear();
 
-            driver.findElement( By.name( "diastolic" ) ).sendKeys( Integer.toString( diastolic ) );
-        }
-        // Second newborn
-
-        if ( !twinType.equals( "N/A" ) && !twinType.equals( "Miscarriage*" ) ) {
+                driver.findElement( By.name( "diastolic" ) ).sendKeys( Integer.toString( diastolic ) );
+            }
+            // Second newborn
+            // Fill in date too
 
             final Select dropdownTwin = new Select( driver.findElement( By.name( "editdeliveryMethodTwin" ) ) );
             dropdownTwin.selectByVisibleText( twinType );
 
+            fillInDate( "ldateTwin", laborDateTwin );
+            fillInDate( "ddateTwin", deliveryDateTwin );
+
+            if ( !twinType.equals( "Miscarriage" ) ) {
+
+                Thread.sleep( 500 );
+
+                driver.findElement( By.name( "firstnameTwin" ) ).clear();
+
+                driver.findElement( By.name( "firstnameTwin" ) ).sendKeys( twinFirst );
+
+                driver.findElement( By.name( "lastnameTwin" ) ).clear();
+
+                driver.findElement( By.name( "lastnameTwin" ) ).sendKeys( twinLast );
+
+                driver.findElement( By.name( "weightTwin" ) ).clear();
+
+                driver.findElement( By.name( "weightTwin" ) ).sendKeys( Integer.toString( twinWeight ) );
+
+                driver.findElement( By.name( "lengthTwin" ) ).clear();
+
+                driver.findElement( By.name( "lengthTwin" ) ).sendKeys( Integer.toString( twinHeight ) );
+
+                driver.findElement( By.name( "heartrateTwin" ) ).clear();
+
+                driver.findElement( By.name( "heartrateTwin" ) ).sendKeys( Integer.toString( twinHR ) );
+
+                driver.findElement( By.name( "systolicTwin" ) ).clear();
+
+                driver.findElement( By.name( "systolicTwin" ) ).sendKeys( Integer.toString( twinSystolic ) );
+
+                driver.findElement( By.name( "diastolicTwin" ) ).clear();
+
+                driver.findElement( By.name( "diastolicTwin" ) ).sendKeys( Integer.toString( twinDiastolic ) );
+            }
+
+        }
+        else {
+            // If only has first new born
+            final Select dropdown = new Select( driver.findElement( By.name( "editdeliveryMethod" ) ) );
+            dropdown.selectByVisibleText( type );
+
             Thread.sleep( 500 );
 
-            driver.findElement( By.name( "firstnameTwin" ) ).clear();
+            fillInDate( "ldate", laborDate );
+            fillInDate( "ddate", deliveryDate );
 
-            driver.findElement( By.name( "firstnameTwin" ) ).sendKeys( twinFirst );
+            Thread.sleep( 500 );
+            if ( !type.equals( "Miscarriage" ) ) {
+                // INFO ON first INFANT
 
-            driver.findElement( By.name( "lastnameTwin" ) ).clear();
+                driver.findElement( By.name( "firstname" ) ).clear();
 
-            driver.findElement( By.name( "lastnameTwin" ) ).sendKeys( twinLast );
+                driver.findElement( By.name( "firstname" ) ).sendKeys( first );
 
-            driver.findElement( By.name( "weightTwin" ) ).clear();
+                driver.findElement( By.name( "lastname" ) ).clear();
 
-            driver.findElement( By.name( "weightTwin" ) ).sendKeys( Integer.toString( twinWeight ) );
+                driver.findElement( By.name( "lastname" ) ).sendKeys( last );
 
-            driver.findElement( By.name( "lengthTwin" ) ).clear();
+                driver.findElement( By.name( "weight" ) ).clear();
 
-            driver.findElement( By.name( "lengthTwin" ) ).sendKeys( Integer.toString( twinHeight ) );
+                driver.findElement( By.name( "weight" ) ).sendKeys( Integer.toString( weight ) );
 
-            driver.findElement( By.name( "heartrateTwin" ) ).clear();
+                driver.findElement( By.name( "length" ) ).clear();
 
-            driver.findElement( By.name( "heartrateTwin" ) ).sendKeys( Integer.toString( twinHR ) );
+                driver.findElement( By.name( "length" ) ).sendKeys( Integer.toString( height ) );
 
-            driver.findElement( By.name( "systolicTwin" ) ).clear();
+                driver.findElement( By.name( "heartrate" ) ).clear();
 
-            driver.findElement( By.name( "systolicTwin" ) ).sendKeys( Integer.toString( twinSystolic ) );
+                driver.findElement( By.name( "heartrate" ) ).sendKeys( Integer.toString( heartRate ) );
 
-            driver.findElement( By.name( "diastolicTwin" ) ).clear();
+                driver.findElement( By.name( "systolic" ) ).clear();
 
-            driver.findElement( By.name( "diastolicTwin" ) ).sendKeys( Integer.toString( twinDiastolic ) );
+                driver.findElement( By.name( "systolic" ) ).sendKeys( Integer.toString( systolic ) );
+
+                driver.findElement( By.name( "diastolic" ) ).clear();
+
+                driver.findElement( By.name( "diastolic" ) ).sendKeys( Integer.toString( diastolic ) );
+            }
+
         }
 
         Thread.sleep( 500 );
@@ -768,6 +985,11 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
      * @param deliveryDate
      *            of date
      *
+     * @param laborDateTwin
+     *            of Twin date
+     *
+     * @param deliveryDateTwin
+     *            of Twin date
      * @param type
      *            of delivery method
      *
@@ -804,39 +1026,44 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
      * @throws InterruptedException
      *             if the time thread did not work
      */
-    @Then ( "^he put in invalid input in the fields (.+), (.+), (.+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+)$" )
-    public void editInvalidldr ( final String laborDate, final String deliveryDate, final String type,
-            final String first, final String last, final int weight, final int height, final int heartRate,
-            final int systolic, final int diastolic, final String twinFirst, final String twinLast,
-            final int twinWeight, final int twinHeight, final int twinHR, final int twinSystolic,
+    @Then ( "^he put in invalid input in the fields (.+), (.+), (.+), (.+), (.+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+)$" )
+    public void editInvalidldr ( final String laborDate, final String deliveryDate, final String laborDateTwin,
+            final String deliveryDateTwin, final String type, final String first, final String last, final int weight,
+            final int height, final int heartRate, final int systolic, final int diastolic, final String twinFirst,
+            final String twinLast, final int twinWeight, final int twinHeight, final int twinHR, final int twinSystolic,
             final int twinDiastolic, final String twinType ) throws InterruptedException {
 
         waitForAngular();
         Thread.sleep( 500 );
 
-        // This will fill L&D date only
-
-        fillInDate( "ldate", laborDate );
-        fillInDate( "ddate", deliveryDate );
-
         // Select delivery type
+        final Select dropdown = new Select( driver.findElement( By.name( "editdeliveryMethod" ) ) );
+        dropdown.selectByVisibleText( type );
 
         Thread.sleep( 500 );
 
-        final Select dropdown = new Select( driver.findElement( By.name( "editdeliveryMethod" ) ) );
-        dropdown.selectByVisibleText( type );
+        // This will fill L&D date only
+        fillInDate( "ldate", laborDate );
+        fillInDate( "ddate", deliveryDate );
 
         Thread.sleep( 500 );
         if ( !type.equals( "Miscarriage" ) ) {
             // INFO ON first INFANT
 
             driver.findElement( By.name( "firstname" ) ).clear();
-
-            driver.findElement( By.name( "firstname" ) ).sendKeys( first );
-
+            if ( !first.equals( "N/A" ) ) {
+                driver.findElement( By.name( "firstname" ) ).sendKeys( first );
+            }
+            else {
+                driver.findElement( By.name( "firstname" ) ).sendKeys( "" );
+            }
             driver.findElement( By.name( "lastname" ) ).clear();
-
-            driver.findElement( By.name( "lastname" ) ).sendKeys( last );
+            if ( !last.equals( "N/A" ) ) {
+                driver.findElement( By.name( "lastname" ) ).sendKeys( first );
+            }
+            else {
+                driver.findElement( By.name( "lastname" ) ).sendKeys( "" );
+            }
 
             driver.findElement( By.name( "weight" ) ).clear();
 
@@ -866,15 +1093,25 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
 
             Thread.sleep( 500 );
 
-            if ( !twinType.equals( "Miscarriage*" ) ) {
+            fillInDate( "ldateTwin", laborDateTwin );
+            fillInDate( "ddateTwin", deliveryDateTwin );
+
+            if ( !twinType.equals( "Miscarriage" ) ) {
 
                 driver.findElement( By.name( "firstnameTwin" ) ).clear();
-
-                driver.findElement( By.name( "firstnameTwin" ) ).sendKeys( twinFirst );
-
+                if ( !first.equals( "N/A" ) ) {
+                    driver.findElement( By.name( "firstnameTwin" ) ).sendKeys( first );
+                }
+                else {
+                    driver.findElement( By.name( "firstnameTwin" ) ).sendKeys( "" );
+                }
                 driver.findElement( By.name( "lastnameTwin" ) ).clear();
-
-                driver.findElement( By.name( "lastnameTwin" ) ).sendKeys( twinLast );
+                if ( !last.equals( "N/A" ) ) {
+                    driver.findElement( By.name( "lastnameTwin" ) ).sendKeys( first );
+                }
+                else {
+                    driver.findElement( By.name( "lastnameTwin" ) ).sendKeys( "" );
+                }
 
                 driver.findElement( By.name( "weightTwin" ) ).clear();
 
@@ -920,14 +1157,26 @@ public class HCPLaborAndDeliveryStepDefs extends CucumberTest2 {
      * @throws InterruptedException
      */
     private void fillLaborAndDeliveryDateTime ( final String ldate, final String ltime, final String ddate,
-            final String dtime ) throws InterruptedException {
-        fillInDate( "ldate", ldate ); // labor date
+            final String dtime, final String twinDateTime ) throws InterruptedException {
+        if ( twinDateTime.equals( "N" ) ) {
+            fillInDate( "ldate", ldate ); // labor date
 
-        fillInTime( "ltime", ltime ); // labor time
+            fillInTime( "ltime", ltime ); // labor time
 
-        fillInDate( "ddate", ddate ); // delivery date
+            fillInDate( "ddate", ddate ); // delivery date
 
-        fillInTime( "dtime", dtime ); // delivery time
+            fillInTime( "dtime", dtime ); // delivery time
+        }
+
+        if ( twinDateTime.equals( "Y" ) ) {
+            fillInDate( "ldateTwin", ldate ); // labor date
+
+            fillInTime( "ltimeTwin", ltime ); // labor time
+
+            fillInDate( "ddateTwin", ddate ); // delivery date
+
+            fillInTime( "dtimeTwin", dtime ); // delivery time
+        }
     }
 
     /**

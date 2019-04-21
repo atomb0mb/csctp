@@ -26,6 +26,16 @@ public class LaborDeliveryForm {
     private String         deliveryDate;
 
     /**
+     * The date and time that labor started
+     */
+    private String         laborDateTwin;
+
+    /**
+     * The date and time the delivery happened
+     */
+    private String         deliveryDateTwin;
+
+    /**
      * First name of baby
      */
     private String         firstname;
@@ -122,6 +132,8 @@ public class LaborDeliveryForm {
         setPatient( report.getPatient() );
         setLaborDate( report.getLaborDate().toString() );
         setDeliveryDate( report.getDeliveryDate().toString() );
+        setLaborDateTwin( report.getLaborDateTwin().toString() );
+        setDeliveryDateTwin( report.getDeliveryDateTwin().toString() );
         setFirstname( report.getFirstname() );
         setLastname( report.getLastname() );
         setWeight( report.getWeight() );
@@ -195,6 +207,44 @@ public class LaborDeliveryForm {
      */
     public void setDeliveryDate ( final String deliveryDate ) {
         this.deliveryDate = deliveryDate;
+    }
+
+    /**
+     * Returns the date of the start of labor
+     *
+     * @return the laborDateTwin
+     */
+    public String getLaborDateTwin () {
+        return laborDateTwin;
+    }
+
+    /**
+     * Sets the date of the start of labor
+     *
+     * @param laborDateTwin
+     *            the laborDate to set
+     */
+    public void setLaborDateTwin ( final String laborDateTwin ) {
+        this.laborDateTwin = laborDateTwin;
+    }
+
+    /**
+     * Returns the date the delivery happened
+     *
+     * @return the deliveryDateTwin
+     */
+    public String getDeliveryDateTwin () {
+        return deliveryDateTwin;
+    }
+
+    /**
+     * Sets the date the delivery happened
+     *
+     * @param deliveryDateTwin
+     *            the deliveryDate to set
+     */
+    public void setDeliveryDateTwin ( final String deliveryDateTwin ) {
+        this.deliveryDateTwin = deliveryDateTwin;
     }
 
     /**

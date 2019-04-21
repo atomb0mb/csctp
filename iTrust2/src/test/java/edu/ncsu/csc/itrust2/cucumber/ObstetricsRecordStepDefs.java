@@ -12,6 +12,7 @@ import org.openqa.selenium.support.ui.Select;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
+import edu.ncsu.csc.itrust2.cucumber.CucumberTest;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
 
 /**

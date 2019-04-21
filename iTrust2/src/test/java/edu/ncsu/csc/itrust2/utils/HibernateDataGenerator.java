@@ -288,6 +288,66 @@ public class HibernateDataGenerator {
         d.setName( "Quetiane Fumarate" );
         d.setDescription( "atypical antipsychotic and antidepressant" );
         d.save();
+
+        // For obstetrics record cucumber test.
+        // The test will fail for overlapping the same patient that causes the
+        // conflict between
+        // HCplaborAnd delivery report and obstetrics record because the
+        // Hcplabor and delivery report test run first. Therefore, we should use
+        // those patients specifically for obstetrics record cucumber test only.
+
+        final Patient amanda = new Patient();
+        amanda.setFirstName( "Amanda" );
+        final User amandaUser = new User( "AmandaRob", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_PATIENT, 1 );
+        amandaUser.save();
+        amanda.setSelf( amandaUser );
+        amanda.setLastName( "Rob" );
+        amanda.setGender( Gender.Female );
+        amanda.setDateOfBirth( LocalDate.now().minusYears( 17 ) ); // 17 years
+                                                                   // old
+
+        amanda.save();
+
+        final Patient jessica = new Patient();
+        jessica.setFirstName( "Jessica" );
+        final User jessicaUser = new User( "JessicaLim", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_PATIENT, 1 );
+        jessicaUser.save();
+        jessica.setSelf( jessicaUser );
+        jessica.setLastName( "Lim" );
+        jessica.setGender( Gender.Female );
+        jessica.setDateOfBirth( LocalDate.now().minusYears( 37 ) ); // 37 years
+                                                                    // old
+
+        jessica.save();
+
+        final Patient casey = new Patient();
+        alice.setFirstName( "Casey" );
+        final User caseyUser = new User( "CaseyAnthony", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_PATIENT, 1 );
+        caseyUser.save();
+        casey.setSelf( caseyUser );
+        casey.setLastName( "Anthony" );
+        casey.setGender( Gender.Female );
+        casey.setDateOfBirth( LocalDate.now().minusYears( 20 ) ); // 20 years
+                                                                  // old
+
+        casey.save();
+
+        final Patient kristin = new Patient();
+        alice.setFirstName( "Kristin " );
+        final User kristinUser = new User( "KristinFreya",
+                "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
+        kristinUser.save();
+        kristin.setSelf( kristinUser );
+        kristin.setLastName( "Freya" );
+        kristin.setGender( Gender.Female );
+        kristin.setDateOfBirth( LocalDate.now().minusYears( 17 ) ); // 17 years
+                                                                    // old
+
+        kristin.save();
+
     }
 
     /**
