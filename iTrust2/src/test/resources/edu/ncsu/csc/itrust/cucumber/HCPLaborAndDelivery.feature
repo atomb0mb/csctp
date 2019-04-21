@@ -1,9 +1,9 @@
-Feature: Obstetrics HCP create, view, and edit a patient's labor and delivery reports
-	As an OB HCP
-        I want to create a patient's labor and delivery reports
-	After create the labor and deliver report, I want to view a patient's labor and delivery reports
-        Beside, I want to able to edit a patient's labor and delivery reports
-	So that all of their labor and delivery report is displayed and updated 
+# Feature: Obstetrics HCP create, view, and edit a patient's labor and delivery reports
+	# As an OB HCP
+        # I want to create a patient's labor and delivery reports
+	# After create the labor and deliver report, I want to view a patient's labor and delivery reports
+        # Beside, I want to able to edit a patient's labor and delivery reports
+	# So that all of their labor and delivery report is displayed and updated 
 
 
 Scenario Outline: Create a Patient labor and delivery reports
@@ -59,6 +59,7 @@ Examples:
 	| JillBob	 | 11/12/2017  | 08/16/2018 |  Caesarean Section |   N/A    |	N/A   |  0      |    0    |  0   |  0       |    0      | N/A       | N/A      |    0       |      0     |   0    |     0        |      0         |     OBGYN  | 123456   |    N/A       	   | edit |  N/A        |  N/A       |
 	| JillBob    | 01/01/2018  | 10/16/2018 |  Vaginal Delivery  |  Marley  |	Bob	  |  8      |    16   |  100 |  60      |    64     |   N/A     | N/A      |    0       |      0     |   0    |     0        |      0         |     OBGYN  | 123456   |  Vaginal Delivery  | edit | 01/01/2019  | 09/16/2017 |
 
+
 Scenario Outline: Edit a Patient labor and delivery reports
 	Given OBGYN logs in using id <id> password <pw> and goes to Labor Delivery page to <text>
 	Then he chooses the pregnant patient <name>
@@ -79,6 +80,3 @@ Examples:
 	| HCP  		| hcp        | 123456 |
 	| patient   | AliceSmith | 123456 |
 	| patient   | JillBob    | 123456 |
-
-
-
