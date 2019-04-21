@@ -323,7 +323,7 @@ public class HibernateDataGenerator {
         jessica.save();
 
         final Patient casey = new Patient();
-        alice.setFirstName( "Casey" );
+        casey.setFirstName( "Casey" );
         final User caseyUser = new User( "CaseyAnthony", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
                 Role.ROLE_PATIENT, 1 );
         caseyUser.save();
@@ -336,7 +336,7 @@ public class HibernateDataGenerator {
         casey.save();
 
         final Patient kristin = new Patient();
-        alice.setFirstName( "Kristin " );
+        kristin.setFirstName( "Kristin " );
         final User kristinUser = new User( "KristinFreya",
                 "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
         kristinUser.save();

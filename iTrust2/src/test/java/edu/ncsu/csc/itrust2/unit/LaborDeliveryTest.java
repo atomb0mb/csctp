@@ -113,6 +113,9 @@ public class LaborDeliveryTest {
         form.setWeight( 20 );
 
         form.setDiastolicTwin( 121 );
+        form.setDeliveryDateTwin( "2048-04-16T09:50:00.000-04:00" );
+        form.setDeliverymethodTwin( DeliveryMethod.VaginalDelivery );
+        form.setLaborDateTwin( "2048-04-16T09:50:00.000-04:00" );
         form.setFirstnameTwin( "Ham" );
         form.setHeartRateTwin( 66 );
         form.setLastnameTwin( "Test" );
