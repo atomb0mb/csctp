@@ -174,10 +174,13 @@ public class APIObstetricsRecordTest {
         final List<LogEntry> entries = LoggerUtil.getAllForUser( "hcp" );
         assertEquals( TransactionType.OBGYN_CREATE_OBS_RECORD, entries.get( entries.size() - 1 ).getLogCode() );
 
-        // Now, delete it
-        mvc.perform( delete( "/api/v1/obstetricsrecord/patient" ).contentType( MediaType.APPLICATION_JSON ) )
-                .andExpect( status().isOk() );
+        final List<ObstetricsRecord> patRec = ObstetricsRecord.getByPatient( "patient" );
 
+        for ( int i = 0; i < patRec.size(); i++ ) {
+            // Now, delete it
+            mvc.perform( delete( "/api/v1/obstetricsrecord/patient" ).contentType( MediaType.APPLICATION_JSON ) )
+                    .andExpect( status().isOk() );
+        }
         // Try to delete again, expect error
         mvc.perform( delete( "/api/v1/obstetricsrecord/patient" ).contentType( MediaType.APPLICATION_JSON ) )
                 .andExpect( status().isNotFound() );
