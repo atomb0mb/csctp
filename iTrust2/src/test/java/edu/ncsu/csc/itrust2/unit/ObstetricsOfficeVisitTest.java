@@ -30,7 +30,7 @@ public class ObstetricsOfficeVisitTest {
      * Tests creating a new ObstetricsOfficeVisit with fields
      *
      * @throws ParseException
-     *             if the data from the form cant be parsed
+     *             if the data from the form can't be parsed
      */
     @Test
     public void testObstetricsOfficeVisit () throws ParseException {
@@ -45,7 +45,7 @@ public class ObstetricsOfficeVisitTest {
 
         bhm.setDiastolic( 150 );
         bhm.setHcp( User.getByName( "bobbyOD" ) );
-        bhm.setPatient( User.getByName( "AliceThirteen" ) );
+        bhm.setPatient( User.getByName( "AliceSmith" ) );
         bhm.setHdl( 75 );
         bhm.setLdl( 75 );
         bhm.setHeight( 75f );
@@ -60,7 +60,7 @@ public class ObstetricsOfficeVisitTest {
         visit.setBasicHealthMetrics( bhm );
         visit.setType( AppointmentType.OBGYN_OFFICE_VISIT );
         visit.setHospital( hosp );
-        visit.setPatient( User.getByName( "AliceThirteen" ) );
+        visit.setPatient( User.getByName( "AliceSmith" ) );
         visit.setHcp( User.getByName( "bobbyOD" ) );
         visit.setDate( ZonedDateTime.now() );
         visit.save();
@@ -165,7 +165,7 @@ public class ObstetricsOfficeVisitTest {
 
         bhm.setDiastolic( 150 );
         bhm.setHcp( User.getByName( "bobbyOD" ) );
-        bhm.setPatient( User.getByName( "AliceThirteen" ) );
+        bhm.setPatient( User.getByName( "AliceSmith" ) );
         bhm.setHeight( 75f );
         bhm.setWeight( 130f );
         bhm.setHouseSmokingStatus( HouseholdSmokingStatus.NONSMOKING );
@@ -175,7 +175,7 @@ public class ObstetricsOfficeVisitTest {
         visit.setBasicHealthMetrics( bhm );
         visit.setType( AppointmentType.OBGYN_OFFICE_VISIT );
         visit.setHospital( hosp );
-        visit.setPatient( User.getByName( "AliceThirteen" ) );
+        visit.setPatient( User.getByName( "AliceSmith" ) );
         visit.setHcp( User.getByName( "bobbyOD" ) );
         visit.setDate( ZonedDateTime.now() );
         visit.save();

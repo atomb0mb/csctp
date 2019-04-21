@@ -485,7 +485,22 @@ public enum TransactionType {
     /**
      * Patient views their obstetrics records
      */
-    PATIENT_VIEW_OBS_RECORD ( 2403, "patient views their obstetrics records", true );
+    PATIENT_VIEW_OBS_RECORD ( 2403, "patient views their obstetrics records", true ),
+
+    /**
+     * HCP views a patients labor and delivery reports
+     */
+    HCP_VIEWS_LABOR_DELIVERY_REPORTS ( 2601, "HCP views patient labor and delivery reports", true ),
+
+    /**
+     * OBGYN creates a labor and delivery report
+     */
+    OBGYN_CREATES_LABOR_DELIVERY_REPORT ( 2602, "OBGYN created new labor and delivery report", true ),
+
+    /**
+     * OBGYN edits a labor and delivery report
+     */
+    OBGYN_EDITS_LABOR_DELIVERY_REPORT ( 2603, "OBGYN edited labor and delivery report", true );
 
     /**
      * Creates a TransactionType for logging events

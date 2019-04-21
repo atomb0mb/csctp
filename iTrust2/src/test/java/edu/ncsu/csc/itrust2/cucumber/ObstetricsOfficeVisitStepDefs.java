@@ -15,7 +15,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsRecordForm;
 import edu.ncsu.csc.itrust2.models.enums.AppointmentType;
+import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
 import edu.ncsu.csc.itrust2.models.persistent.OfficeVisit;
 
 /**
@@ -43,6 +45,21 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
     }
 
     /**
+     * Makes sure the patient has an obstetrics record
+     */
+    @Then ( "^the patient has an obstetrics record already$" )
+    public void checkRecordExisits () {
+        final List<ObstetricsRecord> exist = ObstetricsRecord.getByPatient( "bobby" );
+        if ( exist.size() == 0 ) {
+            final ObstetricsRecordForm obsform = new ObstetricsRecordForm();
+            obsform.setLastMenstrualPeriod( "2019-01-15" );
+            final ObstetricsRecord obr = new ObstetricsRecord( obsform );
+            obr.setPatient( "bobby" );
+            obr.save();
+        }
+    }
+
+    /**
      * Logs in HCP and navigates them to the document Office Visit page
      */
     @Then ( "^The OBGYN logs in and goes to document an office visit$" )
@@ -52,7 +69,7 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
         driver.get( baseUrl );
         final WebElement username = driver.findElement( By.name( "username" ) );
         username.clear();
-        username.sendKeys( "OGBYN" );
+        username.sendKeys( "OBGYN" );
         final WebElement password = driver.findElement( By.name( "password" ) );
         password.clear();
         password.sendKeys( "123456" );
@@ -197,7 +214,7 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
 
         final WebElement username = driver.findElement( By.name( "username" ) );
         username.clear();
-        username.sendKeys( "OGBYN" );
+        username.sendKeys( "OBGYN" );
         final WebElement password = driver.findElement( By.name( "password" ) );
         password.clear();
         password.sendKeys( "123456" );
