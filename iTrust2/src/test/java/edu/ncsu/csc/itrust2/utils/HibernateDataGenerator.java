@@ -193,7 +193,7 @@ public class HibernateDataGenerator {
         jillUser.save();
         jill.setSelf( jillUser );
         jill.setLastName( "Bob" );
-        jill.setGender( Gender.Female );
+        // jill.setGender( Gender.Female );
         jill.setDateOfBirth( LocalDate.now().minusYears( 40 ) ); // 40 years old
         jill.save();
 
@@ -289,6 +289,18 @@ public class HibernateDataGenerator {
         d.setDescription( "atypical antipsychotic and antidepressant" );
         d.save();
 
+        final Patient emily = new Patient();
+        emily.setFirstName( "Emily" );
+        final User emilyUser = new User( "EmilyZeck", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_PATIENT, 1 );
+        emilyUser.save();
+        emily.setSelf( emilyUser );
+        emily.setLastName( "Zeck" );
+        emily.setGender( Gender.Female );
+        emily.setDateOfBirth( LocalDate.now().minusYears( 22 ) ); // 22 years
+                                                                  // old
+        emily.save();
+
         // For obstetrics record cucumber test.
         // The test will fail for overlapping the same patient that causes the
         // conflict between
@@ -317,16 +329,13 @@ public class HibernateDataGenerator {
         jessica.setSelf( jessicaUser );
         jessica.setLastName( "Lim" );
         jessica.setGender( Gender.Female );
-        // advanced maternal age
-        jessica.setDateOfBirth( LocalDate.now().minusYears( 50 ) ); // 50 years
+        jessica.setDateOfBirth( LocalDate.now().minusYears( 37 ) ); // 37 years
                                                                     // old
-        // RH- Flag
-        jessica.setBloodType( BloodType.ABNeg );
 
         jessica.save();
 
         final Patient casey = new Patient();
-        alice.setFirstName( "Casey" );
+        casey.setFirstName( "Casey" );
         final User caseyUser = new User( "CaseyAnthony", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
                 Role.ROLE_PATIENT, 1 );
         caseyUser.save();
@@ -339,7 +348,7 @@ public class HibernateDataGenerator {
         casey.save();
 
         final Patient kristin = new Patient();
-        alice.setFirstName( "Kristin " );
+        kristin.setFirstName( "Kristin " );
         final User kristinUser = new User( "KristinFreya",
                 "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
         kristinUser.save();

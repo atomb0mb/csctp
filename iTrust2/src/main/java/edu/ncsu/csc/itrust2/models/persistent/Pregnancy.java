@@ -116,6 +116,8 @@ public class Pregnancy extends DomainObject<Pregnancy> implements Serializable {
      * Initializes a new Pregnancy object using the data points in a
      * PregnancyForm
      *
+     * @param patient
+     *            the patient that is pregnant
      * @param pForm
      *            - the form to read
      */
@@ -282,6 +284,7 @@ public class Pregnancy extends DomainObject<Pregnancy> implements Serializable {
      * Compares this to another Pregnancy based on conception year
      *
      * @param po
+     *            the pregnancy to check
      * @return -1 if this comes before po, 1 if it comes after, 0 if same year
      */
     public int compare ( final Pregnancy po ) {
