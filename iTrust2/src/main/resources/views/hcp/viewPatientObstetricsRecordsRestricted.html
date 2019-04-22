@@ -136,6 +136,35 @@
 								<br> Weeks Pregnant:        {{currentPregnancy[0].numWeeksPregnant}}
 						</div>
 
+						<div ng-if="currentPregnancy[0].hasHighBloodPressure">
+							<br><span class="glyphicon glyphicon-flag" style="color:#D91414" aria-hidden="true"></span>
+							High Blood Pressure
+						</div>
+						
+						<div ng-if="currentPregnancy[0].hasAdvMaternalAge">
+							<br><span class="glyphicon glyphicon-flag" style="color:#D91414" aria-hidden="true"></span>
+							Advanced maternal age
+						</div>
+
+						<div ng-if="currentPregnancy[0].miscarriagePotential">
+							<br><span class="glyphicon glyphicon-flag" style="color:#D91414" aria-hidden="true"></span>
+							Miscarriage Potential
+						</div>
+						
+						<div ng-if="currentPregnancy[0].abnormalFetalHeartRate">
+							<br><span class="glyphicon glyphicon-flag" style="color:#D91414" aria-hidden="true"></span>
+							Abnormal heart rate
+						</div>
+						
+						<div ng-if="currentPregnancy[0].rhNegative">
+							<br><span class="glyphicon glyphicon-flag" style="color:#D91414" aria-hidden="true"></span>
+							RH- Blood
+						</div>
+						<div ng-if="currentPregnancy[0].recommendedWeightGain.length > 0">
+							<br><span class="glyphicon glyphicon-flag" style="color:#D91414" aria-hidden="true"></span>
+							{{currentPregnancy[0].recommendedWeightGain}}
+						</div>
+
 						<div
 							ng-if="priorPregnancies && priorPregnancies.length > 0">
 							<br><b>Prior Pregnancies</b>
