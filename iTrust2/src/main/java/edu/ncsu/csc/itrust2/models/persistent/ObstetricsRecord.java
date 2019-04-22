@@ -424,13 +424,13 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
      */
     public void setMiscarriagePotential () {
         final List<Pregnancy> pList = Pregnancy.getByPatient( patient );
+        miscarriagePotential = false;
         for ( final Pregnancy p : pList ) {
             if ( p.getDeliveryMethod() == DeliveryMethod.Miscarriage ) {
                 miscarriagePotential = true;
-                return;
+                break;
             }
         }
-        miscarriagePotential = false;
     }
 
     /**

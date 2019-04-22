@@ -7,7 +7,6 @@ Feature: Obstetrics HCP create, view, and edit a patient's labor and delivery re
         # Beside, I want to able to edit a patient's labor and delivery reports
 	# So that all of their labor and delivery report is displayed and updated 
 
-
 Scenario Outline: Create a Patient labor and delivery reports
 	Given OBGYN logs in using id <id> password <pw> and goes to Labor Delivery page to <text>
 	Given <name> already has an obstetrics record

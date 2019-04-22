@@ -70,9 +70,12 @@ public class HCPEditsOfficeVisitStepDefs extends CucumberTest {
 
     /**
      * Selects an office visit on the editing office visit page
+     * 
+     * @throws InterruptedException
+     *             for the wait
      */
     @When ( "^The HCP selects the existing office visit$" )
-    public void hcpSelectOfficeVisit () {
+    public void hcpSelectOfficeVisit () throws InterruptedException {
         final List<OfficeVisit> visits = OfficeVisit.getOfficeVisits();
         long targetId = 0;
 
@@ -82,6 +85,7 @@ public class HCPEditsOfficeVisitStepDefs extends CucumberTest {
                 targetId = visits.get( i ).getId();
             }
         }
+        Thread.sleep( 3000 );
 
         final WebElement elem = driver.findElement( By.cssSelector( "input[value=\"" + targetId + "\"]" ) );
         elem.click();
@@ -89,7 +93,7 @@ public class HCPEditsOfficeVisitStepDefs extends CucumberTest {
 
     /**
      * Modifies the date and the height of the office visit
-     * 
+     *
      * @param date
      *            the new date of the visit
      * @param height
