@@ -12,6 +12,7 @@ import org.openqa.selenium.support.ui.Select;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
+import edu.ncsu.csc.itrust2.cucumber.CucumberTest;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
 
 /**
@@ -45,9 +46,12 @@ public class ObstetricsRecordStepDefs extends CucumberTest {
      *            of user id
      * @param passwrd
      *            of password
+     * @throws InterruptedException
+     *             has the thread sleep
      */
     @Given ( "^Logging in system as an HCPOBGYN or HCP or Patient user id (.+) password (.+)$" )
-    public void logAsOBGYN ( final String id, final String passwrd ) {
+    public void logAsOBGYN ( final String id, final String passwrd ) throws InterruptedException {
+        Thread.sleep( 1000 );
         attemptLogout();
 
         driver.get( baseUrl );
@@ -70,10 +74,28 @@ public class ObstetricsRecordStepDefs extends CucumberTest {
 
     /**
      * Test when HCPOBGYN navigates to the view Obstetrics Records
+     *
+     * @throws InterruptedException
+     *             when waiting
      */
     @Then ( "^HCPOBGYN navigates to the view Obstetrics Records.$" )
-    public void navigateToView () {
+    public void navigateToView () throws InterruptedException {
         ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('HCPObstetricsRecords').click();" );
+
+        assertEquals( "iTrust2: View Patient Obstetrics Records", driver.getTitle() );
+
+    }
+
+    /**
+     * Test when HCP navigates to the view Obstetrics Records
+     *
+     * @throws InterruptedException
+     *             when waiting
+     */
+    @Then ( "^the HCP views the restricted records.$" )
+    public void navigateToHCPView () throws InterruptedException {
+        ( (JavascriptExecutor) driver )
+                .executeScript( "document.getElementById('HCPObstetricsRecordsRestricted').click();" );
 
         assertEquals( "iTrust2: View Patient Obstetrics Records", driver.getTitle() );
 

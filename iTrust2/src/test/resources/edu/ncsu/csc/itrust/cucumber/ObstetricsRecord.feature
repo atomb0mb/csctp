@@ -21,9 +21,9 @@ Scenario Outline: Create obstetrics record for the patient
 	
 Examples:
 	| firstname    | lastname       | date 		 | year | weeks | hours | dm 				 | twins     | id    | pw     | code |
-	| Alice		   | Smith          | 01/03/2018 | 2018 |  40   |  12   | Vaginal Delivery   | No        | OBGYN | 123456 | 2402 |
-	| Jill		   | Bob			| 09/09/2017 | 2019 |  41   |  6    | Caesarean Section  | Yes       | OBGYN | 123456 | 2402 |
-	| Rebecca      | Jess           | 11/01/2018 | 2018 |  2    |  18   | Miscarriage        | No        | OBGYN | 123456 | 2402 |
+	| Amanda	   | Rob            | 01/03/2018 | 2018 |  40   |  12   | Vaginal Delivery   | No        | OBGYN | 123456 | 2402 |
+	| Jessica      | Lim			| 09/09/2017 | 2019 |  41   |  6    | Caesarean Section  | Yes       | OBGYN | 123456 | 2402 |
+	| Casey        | Anthony        | 11/01/2018 | 2018 |  2    |  18   | Miscarriage        | No        | OBGYN | 123456 | 2402 |
 	
 Scenario Outline: View existing obstetrics record and add additional info for the patient
 	Given Logging in system as an HCPOBGYN or HCP or Patient user id <id> password <pw>
@@ -33,26 +33,25 @@ Scenario Outline: View existing obstetrics record and add additional info for th
 
 Examples:
 	| firstname    | lastname       |  year | weeks | hours | dm 				| twins     | id    | pw     |
-	| Jill		   | Bob			|  2016 |  44   |  24   | Caesarean Section | Yes       | OBGYN | 123456 |
+	| Jessica      | Lim			|  2016 |  44   |  24   | Caesarean Section | Yes       | OBGYN | 123456 |
 	
 	
 Scenario Outline: View Obstetrics Records as an HCP	
 	Given Logging in system as an HCPOBGYN or HCP or Patient user id <id> password <pw>
-	Then HCPOBGYN navigates to the view Obstetrics Records.
+	Then the HCP views the restricted records.
 	
 Examples:
 	| id      | pw     |
-	| OBGYN   | 123456 |
 	| hcp     | 123456 |
-	
+
 Scenario Outline: View OB as Patient	
 	Given Logging in system as an HCPOBGYN or HCP or Patient user id <id> password <pw>
 	Then Obstetrics patient views Obstetrics Records.
 	And The transaction code is <code>
 	
 Examples:
-	| id      | pw     | code |
-	| JillBob | 123456 | 2403 |
+	| id         | pw     | code |
+	| JessicaLim | 123456 | 2403 |
 	
 Scenario Outline: Create Invalid last menstrual date for the patient
 	Given Logging in system as an HCPOBGYN or HCP or Patient user id <id> password <pw>
@@ -62,7 +61,7 @@ Scenario Outline: Create Invalid last menstrual date for the patient
 
 Examples:
 	| firstname    | lastname       | date 		 | id 	   | pw 	|
-	| Zara		   | Zi				| 01/03/2020 | OBGYN   | 123456 |
+	| Kristin	   | Freya			| 01/03/2020 | OBGYN   | 123456 |
 
 Scenario Outline: Create valid lmd for check
 	Given Logging in system as an HCPOBGYN or HCP or Patient user id <id> password <pw>
@@ -73,7 +72,7 @@ Scenario Outline: Create valid lmd for check
 	
 Examples:
 	| firstname    | lastname       | date 		 |  id    | pw     |
-	| Zara		   | Zi          	| 01/03/2018 | OBGYN  | 123456 |
+	| Kristin	   | Freya			| 01/03/2018 | OBGYN  | 123456 |
 	
 Scenario Outline: Create Invalid pregnancy Information for the patient
 	Given Logging in system as an HCPOBGYN or HCP or Patient user id <id> password <pw>
@@ -83,11 +82,11 @@ Scenario Outline: Create Invalid pregnancy Information for the patient
 
 Examples:
 	| firstname    | lastname       | year | weeks | hours | dm 				 | twins     | id    | pw     | text 													   |
-	| Zara		   | Zi				| 2020 |  40   |  12   | Vaginal Delivery    | No        | OBGYN | 123456 | The year of conception must be a previous or current year. |
-	| Zara		   | Zi		    	| 2018 | N/A   |  40   | Vaginal Delivery    | No        | OBGYN | 123456 |	Could not add pregnancy record.   |
-	| Zara		   | Zi		    	| 2018 |  40   |  N/A  | Vaginal Delivery    | No        | OBGYN | 123456 |	Could not add pregnancy record.   |
-	| Zara		   | Zi		    	| 2018 |  40   |  40   | N/A                 | No        | OBGYN | 123456 |	Could not add pregnancy record.   |
-	| Zara		   | Zi		    	| 2018 |  40   |  40   | Vaginal Delivery    | N/A       | OBGYN | 123456 |	Could not add pregnancy record.   |		
+	| Kristin	   | Freya			| 2020 |  40   |  12   | Vaginal Delivery    | No        | OBGYN | 123456 | Could not add pregnancy record.   |
+	| Kristin	   | Freya			| 2018 | N/A   |  40   | Vaginal Delivery    | No        | OBGYN | 123456 |	Could not add pregnancy record.   |
+	| Kristin	   | Freya			| 2018 |  40   |  N/A  | Vaginal Delivery    | No        | OBGYN | 123456 |	Could not add pregnancy record.   |
+	| Kristin	   | Freya			| 2018 |  40   |  40   | N/A                 | No        | OBGYN | 123456 |	Could not add pregnancy record.   |
+	| Kristin	   | Freya			| 2018 |  40   |  40   | Vaginal Delivery    | N/A       | OBGYN | 123456 |	Could not add pregnancy record.   |		
 
 	
 	

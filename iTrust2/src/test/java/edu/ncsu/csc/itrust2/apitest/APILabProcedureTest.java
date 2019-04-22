@@ -152,7 +152,7 @@ public class APILabProcedureTest {
         bhm.setDiastolic( 150 );
         bhm.setDiastolic( 100 );
         bhm.setHcp( User.getByName( "hcp" ) );
-        bhm.setPatient( User.getByName( "AliceThirteen" ) );
+        bhm.setPatient( User.getByName( "AliceSmith" ) );
         bhm.setHdl( 75 );
         bhm.setHeight( 75f );
         bhm.setHouseSmokingStatus( HouseholdSmokingStatus.NONSMOKING );
@@ -162,8 +162,8 @@ public class APILabProcedureTest {
         visit.setBasicHealthMetrics( bhm );
         visit.setType( AppointmentType.GENERAL_CHECKUP );
         visit.setHospital( hosp );
-        visit.setPatient( User.getByName( "AliceThirteen" ) );
-        visit.setHcp( User.getByName( "AliceThirteen" ) );
+        visit.setPatient( User.getByName( "AliceSmith" ) );
+        visit.setHcp( User.getByName( "AliceSmith" ) );
         visit.setDate( ZonedDateTime.now() );
 
         final List<Diagnosis> diagnoses = new Vector<Diagnosis>();
@@ -196,7 +196,7 @@ public class APILabProcedureTest {
         pres.setDrug( drug );
 
         pres.setEndDate( LocalDate.now().plusDays( 10 ) );
-        pres.setPatient( User.getByName( "AliceThirteen" ) );
+        pres.setPatient( User.getByName( "AliceSmith" ) );
         pres.setStartDate( LocalDate.now() );
         pres.setRenewals( 5 );
 
@@ -255,7 +255,7 @@ public class APILabProcedureTest {
         bhm.setDiastolic( 150 );
         bhm.setDiastolic( 100 );
         bhm.setHcp( User.getByName( "hcp" ) );
-        bhm.setPatient( User.getByName( "AliceThirteen" ) );
+        bhm.setPatient( User.getByName( "AliceSmith" ) );
         bhm.setHdl( 75 );
         bhm.setHeight( 75f );
         bhm.setHouseSmokingStatus( HouseholdSmokingStatus.NONSMOKING );

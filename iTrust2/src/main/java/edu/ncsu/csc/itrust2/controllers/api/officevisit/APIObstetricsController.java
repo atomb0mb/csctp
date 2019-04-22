@@ -1,5 +1,7 @@
 package edu.ncsu.csc.itrust2.controllers.api.officevisit;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +17,7 @@ import edu.ncsu.csc.itrust2.controllers.api.APIController;
 import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsVisitForm;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
 import edu.ncsu.csc.itrust2.models.persistent.ObstetricsOfficeVisit;
+import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 import edu.ncsu.csc.itrust2.utils.LoggerUtil;
 
@@ -94,11 +97,15 @@ public class APIObstetricsController extends APIController {
     public ResponseEntity addObstetricsVisit ( @RequestBody final ObstetricsVisitForm visitF ) {
         try {
             final ObstetricsOfficeVisit visit = new ObstetricsOfficeVisit( visitF );
-
+            final List<ObstetricsRecord> record = ObstetricsRecord.getByPatient( visitF.getPatient() );
             if ( null != ObstetricsOfficeVisit.getById( visit.getId() ) ) {
                 return new ResponseEntity(
                         errorResponse( "Office visit with the id " + visit.getId() + " already exists" ),
                         HttpStatus.CONFLICT );
+            }
+            if ( record.size() == 0 ) {
+                return new ResponseEntity( errorResponse( "Patient is not a valid obsatetrics patient" ),
+                        HttpStatus.BAD_REQUEST );
             }
             visit.save();
             LoggerUtil.log( TransactionType.OBGYNVISIT_CREATE, LoggerUtil.currentUser(),

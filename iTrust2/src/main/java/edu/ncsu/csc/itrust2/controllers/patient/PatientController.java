@@ -146,4 +146,15 @@ public class PatientController {
     public String viewObstetricsRecords () {
         return "/patient/obstetricsRecords/viewObstetricsRecords";
     }
+
+    /**
+     * Retrieves the page for a female patient to view their obstetrics records
+     *
+     * @return The page for patient to view their obstetics records
+     */
+    @GetMapping ( "/patient/obstetricsRecords/laborPatientDeliveryReports" )
+    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
+    public String viewLaborAndDeliveryReports () {
+        return "/patient/obstetricsRecords/laborPatientDeliveryReports";
+    }
 }

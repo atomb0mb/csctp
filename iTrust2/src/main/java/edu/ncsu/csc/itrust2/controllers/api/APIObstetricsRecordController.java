@@ -1,5 +1,7 @@
 package edu.ncsu.csc.itrust2.controllers.api;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -53,7 +55,6 @@ public class APIObstetricsRecordController extends APIController {
             return new ResponseEntity( obr, HttpStatus.OK );
         }
         catch ( final Exception e ) {
-            e.printStackTrace();
             return new ResponseEntity(
                     errorResponse( "Could not create ObstetricsRecord provided due to " + e.getMessage() ),
                     HttpStatus.BAD_REQUEST );
@@ -101,7 +102,10 @@ public class APIObstetricsRecordController extends APIController {
             final Pregnancy pregnancy = new Pregnancy( patient, pForm );
             // pregnancy.setPatient( patient );
             pregnancy.save();
-
+            // Update the flags depending on previous pregnancies
+            if ( ObstetricsRecord.getByPatient( patient ).size() > 0 ) {
+                ObstetricsRecord.getByPatient( patient ).get( 0 ).updateFlags();
+            }
             return new ResponseEntity( pregnancy, HttpStatus.OK );
         }
         catch ( final Exception e ) {
@@ -116,7 +120,8 @@ public class APIObstetricsRecordController extends APIController {
      * into iTrust2
      *
      * @param patient
-     *            - username of patient to retrieve records for
+     *            username of patient to retrieve records for
+     *
      *
      * @return ResponseEntity with the ObstetricsRecord for the patient, or an
      *         error message if cannot be found
@@ -129,13 +134,15 @@ public class APIObstetricsRecordController extends APIController {
                     HttpStatus.NOT_FOUND );
         }
 
+        final List<ObstetricsRecord> orList = ObstetricsRecord.getByPatient( patient );
+
         // Before returning the obstetrics record, update the pregnancy flags
-        if ( ObstetricsRecord.getByPatient( patient ).size() > 0 ) {
-            ObstetricsRecord.getByPatient( patient ).get( 0 ).updateFlags();
+        if ( orList.size() > 0 ) {
+            orList.get( 0 ).updateFlags();
         }
         LoggerUtil.log( TransactionType.HCP_VIEW_OBS_RECORD, User.getByName( LoggerUtil.currentUser() ),
                 User.getByName( patient ) );
-        return new ResponseEntity( ObstetricsRecord.getByPatient( patient ), HttpStatus.OK );
+        return new ResponseEntity( orList, HttpStatus.OK );
     }
 
     /**
@@ -152,9 +159,15 @@ public class APIObstetricsRecordController extends APIController {
             return new ResponseEntity( errorResponse( "No patients found with username " + LoggerUtil.currentUser() ),
                     HttpStatus.NOT_FOUND );
         }
+        final List<ObstetricsRecord> orList = ObstetricsRecord.getByPatient( LoggerUtil.currentUser() );
+
+        // Before returning the obstetrics record, update the pregnancy flags
+        if ( orList.size() > 0 ) {
+            orList.get( 0 ).updateFlags();
+        }
         LoggerUtil.log( TransactionType.PATIENT_VIEW_OBS_RECORD, User.getByName( LoggerUtil.currentUser() ),
                 User.getByName( LoggerUtil.currentUser() ) );
-        return new ResponseEntity( ObstetricsRecord.getByPatient( LoggerUtil.currentUser() ), HttpStatus.OK );
+        return new ResponseEntity( orList, HttpStatus.OK );
     }
 
     /**
@@ -162,7 +175,9 @@ public class APIObstetricsRecordController extends APIController {
      * from this HCP
      *
      * @param patient
-     *            - username of patient to retrieve records for
+     *            <<<<<<< HEAD the username of the patient ======= username of
+     *            patient to retrieve records for >>>>>>>
+     *            bcef4a4804b52ca262953085bd0e2dcca8dfa11d
      *
      * @return List of pregnancies for the patient
      */
@@ -172,6 +187,10 @@ public class APIObstetricsRecordController extends APIController {
         if ( null == Patient.getByName( patient ) ) {
             return new ResponseEntity( errorResponse( "No patients found with username " + patient ),
                     HttpStatus.NOT_FOUND );
+        }
+        if ( ObstetricsRecord.getByPatient( patient ).size() > 0 ) {
+            ObstetricsRecord.getByPatient( patient ).get( 0 ).updateFlags();
+            ObstetricsRecord.getByPatient( patient ).get( 0 ).save();
         }
         return new ResponseEntity( Pregnancy.getByPatient( patient ), HttpStatus.OK );
     }

@@ -1,0 +1,1070 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: head(title=~{::title},links=~{})">
+<title>Labor and Delivery Reports</title>
+</head>
+<body th:include="layout :: body" th:with="content=~{::content}">
+	<div th:fragment="content">
+		<script th:inline="javascript">
+			"use strict";
+
+			/* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
+			/*<![CDATA[*/
+			var app = angular.module('myApp', []);
+			app
+					.controller(
+							'editLaborDeliveryReports',
+							function($scope, $http) {
+								
+								
+								$scope.edit = { id:0
+								};
+							
+								// Display username and labor to delivery period
+								$scope.displayInfo = function(p) {
+									
+									var lbdate = new Date(p.laborDate);
+		    						var dd = lbdate.getDate();
+									var mm = lbdate.getMonth()+1; 
+									var yyyy = lbdate.getFullYear();
+									if(dd < 10) {
+									   dd = '0' + dd;
+									} 
+									
+									if(mm < 10) {
+									   mm = '0' + mm;
+									}
+									
+									var ddate = new Date(p.deliveryDate);
+		    						var dd1 = ddate.getDate();
+									var mm1 = ddate.getMonth()+1; 
+									var yyyy1 = ddate.getFullYear();
+									if(dd1 < 10) {
+									   dd1 = '0' + dd1;
+									} 
+									
+									if(mm1 < 10) {
+									   mm1 = '0' + mm1;
+									}
+									
+									var finalldate = mm + '/' + dd + '/' + yyyy;
+									var finalddate = mm1 + '/' + dd1 + '/' + yyyy1;
+									
+									return p.patient + ' (' + finalldate + ') to (' + finalddate + ')';
+								}
+								// Reset button for first born
+								$scope.resetLD = function() {
+									$scope.edit.deliverymethod = "";
+									$scope.edit.firstname = "";
+									$scope.edit.lastname = "";
+									$scope.edit.weight = "";
+									$scope.edit.length = "";
+									$scope.edit.heartRate = "";
+									$scope.edit.systolic = "";
+									$scope.edit.diastolic = "";
+									$scope.edit.laborDate = "";
+									$scope.edit.deliveryDate = "";
+									
+								}
+								
+								// Reset button for second born
+								$scope.resetLDTwin = function() {
+									$scope.edit.deliverymethodTwin = "";
+									$scope.edit.firstnameTwin = "";
+									$scope.edit.lastnameTwin = "";
+									$scope.edit.weightTwin = "";
+									$scope.edit.lengthTwin = "";
+									$scope.edit.heartRateTwin = "";
+									$scope.edit.systolicTwin = "";
+									$scope.edit.diastolicTwin = "";
+									$scope.edit.laborDateTwin = "";
+									$scope.edit.deliveryDateTwin = "";
+								}
+								// Back button
+								$scope.backLD = function() {
+									$scope.errorMsg = "";
+									$scope.edit.laborDate = new Date($scope.edit.laborDate);
+									$scope.edit.deliveryDate = new Date($scope.edit.deliveryDate);
+									if($scope.edit.deliverymethodTwin) {
+										$scope.edit.laborDateTwin = new Date($scope.edit.laborDateTwin);
+										$scope.edit.deliveryDateTwin = new Date($scope.edit.deliveryDateTwin);
+									}
+								}
+
+								$scope.deliveryMethods = [ 'Vaginal Delivery',
+										'Caesarean Section', 'Miscarriage' ];
+								
+								$scope.deliveryMethodsTwin = [ 'Vaginal Delivery',
+									'Caesarean Section', 'Miscarriage' ];
+
+								// documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
+								$scope.searchFilter = "";
+								$scope.filterPatients = function(patient) {
+									return ($scope.displayInfo(patient))
+											.toLowerCase().match(
+													$scope.searchFilter
+															.toLowerCase());
+								}
+								
+
+
+								// error display
+								$scope.failUpdate = function() {
+									$scope.errorMsg += "Could not update labor and delivery report.\n";
+									$scope.message = "";
+								}
+
+
+								//Get info for the patients
+								$http.get("/iTrust2/api/v1/LaborDelivery")
+										.then(function(response) {
+											$scope.patients = response.data; //get only list of labor and delivery
+										}, function(rejection) {
+											$scope.patient = null;
+										});
+
+								$scope.selectPatient = function(patient) {
+									
+									$scope.edit = { id:0 }; // refresh
+
+									// Get labor delivery by id  patient
+									$http.get(
+											"/iTrust2/api/v1/LaborDelivery/"
+													+ patient.id)
+											.then(function(response) { // on success
+												$scope.edit = response.data || {};
+												if($scope.edit.deliverymethod) {
+													$scope.edit.laborDate = new Date($scope.edit.laborDate);
+													$scope.edit.deliveryDate = new Date($scope.edit.deliveryDate);
+													// To not show the zero
+													if($scope.edit.deliverymethod =='Miscarriage') {
+														$scope.edit.weight = "";
+														$scope.edit.length = "";
+														$scope.edit.heartRate = "";
+														$scope.edit.systolic = "";
+														$scope.edit.diastolic = "";
+													}
+												}
+												if($scope.edit.deliverymethodTwin) {
+													$scope.edit.laborDateTwin = new Date($scope.edit.laborDateTwin);
+													$scope.edit.deliveryDateTwin = new Date($scope.edit.deliveryDateTwin);
+													if($scope.edit.deliverymethodTwin =='Miscarriage') {
+														$scope.edit.weightTwin = "";
+														$scope.edit.lengthTwin = "";
+														$scope.edit.heartRateTwin = "";
+														$scope.edit.systolicTwin = "";
+														$scope.edit.diastolicTwin = "";
+													}
+												}
+												
+												
+												
+												$scope.message = "";
+											}, //if it failed
+											function(rejection) {
+												$scope.edit = {};
+				                                $scope.message = "Could not display labor and delivery report.";
+											});
+									
+
+									
+								};
+								
+								var deliveryDt, laborDt, twinlaborDt, twindeliveryDt;
+								
+								$scope.validateDate = function(date) {
+									
+									
+									var checkLaborDate = new Date(
+											date.laborDate);
+
+									var now = new Date(); // make sure it's not a future date
+									if (!(checkLaborDate instanceof Date)
+											|| isNaN(checkLaborDate)
+											|| now - checkLaborDate < 0) {
+										$scope.errorMsg += "Please input a valid labor date for first infant.\n";
+									}
+
+									const ltime = new Date(
+											date.laborDate);
+									checkLaborDate.setHours(ltime.getHours());
+									checkLaborDate.setMinutes(ltime
+											.getMinutes());
+
+									// Check valid date and time combination
+									if (!(checkLaborDate instanceof Date)
+											|| isNaN(checkLaborDate)
+											|| now - checkLaborDate < 0) {
+										$scope.errorMsg += "Please input a valid labor date for first infant.\n";
+									} else {
+										laborDt = checkLaborDate
+												.toISOString();
+									}
+
+									// Validate date and time of delivery
+									var checkDeliveryDate = new Date(
+											date.deliveryDate);
+
+									//var next = new Date(); // make sure it's not a future date
+									if (!(checkDeliveryDate instanceof Date)
+											|| isNaN(checkDeliveryDate)
+											|| checkDeliveryDate - checkLaborDate < 0) {
+										$scope.errorMsg += "Please input a valid delivery date for first infant.\n";
+									}
+
+									const dtime = new Date(
+											date.deliveryDate);
+									checkDeliveryDate.setHours(dtime
+											.getHours());
+									checkDeliveryDate.setMinutes(dtime
+											.getMinutes());
+
+									// Check valid date and time combination
+									if (!(checkDeliveryDate instanceof Date)
+											|| isNaN(checkDeliveryDate)
+											|| checkDeliveryDate - checkLaborDate < 0 || now - checkDeliveryDate < 0) {
+										$scope.errorMsg += "Please input a valid delivery date for first infant.\n";
+									} else {
+										deliveryDt = checkDeliveryDate
+												.toISOString();
+									}
+									
+								}
+								
+							$scope.validateDateTwin = function(date) {
+									
+									
+									var checkLaborDate = new Date(
+											date.laborDateTwin);
+
+									var now = new Date(); // make sure it's not a future date
+									if (!(checkLaborDate instanceof Date)
+											|| isNaN(checkLaborDate)
+											|| now - checkLaborDate < 0) {
+										$scope.errorMsg += "Please input a valid labor date for second infant.\n";
+									}
+
+									const ltime = new Date(
+											date.laborDateTwin);
+									checkLaborDate.setHours(ltime.getHours());
+									checkLaborDate.setMinutes(ltime
+											.getMinutes());
+
+									// Check valid date and time combination
+									if (!(checkLaborDate instanceof Date)
+											|| isNaN(checkLaborDate)
+											|| now - checkLaborDate < 0) {
+										$scope.errorMsg += "Please input a valid labor date for second infant.\n";
+									} else {
+										twinlaborDt = checkLaborDate
+												.toISOString();
+									}
+
+									// Validate date and time of delivery
+									var checkDeliveryDate = new Date(
+											date.deliveryDateTwin);
+
+									//var next = new Date(); // make sure it's not a future date
+									if (!(checkDeliveryDate instanceof Date)
+											|| isNaN(checkDeliveryDate)
+											|| checkDeliveryDate - checkLaborDate < 0) {
+										$scope.errorMsg += "Please input a valid delivery date for second infant.\n";
+									}
+
+									const dtime = new Date(
+											date.deliveryDateTwin);
+									checkDeliveryDate.setHours(dtime
+											.getHours());
+									checkDeliveryDate.setMinutes(dtime
+											.getMinutes());
+
+									// Check valid date and time combination
+									if (!(checkDeliveryDate instanceof Date)
+											|| isNaN(checkDeliveryDate)
+											|| checkDeliveryDate - checkLaborDate < 0 || now - checkDeliveryDate < 0) {
+										$scope.errorMsg += "Please input a valid delivery date for second infant.\n";
+									} else {
+										twindeliveryDt = checkDeliveryDate
+												.toISOString();
+									}
+									
+								}
+								
+
+
+								$scope.updateLD = function() {
+									$scope.errorMsg = "";
+									
+									
+									// If both deliverymethod are selected
+									if( $scope.edit.deliverymethod  && $scope.edit.deliverymethodTwin) {
+										
+										$scope.validateDate($scope.edit);
+										$scope.edit.laborDate = laborDt;
+										$scope.edit.deliveryDate = deliveryDt;
+										
+										$scope.validateDateTwin($scope.edit);
+										$scope.edit.laborDateTwin = twinlaborDt;
+										$scope.edit.deliveryDateTwin = twindeliveryDt;
+										
+										if(!($scope.edit.deliverymethod == 'Miscarriage')) {
+											
+											if ($scope.edit.firstname == '' || !$scope.edit.firstname ) {
+												$scope.errorMsg += "First newborn's first name cannot be empty.\n";
+												
+											}
+											// Check weight
+											if (/^[0-9]{1,4}(\.[0-9]?)?$/
+													.test(String($scope.edit.weight)
+															.replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "First newborn's Weight can be up to a 4-digit positive number and potentially one digit of decimal precision.\n"
+													console.log("Checked here too");
+											}
+											// Check height
+											if (/^[0-9]{1,3}(\.[0-9]?)?$/
+													.test(String($scope.edit.length)
+															.replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "First newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision.\n"
+											}
+											
+											// Check heartRate
+											if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.heartRate).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "First Newborn's heart Rate can be up to a 3-digit positive number and potentially one digit of decimal precision.\n"
+											}
+											
+											// Check systolic
+											if (/^[0-9]{1,3}$/.test(String(
+													$scope.edit.systolic).replace(
+													/^0+/, '')) == false) {
+												$scope.errorMsg += "First newborn's Systolic blood pressure can be up to a 3-digit positive number.\n"
+											}
+											// Check diatolic
+											if (/^[0-9]{1,3}$/.test(String(
+													$scope.edit.diastolic).replace(
+													/^0+/, '')) == false) {
+												$scope.errorMsg += "First newborn's Diastolic blood pressure can be up to a 3-digit positive number.\n"
+											}	
+										} else {
+											$scope.edit.firstname = "";
+											$scope.edit.lastname = "";
+											$scope.edit.weight = 0;
+											$scope.edit.length = 0;
+											$scope.edit.heartRate = 0;
+											$scope.edit.systolic = 0;
+											$scope.edit.diastolic = 0;
+											
+										}
+										
+										
+										if(!($scope.edit.deliverymethodTwin == 'Miscarriage')) {
+											if ($scope.edit.firstnameTwin == '' || !$scope.edit.firstnameTwin) {
+												$scope.errorMsg += "Second Newborn's first name cannot be empty.\n";
+											}
+
+											// Check weight
+											if (/^[0-9]{1,4}(\.[0-9]?)?$/.test(String($scope.edit.weightTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's Weight can be up to a 4-digit positive number and potentially one digit of decimal precision.\n"
+											}
+											// Check height
+											if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.lengthTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision.\n"
+											}
+											// Check heartRate
+											if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.heartRateTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's heart Rate can be up to a 3-digit positive number and potentially one digit of decimal precision.\n"
+											}
+											
+											// Check systolic
+											if (/^[0-9]{1,3}$/.test(String($scope.edit.systolicTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's Systolic blood pressure can be up to a 3-digit positive number.\n"
+											}
+											// Check diatolic
+											if (/^[0-9]{1,3}$/.test(String($scope.edit.diastolicTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's Diastolic blood pressure can be up to a 3-digit positive number.\n"
+											}
+										} else {
+											$scope.edit.firstnameTwin = "";
+											$scope.edit.lastnameTwin = "";
+											$scope.edit.weightTwin = 0;
+											$scope.edit.lengthTwin = 0;
+											$scope.edit.heartRateTwin = 0;
+											$scope.edit.systolicTwin = 0;
+											$scope.edit.diastolicTwin = 0;
+										}
+										
+										
+										// Post the record to the REST API endpoint, and handle success/error
+										if($scope.errorMsg == "") {
+												$http
+													.put(
+															"/iTrust2/api/v1/LaborDelivery/" +$scope.edit.id,
+															$scope.edit)
+													.then(
+															function success(
+																	response) {
+																	$scope.message = "Labor and delivery report has been updated successfully";
+																	$scope.errorMsg = "";
+																	document.location.href = '/iTrust2/hcp/editLaborDeliveryReport.html';
+
+															},
+															function failure(
+																	rejection) {
+																$scope
+																		.failUpdate();
+															});
+										}
+										
+										// if second newborn form is cleared or doest not exists
+									} else if ($scope.edit.deliverymethod && !$scope.edit.deliverymethodTwin) {
+										
+										// Only validate first born
+										$scope.validateDate($scope.edit);
+										$scope.edit.laborDate = laborDt;
+										$scope.edit.deliveryDate = deliveryDt;
+										
+										$scope.edit.laborDateTwin = new Date(0, 0, 0, 0, 0, null, null);
+										$scope.edit.deliveryDateTwin = new Date(0, 0, 0, 0, 0, null, null);
+										
+												
+											// If the twin record is actually undefined then set all to empty or 0
+												$scope.edit.firstnameTwin = "";
+												$scope.edit.lastnameTwin = "";
+												$scope.edit.weightTwin = 0;
+												$scope.edit.lengthTwin = 0;
+												$scope.edit.heartRateTwin = 0;
+												$scope.edit.systolicTwin = 0;
+												$scope.edit.diastolicTwin = 0;
+											
+											if(!($scope.edit.deliverymethod == 'Miscarriage')) {
+													if (!$scope.edit.firstname || $scope.edit.firstname == '') {
+														$scope.errorMsg += "First newborn's first name cannot be empty.\n";
+													}
+													// Check weight
+													if (/^[0-9]{1,4}(\.[0-9]?)?$/
+															.test(String($scope.edit.weight)
+																	.replace(/^0+/, '')) == false) {
+														$scope.errorMsg += "First newborn's Weight can be up to a 4-digit positive number and potentially one digit of decimal precision.\n"
+													}
+													// Check height
+													if (/^[0-9]{1,3}(\.[0-9]?)?$/
+															.test(String($scope.edit.length)
+																	.replace(/^0+/, '')) == false) {
+														$scope.errorMsg += "First newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision.\n"
+													}
+													
+													// Check heartRate
+													if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.heartRate).replace(/^0+/, '')) == false) {
+														$scope.errorMsg += "First Newborn's heart Rate can be up to a 3-digit positive number and potentially one digit of decimal precision.\n"
+													}
+													
+													// Check systolic
+													if (/^[0-9]{1,3}$/.test(String(
+															$scope.edit.systolic).replace(
+															/^0+/, '')) == false) {
+														$scope.errorMsg += "First newborn's Systolic blood pressure can be up to a 3-digit positive number.\n"
+													}
+													// Check diatolic
+													if (/^[0-9]{1,3}$/.test(String(
+															$scope.edit.diastolic).replace(
+															/^0+/, '')) == false) {
+														$scope.errorMsg += "First newborn's Diastolic blood pressure can be up to a 3-digit positive number.\n"
+													}	
+											} else {
+												
+												$scope.edit.firstname = "";
+												$scope.edit.lastname = "";
+												$scope.edit.weight = 0;
+												$scope.edit.length = 0;
+												$scope.edit.heartRate = 0;
+												$scope.edit.systolic = 0;
+												$scope.edit.diastolic = 0;
+													
+											}
+											// Post the record to the REST API endpoint, and handle success/error
+											if($scope.errorMsg == "") {
+													$http
+														.put(
+																"/iTrust2/api/v1/LaborDelivery/" +$scope.edit.id,
+																$scope.edit)
+														.then(
+																function success(
+																		response) {
+																		$scope.message = "Labor and delivery report has been updated successfully";
+																		$scope.errorMsg = "";
+																		document.location.href = '/iTrust2/hcp/editLaborDeliveryReport.html';
+
+																},
+																function failure(
+																		rejection) {
+																	$scope
+																			.failUpdate();
+																});
+											}
+											
+											
+											
+									}
+									//  In case first newborn form is cleared or doest not exists (not possible) or user want to save info on second newborn only
+									else if (!$scope.edit.deliverymethod && $scope.edit.deliverymethodTwin) {
+										
+										// only validate second born
+										$scope.validateDateTwin($scope.edit);
+										$scope.edit.laborDateTwin = twinlaborDt;
+										$scope.edit.deliveryDateTwin = twindeliveryDt;
+										
+										$scope.edit.laborDate = new Date(0, 0, 0, 0, 0, null, null);
+										$scope.edit.deliveryDate = new Date(0, 0, 0, 0, 0, null, null);
+										
+										// If the twin record is actually undefined then set all to empty or 0
+										
+											$scope.edit.firstname = "";
+											$scope.edit.lastname = "";
+											$scope.edit.weight = 0;
+											$scope.edit.length = 0;
+											$scope.edit.heartRate = 0;
+											$scope.edit.systolic = 0;
+											$scope.edit.diastolic = 0;
+											
+										
+										if(!($scope.edit.deliverymethodTwin == 'Miscarriage')) {
+											if ($scope.edit.firstnameTwin == '' || !$scope.edit.firstnameTwin) {
+												$scope.errorMsg += "Second Newborn's first name cannot be empty.\n";
+											}
+
+											// Check weight
+											if (/^[0-9]{1,4}(\.[0-9]?)?$/.test(String($scope.edit.weightTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's Weight can be up to a 4-digit positive number and potentially one digit of decimal precision.\n"
+											}
+											// Check height
+											if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.lengthTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's Height/length can be up to a 3-digit positive number and potentially one digit of decimal precision.\n"
+											}
+											// Check heartRate
+											if (/^[0-9]{1,3}(\.[0-9]?)?$/.test(String($scope.edit.heartRateTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's heart Rate can be up to a 3-digit positive number and potentially one digit of decimal precision.\n"
+											}
+											
+											// Check systolic
+											if (/^[0-9]{1,3}$/.test(String($scope.edit.systolicTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's Systolic blood pressure can be up to a 3-digit positive number.\n"
+											}
+											// Check diatolic
+											if (/^[0-9]{1,3}$/.test(String($scope.edit.diastolicTwin).replace(/^0+/, '')) == false) {
+												$scope.errorMsg += "Second Newborn's Diastolic blood pressure can be up to a 3-digit positive number.\n"
+											}
+										} else {
+											
+											$scope.edit.firstnameTwin = "";
+											$scope.edit.lastnameTwin = "";
+											$scope.edit.weightTwin = 0;
+											$scope.edit.lengthTwin = 0;
+											$scope.edit.heartRateTwin = 0;
+											$scope.edit.systolicTwin = 0;
+											$scope.edit.diastolicTwin = 0;
+												
+										}
+										// Post the record to the REST API endpoint, and handle success/error
+										if($scope.errorMsg == "") {
+												$http
+													.put(
+															"/iTrust2/api/v1/LaborDelivery/" +$scope.edit.id,
+															$scope.edit)
+													.then(
+															function success(
+																	response) {
+																	$scope.message = "Labor and delivery report has been updated successfully";
+																	$scope.errorMsg = "";
+																	document.location.href = '/iTrust2/hcp/editLaborDeliveryReport.html';
+
+															},
+															function failure(
+																	rejection) {
+																$scope
+																		.failUpdate();
+															});
+										}
+									
+								} else if (!$scope.edit.deliverymethod && !$scope.edit.deliverymethodTwin) {
+									
+									// If both forms are clear set all to empty and 0
+									// Still keep both patient object
+									$scope.edit.laborDate = new Date(0, 0, 0, 0, 0, null, null);
+									$scope.edit.deliveryDate = new Date(0, 0, 0, 0, 0, null, null);
+									$scope.edit.firstname = "";
+									$scope.edit.lastname = "";
+									$scope.edit.weight = 0;
+									$scope.edit.length = 0;
+									$scope.edit.heartRate = 0;
+									$scope.edit.systolic = 0;
+									$scope.edit.diastolic = 0;
+									
+									
+									
+									$scope.edit.laborDateTwin = new Date(0, 0, 0, 0, 0, null, null);
+									$scope.edit.deliveryDateTwin = new Date(0, 0, 0, 0, 0, null, null);
+									$scope.edit.firstnameTwin = "";
+									$scope.edit.lastnameTwin = "";
+									$scope.edit.weightTwin = 0;
+									$scope.edit.lengthTwin = 0;
+									$scope.edit.heartRateTwin = 0;
+									$scope.edit.systolicTwin = 0;
+									$scope.edit.diastolicTwin = 0;
+									
+									
+										
+										// Post the record to the REST API endpoint, and handle success/error
+										if($scope.errorMsg == "") {
+												$http
+													.put(
+															"/iTrust2/api/v1/LaborDelivery/" +$scope.edit.id,
+															$scope.edit)
+													.then(
+															function success(
+																	response) {
+																	$scope.message = "Labor and delivery report has been updated successfully";
+																	$scope.errorMsg = "";
+																	document.location.href = '/iTrust2/hcp/editLaborDeliveryReport.html';
+
+															},
+															function failure(
+																	rejection) {
+																$scope
+																		.failUpdate();
+															});
+										}
+										
+										
+										
+								}
+										
+									
+								
+							}// end of function	
+					});
+			/*]]>*/
+		</script>
+
+
+
+
+		<div ng-app="myApp" ng-controller="editLaborDeliveryReports" class="row">
+			<div class="col-md-3">
+				<h2>Patients:</h2>
+				<!-- info on filtering taken from here: https://www.w3schools.com/angular/angular_filters.asp
+                    and https://docs.angularjs.org/api/ng/filter/filter -->
+				<h4>
+					Search: <input type="text" name="search" ng-model="searchFilter" />
+				</h4>
+				<!-- Info on scrolling taken from here: https://www.w3schools.com/cssref/pr_pos_overflow.asp -->
+				<!-- and here: https://stackoverflow.com/questions/9560330/how-to-hide-a-vertical-scroll-bar-when-not-needed -->
+				
+					<div class="radio"
+						ng-repeat="patient in patients | filter:filterPatients">
+						<label> <input type="radio" id="{{patient.patient}}"
+							ng-model="$parent.selectedPatient" name="patient"
+							value="{{patient.id}}"
+							ng-click='$parent.selectPatient(patient)' />
+							{{$parent.displayInfo(patient)}}
+						</label>
+					</div>
+				
+			</div>
+
+		<div style="float: left; width: 100%; border-left: 1px solid #bbb; padding-left: 3%; height: 75%; overflow-y: auto">
+			<div class="panel panel-primary">		
+				<div class="panel-heading">
+					<h3>Labor and Delivery Report</h3>
+				</div>				
+				<div ng-if="!selectedPatient">
+					<br><br>
+						Please select a patient for which to view labor and delivery report.
+					</br></br>
+				</div>				
+		
+				<div ng-if="selectedPatient && edit">
+
+							<!-- Single Infant's Information Panel -->
+							<div class="col-md-5" ng-if="!errorMsg">
+								<div class="panel panel-info">
+
+									<div class="panel-heading">
+										<h4>First NewBorn's Information</h4>
+									</div>
+									<div class="panel-body">
+									
+									
+									
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Delivery Method:</label>
+											</div>
+											<div class="col-xs-6">
+												<select class="form-control" ng-model="edit.deliverymethod" id="editdeliverymethod"
+													name="editdeliveryMethod">
+													<option ng-repeat="deliveryMethod in deliveryMethods">{{deliveryMethod}}</option>
+												</select>
+											</div>
+										</div>
+										
+										
+										
+										<div class="form-group row">
+											<div class="col-xs-6">
+													<label for="date">Labor Date:</label>
+											</div>
+												<div class="col-xs-6">
+													<input class="form-control" id="ldate" type="date"
+														ng-model="edit.laborDate" name="ldate"
+														required="true" />
+												</div>
+										</div>
+										
+										<div class="form-group row">
+											<div class="col-xs-6">
+													<label for="date">Labor Time:</label>
+											</div>
+												<div class="col-xs-6">
+													<input class="form-control" id="ltime" type="time"
+														ng-model="edit.laborDate" name="ltime"
+														required="true" />
+												</div>
+										</div>
+										
+										<div class="form-group row">
+											<div class="col-xs-6">
+													<label for="date">Delivery Date:</label>
+											</div>
+												<div class="col-xs-6">
+													<input class="form-control" id="ddate" type="date"
+														ng-model="edit.deliveryDate" name="ddate"
+														required="true" />
+												</div>
+										</div>
+										
+										<div class="form-group row">
+											<div class="col-xs-6">
+													<label for="date">Delivery Time:</label>
+											</div>
+												<div class="col-xs-6">
+													<input class="form-control" id="dtime" type="time"
+														ng-model="edit.deliveryDate" name="dtime"
+														required="true" />
+												</div>
+										</div>
+
+
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>First Name:</label>
+											</div>
+											<div class="col-xs-6">
+												<input class="form-control" name="firstname"
+													ng-model="edit.firstname" required="true" type="text">
+											</div>
+										</div>
+
+
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Last Name:</label>
+											</div>
+											<div class="col-xs-6">
+												<input class="form-control" name="lastname"
+													ng-model="edit.lastname" required="true" type="text">
+											</div>
+										</div>
+
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Weight:</label>
+											</div>
+											<div class="col-xs-6">
+												<div class="input-group">
+													<input class="form-control" name="weight"
+														ng-model="edit.weight" required="true" type="text">
+													<div class="input-group-addon">lbs</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Height/Length:</label>
+											</div>
+											<div class="col-xs-6">
+												<div class="input-group">
+													<input class="form-control" name="length"
+														ng-model="edit.length" required="true" type="text">
+													<div class="input-group-addon">in</div>
+												</div>	
+											</div>
+										</div>
+
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Heart Rate:</label>
+											</div>
+											<div class="col-xs-6">
+												<div class="input-group">	
+													<input class="form-control" name="heartrate"
+														ng-model="edit.heartRate" required="true" type="text">
+													<div class="input-group-addon">BPM</div>
+												</div>	
+											</div>
+										</div>
+
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Systolic:</label>
+											</div>
+											<div class="col-xs-6">
+												<div class="input-group">
+													<input class="form-control" name="systolic"
+														ng-model="edit.systolic" required="true" type="text">
+													<div class="input-group-addon">mmHg</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Diastolic:</label>
+											</div>
+											<div class="col-xs-6">
+												<div class="input-group">
+													<input class="form-control" name="diastolic"
+														ng-model="edit.diastolic" required="true" type="text">
+													<div class="input-group-addon">mmHg</div>
+												</div>
+											</div>
+										</div>
+										
+										<div class="text-right">
+											<button type="submit" class="btn btn-primary btn-lg"
+											ng-click=resetLD() name="resetLD" id="resetLD">Clear</button>
+										</div>
+
+
+									</div>
+								</div>
+							</div>
+
+							<!-- Twin Ineditation Panel -->
+							<div class="col-md-5" ng-if="!errorMsg">
+								<div class="panel panel-info">
+										<div class="panel-heading">
+											<h4>Second Newborn's Information</h4>
+										</div>
+									<div class="panel-body">
+									
+									
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Delivery Method:</label>
+											</div>
+											<div class="col-xs-6">
+												<select class="form-control" ng-model="edit.deliverymethodTwin" id="editdeliverymethodTwin"
+													name="editdeliveryMethodTwin">
+													<option ng-repeat="deliveryMethodt in deliveryMethodsTwin">{{deliveryMethodt}}</option>
+												</select>
+											</div>
+										</div>
+										
+										
+										<div class="form-group row">
+											<div class="col-xs-6">
+													<label for="date">Labor Date:</label>
+											</div>
+												<div class="col-xs-6">
+													<input class="form-control" id="ldateTwin" type="date"
+														ng-model="edit.laborDateTwin" name="ldateTwin"
+														required="true" />
+												</div>
+										</div>
+										
+										<div class="form-group row">
+											<div class="col-xs-6">
+													<label for="date">Labor Time:</label>
+											</div>
+												<div class="col-xs-6">
+													<input class="form-control" id="ltimeTwin" type="time"
+														ng-model="edit.laborDateTwin" name="ltimeTwin"
+														required="true" />
+												</div>
+										</div>
+										
+										<div class="form-group row">
+											<div class="col-xs-6">
+													<label for="date">Delivery Date:</label>
+											</div>
+												<div class="col-xs-6">
+													<input class="form-control" id="ddateTwin" type="date"
+														ng-model="edit.deliveryDateTwin" name="ddateTwin"
+														required="true" />
+												</div>
+										</div>
+										
+										<div class="form-group row">
+											<div class="col-xs-6">
+													<label for="date">Delivery Time:</label>
+											</div>
+												<div class="col-xs-6">
+													<input class="form-control" id="dtimeTwin" type="time"
+														ng-model="edit.deliveryDateTwin" name="dtimeTwin"
+														required="true" />
+												</div>
+										</div>
+										
+										
+										
+
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>First Name:</label>
+											</div>
+											<div class="col-xs-6">
+												<input class="form-control" name="firstnameTwin"
+													ng-model="edit.firstnameTwin" required="true" type="text">
+											</div>
+										</div>
+
+
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Last Name:</label>
+											</div>
+											<div class="col-xs-6">
+												<input class="form-control" name="lastnameTwin"
+													ng-model="edit.lastnameTwin" required="true" type="text">
+											</div>
+										</div>
+
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Weight:</label>
+											</div>
+											<div class="col-xs-6">
+												<div class="input-group">
+													<input class="form-control" name="weightTwin"
+														ng-model="edit.weightTwin" required="true" type="text">
+													<div class="input-group-addon">lbs</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Height/Length:</label>
+											</div>
+											<div class="col-xs-6">
+												<div class="input-group">
+													<input class="form-control" name="lengthTwin"
+														ng-model="edit.lengthTwin" required="true" type="text">
+													<div class="input-group-addon">in</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Heart Rate:</label>
+											</div>
+											<div class="col-xs-6">
+												<div class="input-group">
+													<input class="form-control" name="heartrateTwin"
+														ng-model="edit.heartRateTwin" required="true" type="text">
+													<div class="input-group-addon">BPM</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Systolic:</label>
+											</div>
+											<div class="col-xs-6">
+												<div class="input-group">
+													<input class="form-control" name="systolicTwin"
+														ng-model="edit.systolicTwin" required="true" type="text">
+													<div class="input-group-addon">mmHg</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Diastolic:</label>
+											</div>
+											<div class="col-xs-6">
+												<div class="input-group">
+													<input class="form-control" name="diastolicTwin"
+														ng-model="edit.diastolicTwin" required="true" type="text">
+													<div class="input-group-addon">mmHg</div>
+												</div>
+											</div>
+										</div>
+										
+										
+										<div class="text-right">
+											<button type="submit" class="btn btn-primary btn-lg"
+											ng-click=resetLDTwin() name="resetLDTwin" id="resetLDTwin">Clear</button>
+										</div>
+										
+										
+										
+										
+
+									</div>
+								</div>
+							</div>
+							
+							
+							
+							
+							<div class="col-md-10" ng-if="errorMsg">
+								<div class="panel panel-info">
+
+									<div class="panel-heading">
+										<h4>Message</h4>
+									</div>
+									
+									<div class="panel-body">
+										
+										<div class="form-group">
+											<div name="errorMsg" class="text-danger" style="white-space: pre;">{{errorMsg}}</div>
+											<div class="text-center">
+												<button type="submit" class="btn btn-primary btn-lg"
+												ng-click=backLD() name="backLD" id="backLD">Back</button>
+											</div>
+										</div>	
+
+									</div>
+								</div>
+							</div>
+					
+					
+					
+					
+				</div>
+				<!--  end of form -->
+					
+				
+				</div>
+				
+					<div class="panel-footer text-right"
+						ng-if="selectedPatient && edit && !errorMsg">
+						<button type="submit" class="btn btn-primary btn-lg"
+							ng-click=updateLD() name="updateLD" id="updateLD">Update
+							Labor and Delivery Report</button>
+					</div>
+
+						
+					
+					
+				</div>
+			</div>
+		</div>
+
+	
+	
+</body>
+</html>
