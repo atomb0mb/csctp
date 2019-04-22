@@ -317,8 +317,11 @@ public class HibernateDataGenerator {
         jessica.setSelf( jessicaUser );
         jessica.setLastName( "Lim" );
         jessica.setGender( Gender.Female );
-        jessica.setDateOfBirth( LocalDate.now().minusYears( 37 ) ); // 37 years
+        // advanced maternal age
+        jessica.setDateOfBirth( LocalDate.now().minusYears( 50 ) ); // 50 years
                                                                     // old
+        // RH- Flag
+        jessica.setBloodType( BloodType.ABNeg );
 
         jessica.save();
 
