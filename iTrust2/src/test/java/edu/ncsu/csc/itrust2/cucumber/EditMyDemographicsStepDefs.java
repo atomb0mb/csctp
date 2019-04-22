@@ -128,6 +128,13 @@ public class EditMyDemographicsStepDefs extends CucumberTest {
         driver.get( baseUrl );
         ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('editdemographics-patient').click()" );
         waitForAngular();
+        try {
+            Thread.sleep( 2000 );
+        }
+        catch ( final InterruptedException e ) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         final WebElement firstName = driver.findElement( By.id( "firstName" ) );
         assertEquals( firstName.getAttribute( "value" ), "Karl" );
         final WebElement address = driver.findElement( By.id( "address1" ) );
